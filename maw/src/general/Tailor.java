@@ -2,7 +2,7 @@ package general;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Random;
+import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
@@ -28,38 +28,39 @@ public class Tailor extends JPanel {
 	@Override
 	public void paint(Graphics g) {
 
-		g.setColor(Color.GRAY);
+		g.setColor(Color.DARK_GRAY);
 		g.fillRect(0, 0, getWidth(), getHeight());
-		//
-		// g.setColor(Color.LIGHT_GRAY);
-		// g.drawString("asdasd", 6, 6);
-		//
-		// LinkedList<Node> nlist = ivory.getNodesClone();
-		// for (Node node : nlist) {
-		// g.fillOval(node.getX(), node.getY(), 5, 5);
-		// }
-		//
-		// LinkedList<NodeConnection> clist = ivory.getConnectionsClone();
-		// int mexer = 20;
-		// for (NodeConnection c : clist) {
-		// for (int i = 0; i < 30; i++) {
-		//
-		// g.setColor(c.getNode1().getColor());
-		// g.drawLine(c.getNode1().getX() + (int) (Math.random() * mexer),
-		// c.getNode1().getY() + (int) (Math.random() * mexer), c
-		// .getNode2().getX()
-		// + (int) (Math.random() * mexer), c.getNode2()
-		// .getY() + (int) (Math.random() * mexer));
-		// }
-		// }
+
+		g.setColor(Color.LIGHT_GRAY);
+		g.drawString("asdasd", 6, 6);
+
+		LinkedList<Node> nlist = ivory.getNodesClone();
+		for (Node node : nlist) {
+			g.fillOval(node.getX(), node.getY(), 5, 5);
+		}
+
+		LinkedList<NodeConnection> clist = ivory.getConnectionsClone();
+		int mexer = 25;
+		for (NodeConnection c : clist) {
+			for (int i = 0; i < 30; i++) {
+
+				g.setColor(c.getNode1().getColor());
+				g.drawLine(c.getNode1().getX() + (int) (Math.random() * mexer),
+						c.getNode1().getY() + (int) (Math.random() * mexer), c
+								.getNode2().getX()
+								+ (int) (Math.random() * mexer), c.getNode2()
+								.getY() + (int) (Math.random() * mexer));
+			}
+		}
+
 		// byte[] a = { 0, 1 };
-		byte[] table = new byte[getWidth() * getHeight()];
-		Random r = new Random();
+		// byte[] table = new byte[getWidth() * getHeight()];
+		// Random r = new Random();
 		// for (int i = 0; i < table.length; i++) {
 		// table[i] = r.nextBytes(a);
 		// }
-		r.nextBytes(table);
-		g.drawBytes(table, 0, 0, getWidth(), getHeight());
+		// r.nextBytes(table);
+		// g.drawBytes(table, 0, 0, getWidth(), getHeight());
 
 		// for (int row = 0; row < getWidth(); row++) {
 		// for (int col = 0; col < getHeight(); col++) {

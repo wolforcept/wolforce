@@ -17,7 +17,7 @@ import javax.swing.JFrame;
 
 public class Launcher extends Thread {
 
-	public static final Dimension SIZE = new Dimension(640, 640);
+	public static final Dimension SIZE = new Dimension(1680	, 1050);
 
 	public static void main(String[] args) {
 		Launcher launcher = new Launcher();
@@ -84,7 +84,7 @@ public class Launcher extends Thread {
 
 	private void generateNodes() {
 
-		int number = 10 + (int) (10 * Math.random());
+		int number = 80 + (int) (10 * Math.random());
 
 		for (int i = 0; i < number; i++) {
 
