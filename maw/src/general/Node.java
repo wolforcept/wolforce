@@ -70,7 +70,7 @@ public class Node {
 	}
 
 	public Color getColor() {
-		return new Color(r,  (int) (Math.random() * 255),255 - r);
+		return new Color(r, (int) (Math.random() * 255), 255 - r);
 	}
 
 }

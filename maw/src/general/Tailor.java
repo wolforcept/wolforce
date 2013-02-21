@@ -40,7 +40,7 @@ public class Tailor extends JPanel {
 		}
 
 		LinkedList<NodeConnection> clist = ivory.getConnectionsClone();
-		int mexer = 25;
+		int mexer = 20;
 		for (NodeConnection c : clist) {
 			for (int i = 0; i < 30; i++) {
 
