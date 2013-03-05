@@ -1,39 +1,67 @@
 package general;
 
+import java.awt.Point;
 import java.util.LinkedList;
 
 public class Ivory {
 
+	private static int thickness = 25;
+	private static int transparency = 50;
+	private int mousex, mousey;
+
 	private LinkedList<Node> nodes;
-	private LinkedList<NodeConnection> connections;
+	private LinkedList<Ball> balls;
 
 	public Ivory() {
 
 		nodes = new LinkedList<Node>();
-		connections = new LinkedList<NodeConnection>();
-
+		balls = new LinkedList<Ball>();
+		mousex = mousey = 0;
 	}
 
 	public void addNode(Node node) {
-
 		nodes.add(node);
+	}
 
+	public LinkedList<Ball> getBallsClone() {
+		return new LinkedList<Ball>(balls);
+	}
+
+	public void addBall(Ball ball) {
+		balls.add(ball);
 	}
 
 	public LinkedList<Node> getNodesClone() {
 		return new LinkedList<Node>(nodes);
 	}
 
-	public LinkedList<NodeConnection> getConnectionsClone() {
-		return new LinkedList<NodeConnection>(connections);
+	public void connect(Node node1, Node node2) {
+		node1.connectTo(node2);
 	}
 
-	public void connect(Node node1, Node node2) {
+	public void setMouse(int x, int y) {
+		mousex = x;
+		mousey = y;
+	}
 
-		NodeConnection conn = new NodeConnection(node1, node2);
+	public int getMousex() {
+		return mousex;
+	}
 
-		connections.add(conn);
+	public int getMousey() {
+		return mousey;
+	}
 
+	public Point getMouse() {
+		return new Point(mousex, mousey);
+	}
+
+	public static int getThickness() {
+		return thickness;
+	}
+
+	public static int getTransparency() {
+		return transparency;
 	}
 
 }

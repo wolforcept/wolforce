@@ -1,29 +1,29 @@
 package general;
 
 import java.awt.Color;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class Node {
 
 	private int x, y;
 	private String name;
 
-	// private boolean movingLeft;
-	// private int initX;
-	// private double direction;
-
-	private int r, g, b;
+	private int colorVariable;// , g, b;
 	private boolean augmenting;
+	private LinkedList<Node> connections;
+	// private Ivory ivory;
+	private LinkedList<Particle> particles;
 
-	public Node(int xx, int yy) {
+	public Node(int xx, int yy) {// , Ivory ivory) {
 		x = xx;
 		y = yy;
-		// direction = Math.PI * 2 * Math.random();
-		// movingLeft = x > 320;
-		// initX = x - 320;
 		augmenting = true;
-		r = (int) (Math.random() * 255);
-		g = (int) (Math.random() * 255);
-		b = (int) (Math.random() * 255);
+		colorVariable = (int) (Math.random() * 255);
+		connections = new LinkedList<Node>();
+		// this.ivory = ivory;
+		particles = new LinkedList<Particle>();
+
 	}
 
 	public int getX() {
@@ -38,39 +38,70 @@ public class Node {
 		return name;
 	}
 
-	public void update() {
+	public void step() {
 
 		if (Math.random() > 0.5) {
 			if (augmenting) {
-				r++;
-				if (r >= 255)
+				colorVariable++;
+				if (colorVariable >= 255)
 					augmenting = false;
 			} else {
-				r--;
-				if (r <= 0)
+				colorVariable--;
+				if (colorVariable <= 0)
 					augmenting = true;
 			}
 		}
-		// System.out.println("red:"+r);
-		// x += Math.cos(direction);
-		// y += Math.sin(direction);
 
-		// if(movingLeft){
-		// x*=0.99;
-		//
-		// if(x<320-initX)
-		// movingLeft=false;
-		//
-		// }else {
-		// x*=1.01;
-		// if(x>320+initX)
-		// movingLeft=true;
-		// }
+		LinkedList<Node> conns = getConnectionsClone();
+		for (Node n : conns) {
+
+			if (Math.random() < 0.1) {
+
+				Particle p = new Particle(
+						x + (int) (Math.random() * Ivory.getThickness()),//
+						y + (int) (Math.random() * Ivory.getThickness()), //
+						n.getX() + (int) (Math.random() * Ivory.getThickness()), //
+						n.getY() + (int) (Math.random() * Ivory.getThickness()),
+						getColor());
+				particles.add(p);
+
+			}
+		}
+
+		for (Iterator<Particle> iterator = particles.iterator(); iterator
+				.hasNext();) {
+			Particle p = (Particle) iterator.next();
+			p.step();
+			if (p.isRemoved())
+				iterator.remove();
+		}
 
 	}
 
 	public Color getColor() {
-		return new Color(r, (int) (Math.random() * 255), 255 - r);
+		return new Color(colorVariable, (int) (Math.random() * 255),
+				255 - colorVariable);
 	}
 
+	public void connectTo(Node node) {
+		connections.add(node);
+	}
+
+	public LinkedList<Node> getConnectionsClone() {
+		return new LinkedList<Node>(connections);
+	}
+
+	public boolean isConnected(Node node1) {
+
+		LinkedList<Node> conns = getConnectionsClone();
+		for (Node node : conns) {
+			if (node.equals(node1))
+				return true;
+		}
+		return false;
+	}
+
+	public LinkedList<Particle> getParticleListClone() {
+		return new LinkedList<Particle>(particles);
+	}
 }
