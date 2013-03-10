@@ -54,9 +54,15 @@ public class Controller {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON3) {
-					movePlayer(
-							Math.min(Ivory.WIDTH-1, e.getX() / Ivory.CELL_SIZE),
-							Math.min(Ivory.HEIGHT-1, e.getY() / Ivory.CELL_SIZE));
+					askMovePlayer(ivory.getSelectedPlayer(),
+							Math.max(
+									0,
+									Math.min(Ivory.WIDTH - 1, e.getX()
+											/ Ivory.CELL_SIZE)),
+							Math.max(
+									0,
+									Math.min(Ivory.HEIGHT - 1, e.getY()
+											/ Ivory.CELL_SIZE)));
 				}
 			}
 
@@ -102,15 +108,7 @@ public class Controller {
 
 	}
 
-	private void movePlayer(int xx, int yy) {
-		Player selected;
-		if (ivory.getSelected()) {
-			selected = (Player) ivory.getGameObject("magus");
-		} else {
-			selected = (Player) ivory.getGameObject("champion");
-		}
-		int x = selected.getX();
-		int y = selected.getY();
-		ivory.move(x, y, xx, yy);
+	private void askMovePlayer(Player player, int tx, int ty) {
+		player.addPath(new Path(player.getX(), player.getY(), tx, ty, ivory));
 	}
 }

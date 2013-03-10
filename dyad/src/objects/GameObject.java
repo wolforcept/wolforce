@@ -47,6 +47,8 @@ public class GameObject {
 			return new Wall(1, x, y);
 		case "spiral":
 			return new Spiral(360, x, y);
+		case "door":
+			return new Door(360, x, y);
 		default:
 			return null;
 		}

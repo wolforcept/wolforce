@@ -3,8 +3,10 @@ package general;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.LinkedList;
 
 import objects.Champion;
+import objects.Door;
 import objects.GameObject;
 import objects.Magus;
 import objects.Player;
@@ -17,16 +19,17 @@ public class Ivory {
 	public static int WIDTH = 6, HEIGHT = 6, CELL_SIZE = 40;
 	private Point mouse;
 
-	private GameObject[][] field;
+	private LinkedList<GameObject> objectList;
 
 	private boolean selected;
 
 	private Magus magus;
 	private Champion champion;
+	private Door door;
 
 	public Ivory(int levelNumber) {
 
-		field = new GameObject[WIDTH][HEIGHT];
+		objectList = new LinkedList<>();
 
 		mouse = new Point(0, 0);
 
@@ -38,13 +41,19 @@ public class Ivory {
 			int x = Integer.parseInt(ObjectsToAdd[i].charAt(0) + "", 10);
 			int y = Integer.parseInt(ObjectsToAdd[i].charAt(1) + "", 10);
 
-			field[x][y] = GameObject.makeByName(name, x, y);
-			if (name.equals("champion")) {
-				champion = (Champion) field[x][y];
+			GameObject objectToAdd = GameObject.makeByName(name, x, y);
+			objectList.add(objectToAdd);
+
+			if (objectToAdd instanceof Champion) {
+				champion = (Champion) objectToAdd;
 				selected = true;
 			}
-			if (name.equals("magus")) {
-				magus = (Magus) field[x][y];
+			if (objectToAdd instanceof Magus) {
+				magus = (Magus) objectToAdd;
+				selected = false;
+			}
+			if (objectToAdd instanceof Door) {
+				magus = (Door) objectToAdd;
 				selected = false;
 			}
 
@@ -52,8 +61,8 @@ public class Ivory {
 
 	}
 
-	public GameObject[][] getField() {
-		return field;
+	public LinkedList<GameObject> getObjectListClone() {
+		return new LinkedList<GameObject>(objectList);
 	}
 
 	public Magus getMagus() {
@@ -62,17 +71,6 @@ public class Ivory {
 
 	public Champion getChampion() {
 		return champion;
-	}
-
-	public GameObject getGameObject(String name) {
-		for (int i = 0; i < field.length; i++) {
-			for (int j = 0; j < field[i].length; j++) {
-				if (field[i][j] != null && name.equals(field[i][j].getName())) {
-					return field[i][j];
-				}
-			}
-		}
-		return null;
 	}
 
 	public void setMouse(Point mouse) {
@@ -97,6 +95,13 @@ public class Ivory {
 
 	public boolean getSelected() {
 		return selected;
+	}
+
+	public Player getSelectedPlayer() {
+		if (getSelected()) {
+			return (Player) getGameObject("magus");
+		}
+		return (Player) getGameObject("champion");
 	}
 
 	public void toggleSelected() {
