@@ -1,5 +1,6 @@
 package general;
 
+import java.awt.event.MouseEvent;
 
 public class Auxi {
 
@@ -13,4 +14,13 @@ public class Auxi {
 		return Math.atan2((y1 - y2), (x2 - x1));
 	}
 
+	public static boolean collides(MouseEvent e, Button b) {
+		int x1 = e.getX(), x2 = b.getX();
+		int y1 = e.getY(), y2 = b.getY();
+		int s = 40;
+
+		if (x1 > x2 && y1 > y2 && x1 < x2 + s && y1 < y2 + s)
+			return true;
+		return false;
+	}
 }

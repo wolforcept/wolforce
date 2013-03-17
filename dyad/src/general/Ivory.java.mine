@@ -36,11 +36,8 @@ public class Ivory {
 
 		buttons = new LinkedList<Button>();
 
-		SpellType[] vals = SpellType.values();
-		for (int i = 0; i < vals.length; i++) {
-			Button b = new Button(CELL_SIZE * 7, CELL_SIZE * i, vals[i]);
-			buttons.add(b);
-		}
+		Button fireButton = new Button(40 * 7, 40, "fire");
+		buttons.add(fireButton);
 
 		spells = new LinkedList<Spell>();
 
@@ -146,14 +143,14 @@ public class Ivory {
 	}
 
 	public void use() {
-		Point[] a = u.getSpellType().getArea();
+		Point[] a = u.getArea();
 		for (int i = 0; i < a.length; i++) {
 			int xx = a[i].x;
 			int yy = a[i].y;
-			xx += (int) (mouse.x / CELL_SIZE);
-			yy += (int) (mouse.y / CELL_SIZE);
+			xx += (int) (mouse.x / 40);
+			yy += (int) (mouse.y / 40);
 
-			if (xx < field.length && xx >= 0 && yy < field[0].length && yy >= 0)
+			if (xx < field.length && xx > 0 && yy < field[0].length && yy > 0)
 				spells.add(new Spell(u.getSpellType(), xx, yy));
 		}
 

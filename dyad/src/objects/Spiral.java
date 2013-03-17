@@ -2,8 +2,13 @@ package objects;
 
 public class Spiral extends GameObject {
 
-	public Spiral(int numberOfImages, int x, int y) {
-		super("spiral", numberOfImages, x, y);
+	public Spiral(int x, int y) {
+		super("spiral", x, y);
+	}
+
+	@Override
+	public int getStrength() {
+		return 5;
 	}
 
 }

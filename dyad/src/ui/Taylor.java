@@ -1,7 +1,8 @@
 package ui;
 
-import general.Auxi;
+import general.Button;
 import general.Ivory;
+import general.Spell;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,6 +11,7 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 
+import objects.Champion;
 import objects.GameObject;
 import objects.Magus;
 
@@ -33,12 +35,18 @@ public class Taylor extends JPanel {
 	@Override
 	public void update(Graphics g) {
 		try {
-
-			// g.setColor(new Color(0.2f, 0.2f, 0.2f, 0.01f));
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
-			int cellSize = Ivory.CELL_SIZE;
+			for (Button b : ivory.getButtons()) {
+				g.drawImage(
+						data.getImages(b.getName()).getImage(
+								b.getCurrentImage()), b.getX(), b.getY(), this);
+
+			}
+			// g.setColor(new Color(0.2f, 0.2f, 0.2f, 0.01f));
+
+			int cz = Ivory.CELL_SIZE;
 			GameObject[][] field = ivory.getField();
 
 			for (int i = 0; i < field.length; i++) {
@@ -49,38 +57,59 @@ public class Taylor extends JPanel {
 						obj.incrementImage();
 						String s = obj.getClass().getSimpleName().toString()
 								.toLowerCase();
+
+						if ((obj instanceof Magus && ivory.getSelected())
+								|| (obj instanceof Champion && !ivory
+										.getSelected())) {
+							g.setColor(Color.WHITE);
+							g.drawOval(i * cz, j * cz, cz, cz);
+							/*
+							 * g.setColor(Color.BLACK); g.fillOval(i * cellSz+2,
+							 * j * cellSz+2, cellSz-4, cellSz-4); for (int k =
+							 * 0; k < 12; k += 2) { g.drawOval(i * cellSz + k, j
+							 * cellSz + k, cellSz - k * 2, cellSz - k * 2); }
+							 */
+						}
 						g.drawImage(
 								data.getImages(s).getImage(
-										obj.getCurrentImage()), i * cellSize, j
-										* cellSize, this);
-
-						if (obj instanceof Magus) {
-
-							Point m = ivory.getMouse();
-
-							double dis = Auxi.point_distance(
-							//
-									i * cellSize + cellSize / 2,//
-									j * cellSize + cellSize / 2,//
-									m.getX(), m.getY());
-
-							if (dis < cellSize) {
-								g.drawLine((int) m.getX(), (int) m.getY(), i
-										* cellSize + cellSize / 2,//
-										j * cellSize + cellSize / 2);
-							}
-
-						}
+										obj.getCurrentImage()), i * cz, j * cz,
+								this);
 
 					}
 					g.setColor(new Color(1f, 1f, 1f, 0.2f));
 
-					g.drawRect(i * cellSize, j * cellSize, cellSize, cellSize);
+					g.drawRect(i * cz, j * cz, cz, cz);
 
 				}
 			}
+
+			for (Spell s : ivory.getSpellsClone()) {
+				g.drawImage(
+						data.getImages(s.getName()).getImage(
+								s.getCurrentImage()), s.getX() * cz, s.getY()
+								* cz, this);
+			}
+
+			g.setColor(new Color(255, 0, 0, 50));
+			if (ivory.using()) {
+				Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
+				for (int i = 0; i < a.length; i++) {
+					int xx = a[i].x;
+					int yy = a[i].y;
+					if (getMousePosition() != null) {
+						int mx = 40 * (int) (getMousePosition().x / 40);
+						int my = 40 * (int) (getMousePosition().y / 40);
+						int xxx = mx + xx * cz;
+						int yyy = my + yy * cz;
+						// TODO if (xxx > 0 && yyy > 0)
+						g.fillRect(xxx, yyy, cz, cz);
+					}
+				}
+			}
+
 		} catch (Exception e) {
-			System.err.println("UI Update Failed");
+			System.err.println("UI Update Failed.");
+			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
 	}

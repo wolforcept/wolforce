@@ -4,14 +4,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
 import javax.swing.JFrame;
 
 import objects.Player;
+
 import ui.Taylor;
-import ui.TaylorData;
 
 public class Controller {
 
@@ -21,8 +20,6 @@ public class Controller {
 
 	public Controller() throws IOException {
 
-		TaylorData.init();
-		
 		frame = new JFrame("Dyad");
 
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,61 +44,24 @@ public class Controller {
 				if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 					ivory.toggleSelected();
 				}
-
-				switch (e.getKeyCode()) {
-
-				case KeyEvent.VK_W:
-					movePlayer(0, -1);
-					break;
-
-				case KeyEvent.VK_S:
-					movePlayer(0, 1);
-					break;
-
-				case KeyEvent.VK_A:
-					movePlayer(-1, 0);
-					break;
-
-				case KeyEvent.VK_D:
-					movePlayer(1, 0);
-					break;
-
-				}
 			}
 		});
 
 		taylor = new Taylor(ivory);
 
-		taylor.addMouseMotionListener(new MouseMotionListener() {
-
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				ivory.setMouse(e.getPoint());
-			}
-
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				mouseMoved(e);
-			}
-		});
 		taylor.addMouseListener(new MouseListener() {
 
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				if (ivory.using()) {
-					ivory.use();
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					movePlayer(
+							Math.min(Ivory.WIDTH-1, e.getX() / Ivory.CELL_SIZE),
+							Math.min(Ivory.HEIGHT-1, e.getY() / Ivory.CELL_SIZE));
 				}
 			}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
-					for (Button b : ivory.getButtons()) {
-						if (Auxi.collides(e, b)) {
-							ivory.using(b.getSpell());
-						}
-					}
-				}
+			public void mousePressed(MouseEvent arg0) {
 			}
 
 			@Override
@@ -125,7 +85,6 @@ public class Controller {
 				try {
 					while (true) {
 						setName("Updater");
-						ivory.updateSpells();
 						taylor.repaint();
 						sleep(1000 / Ivory.REFRESH_FREQUENCY);
 					}
@@ -152,7 +111,6 @@ public class Controller {
 		}
 		int x = selected.getX();
 		int y = selected.getY();
-
-		ivory.move(x, y, x + xx, y + yy);
+		ivory.move(x, y, xx, yy);
 	}
 }

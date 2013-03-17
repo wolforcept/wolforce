@@ -2,8 +2,8 @@ package objects;
 
 public class Magus extends Player {
 
-	public Magus(int numberOfImages, int x, int y) {
-		super("magus", numberOfImages, x, y);
+	public Magus(int x, int y) {
+		super("magus", x, y);
 	}
 
 }

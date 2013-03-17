@@ -2,12 +2,13 @@ package general;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.awt.event.MouseEvent;
 
 import objects.Champion;
 import objects.GameObject;
 import objects.Magus;
+import objects.Player;
+import general.Level;
 
 public class Ivory {
 
@@ -22,9 +23,6 @@ public class Ivory {
 
 	private Magus magus;
 	private Champion champion;
-	private LinkedList<Button> buttons;
-	private LinkedList<Spell> spells;
-	private TargetingSpell u;
 
 	public Ivory(int levelNumber) {
 
@@ -33,16 +31,6 @@ public class Ivory {
 		mouse = new Point(0, 0);
 
 		String[] ObjectsToAdd = Level.getLevel(levelNumber);
-
-		buttons = new LinkedList<Button>();
-
-		SpellType[] vals = SpellType.values();
-		for (int i = 0; i < vals.length; i++) {
-			Button b = new Button(CELL_SIZE * 7, CELL_SIZE * i, vals[i]);
-			buttons.add(b);
-		}
-
-		spells = new LinkedList<Spell>();
 
 		for (int i = 0; i < ObjectsToAdd.length; i++) {
 
@@ -59,26 +47,9 @@ public class Ivory {
 				magus = (Magus) field[x][y];
 				selected = false;
 			}
+
 		}
-	}
 
-	public void updateSpells() {
-
-		for (Iterator<Spell> iterator = spells.iterator(); iterator.hasNext();) {
-			Spell a = (Spell) iterator.next();
-
-			if (a.getCurrentImage() == a.getNumberOfImages()) {
-				if (a.interact(field[a.getX()][a.getY()])) {
-					field[a.getX()][a.getY()] = null;
-				}
-				iterator.remove();
-			}
-			a.incrementImage();
-		}
-	}
-
-	public LinkedList<Button> getButtons() {
-		return buttons;
 	}
 
 	public GameObject[][] getField() {
@@ -114,11 +85,6 @@ public class Ivory {
 	}
 
 	public boolean move(int x1, int y1, int x2, int y2) {
-
-		if (x2 < 0 || y2 < 0 || x2 > field.length - 1
-				|| y2 > field[0].length - 1)
-			return false;
-
 		if (field[x2][y2] == null) {
 			field[x2][y2] = field[x1][y1];
 			field[x2][y2].setPos(x2, y2);
@@ -135,36 +101,6 @@ public class Ivory {
 
 	public void toggleSelected() {
 		selected = selected ? false : true;
-	}
-
-	public void using(TargetingSpell u) {
-		this.u = u;
-	}
-
-	public boolean using() {
-		return u != null;
-	}
-
-	public void use() {
-		Point[] a = u.getSpellType().getArea();
-		for (int i = 0; i < a.length; i++) {
-			int xx = a[i].x;
-			int yy = a[i].y;
-			xx += (int) (mouse.x / CELL_SIZE);
-			yy += (int) (mouse.y / CELL_SIZE);
-
-			if (xx < field.length && xx >= 0 && yy < field[0].length && yy >= 0)
-				spells.add(new Spell(u.getSpellType(), xx, yy));
-		}
-
-		u = null;
-	}
-
-	public TargetingSpell getTargetingSpell() {
-		return u;
-	}
-
-	public LinkedList<Spell> getSpellsClone() {
-		return new LinkedList<Spell>(spells);
+		System.out.println("selected is: " + selected);
 	}
 }

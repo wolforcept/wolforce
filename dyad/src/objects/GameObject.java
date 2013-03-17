@@ -1,15 +1,20 @@
 package objects;
 
-public class GameObject {
+import ui.TaylorData;
 
-	private int numberOfImages, currentImage;
+public abstract class GameObject {
+
+	ObjectType type;
+
+	private int currentImage;
 	private String name;
+	int numberOfImages;
 	int x, y;
 
-	public GameObject(String name, int numberOfImages, int x, int y) {
+	public GameObject(String name, int x, int y) {
 		this.name = name;
 		currentImage = 0;
-		this.numberOfImages = numberOfImages;
+		numberOfImages = TaylorData.getNumberOfImages(name);
 		this.x = x;
 		this.y = y;
 
@@ -40,15 +45,15 @@ public class GameObject {
 
 		switch (name) {
 		case "magus":
-			return new Magus(1, x, y);
+			return new Magus(x, y);
 		case "champion":
-			return new Champion(1, x, y);
-		case "wall":
-			return new Wall(1, x, y);
+			return new Champion(x, y);
+		case "woodwall":
+			return new Wall(x, y, "wood");
 		case "spiral":
-			return new Spiral(360, x, y);
+			return new Spiral(x, y);
 		case "door":
-			return new Door(360, x, y);
+			return new Door(x, y);
 		default:
 			return null;
 		}
@@ -59,4 +64,9 @@ public class GameObject {
 		return name;
 	}
 
+	public int getNumberOfImages() {
+		return numberOfImages;
+	}
+
+	public abstract int getStrength();
 }

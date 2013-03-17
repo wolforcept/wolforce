@@ -1,10 +1,14 @@
 package objects;
 
-
 public class Door extends GameObject {
 
-	public Door(int numberOfImages, int x, int y) {
-		super("door", numberOfImages, x, y);
+	public Door(int x, int y) {
+		super("door", x, y);
+	}
+
+	@Override
+	public int getStrength() {
+		return 5;
 	}
 
 }

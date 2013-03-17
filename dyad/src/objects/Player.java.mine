@@ -6,9 +6,4 @@ public class Player extends GameObject {
 		super(name, x, y);
 	}
 
-	@Override
-	public int getStrength() {
-		return 8;
-	}
-
 }
