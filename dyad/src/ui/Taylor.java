@@ -11,9 +11,12 @@ import java.io.IOException;
 
 import javax.swing.JPanel;
 
+import auxis.Auxi;
+
 import objects.Champion;
 import objects.GameObject;
 import objects.Magus;
+import objects.Player;
 
 public class Taylor extends JPanel {
 
@@ -92,17 +95,43 @@ public class Taylor extends JPanel {
 
 			g.setColor(new Color(255, 0, 0, 50));
 			if (ivory.using()) {
+
 				Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
-				for (int i = 0; i < a.length; i++) {
-					int xx = a[i].x;
-					int yy = a[i].y;
+
+				if (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
+					for (int i = 0; i < a.length; i++) {
+						int xx = a[i].x;
+						int yy = a[i].y;
+						if (getMousePosition() != null) {
+							int mx = 40 * (int) (getMousePosition().x / 40);
+							int my = 40 * (int) (getMousePosition().y / 40);
+							int xxx = mx + xx * cz;
+							int yyy = my + yy * cz;
+							// if (xxx > 0 && yyy > 0 && xxx < ivory.WIDTH * cz
+							// && yyy < ivory.HEIGHT * cz)
+							g.fillRect(xxx, yyy, cz, cz);
+						}
+					}
+				} else {
+					Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+							.getChampion();
+					double gx = p.getX() * cz + cz / 2;
+					double gy = p.getX() * cz + cz / 2;
+
 					if (getMousePosition() != null) {
-						int mx = 40 * (int) (getMousePosition().x / 40);
-						int my = 40 * (int) (getMousePosition().y / 40);
-						int xxx = mx + xx * cz;
-						int yyy = my + yy * cz;
-						// TODO if (xxx > 0 && yyy > 0)
-						g.fillRect(xxx, yyy, cz, cz);
+						int dir = Auxi.getDirFromAngle(Math.toDegrees(Auxi
+								.point_direction(gx, gy, getMousePosition().x,
+										getMousePosition().y)));
+
+						Auxi.rotatePointMatrixWithDir(a, dir);
+
+						for (int i = 0; i < a.length; i++) {
+							int xx = p.getX() + a[i].x;
+							int yy = p.getY() + a[i].y;
+							// if (xx > 0 && yy > 0 && xx < ivory.WIDTH * cz &&
+							// yy < ivory.HEIGHT * cz)
+							g.fillRect(xx * cz, yy * cz, cz, cz);
+						}
 					}
 				}
 			}

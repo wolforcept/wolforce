@@ -5,9 +5,12 @@ import java.awt.Point;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import auxis.Auxi;
+
 import objects.Champion;
 import objects.GameObject;
 import objects.Magus;
+import objects.Player;
 
 public class Ivory {
 
@@ -147,16 +150,39 @@ public class Ivory {
 
 	public void use() {
 		Point[] a = u.getSpellType().getArea();
-		for (int i = 0; i < a.length; i++) {
-			int xx = a[i].x;
-			int yy = a[i].y;
-			xx += (int) (mouse.x / CELL_SIZE);
-			yy += (int) (mouse.y / CELL_SIZE);
 
-			if (xx < field.length && xx >= 0 && yy < field[0].length && yy >= 0)
-				spells.add(new Spell(u.getSpellType(), xx, yy));
+		if (u.getSpellType().isAnywhere()) {
+			for (int i = 0; i < a.length; i++) {
+				int xx = a[i].x;
+				int yy = a[i].y;
+				xx += (int) (mouse.x / CELL_SIZE);
+				yy += (int) (mouse.y / CELL_SIZE);
+
+				if (xx < field.length && xx >= 0 && yy < field[0].length
+						&& yy >= 0)
+					spells.add(new Spell(u.getSpellType(), xx, yy));
+			}
+		} else {
+
+			Player p = selected ? getMagus() : getChampion();
+			double gx = p.getX() * CELL_SIZE + CELL_SIZE / 2;
+			double gy = p.getX() * CELL_SIZE + CELL_SIZE / 2;
+
+			int dir = Auxi.getDirFromAngle(Math.toDegrees(Auxi.point_direction(
+					gx, gy, mouse.x, mouse.y)));
+
+			Auxi.rotatePointMatrixWithDir(a,dir);
+			
+			for (int i = 0; i < a.length; i++) {
+
+				int xx = p.getX() + a[i].x;
+				int yy = p.getY() + a[i].y;
+
+				if (xx < field.length && xx >= 0 && yy < field[0].length
+						&& yy >= 0)
+					spells.add(new Spell(u.getSpellType(), xx, yy));
+			}
 		}
-
 		u = null;
 	}
 

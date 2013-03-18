@@ -9,6 +9,8 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
+import auxis.Auxi;
+
 import objects.Player;
 import ui.Taylor;
 import ui.TaylorData;
@@ -44,6 +46,11 @@ public class Controller {
 
 			@Override
 			public void keyPressed(KeyEvent e) {
+				
+				if(ivory.getTargetingSpell() != null){
+					ivory.using(ivory.getTargetingSpell());
+				}
+				
 				if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 					ivory.toggleSelected();
 				}
