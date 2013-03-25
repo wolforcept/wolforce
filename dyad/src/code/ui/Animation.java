@@ -41,7 +41,10 @@ public class Animation {
 
 	public Image getImage(int i) {
 		if (i >= array.length) {
-			return array[0];// TODO THIS GAVE AN ERROR
+			return array[array.length - 1];
+		}
+		if (i < 0) {
+			return array[0];
 		}
 		return array[i];
 	}

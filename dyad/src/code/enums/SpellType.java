@@ -6,7 +6,7 @@ import java.util.HashMap;
 public enum SpellType {
 
 	METEOR(4, true, 19, "heat=2", new Point(40, 80)), //
-	FLAME_COBRA(4, false, 16, "heat=2:mind=1")//
+	FLAME_COBRA(4, false, 6, "heat=2:mind=1", new Point(20, 20))//
 	// ,
 	;
 

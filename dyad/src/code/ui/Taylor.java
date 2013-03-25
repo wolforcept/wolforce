@@ -121,11 +121,8 @@ public class Taylor extends JPanel {
 			}
 
 			for (Spell s : ivory.getSpellsClone()) {
-				// g.setColor(Color.red);
 				int image_x = s.getX() * cz + cz / 2;
 				int image_y = s.getY() * cz + cz / 2;
-				// g.drawLine(image_x-5, image_y-5, image_x+5, image_y+5);
-				// g.drawLine(image_x-5, image_y+5, image_x+5, image_y-5);
 				if (s.getType().hasImageCentre()) {
 					image_x -= s.getType().getImageCentre().x;
 					image_y -= s.getType().getImageCentre().y;
