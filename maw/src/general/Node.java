@@ -3,6 +3,7 @@ package general;
 import java.awt.Color;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Node {
 
@@ -14,6 +15,7 @@ public class Node {
 	private LinkedList<Node> connections;
 	// private Ivory ivory;
 	private LinkedList<Particle> particles;
+	private ReentrantLock particleLock;;
 
 	public Node(int xx, int yy) {// , Ivory ivory) {
 		x = xx;
@@ -23,7 +25,7 @@ public class Node {
 		connections = new LinkedList<Node>();
 		// this.ivory = ivory;
 		particles = new LinkedList<Particle>();
-
+		particleLock = new ReentrantLock();
 	}
 
 	public int getX() {
@@ -63,11 +65,13 @@ public class Node {
 						n.getX() + (int) (Math.random() * Ivory.getThickness()), //
 						n.getY() + (int) (Math.random() * Ivory.getThickness()),
 						getColor());
+				particleLock.lock();
 				particles.add(p);
+				particleLock.unlock();
 
 			}
 		}
-
+		particleLock.lock();
 		for (Iterator<Particle> iterator = particles.iterator(); iterator
 				.hasNext();) {
 			Particle p = (Particle) iterator.next();
@@ -75,6 +79,7 @@ public class Node {
 			if (p.isRemoved())
 				iterator.remove();
 		}
+		particleLock.unlock();
 
 	}
 
@@ -102,6 +107,11 @@ public class Node {
 	}
 
 	public LinkedList<Particle> getParticleListClone() {
-		return new LinkedList<Particle>(particles);
+		try {
+			particleLock.lock();
+			return new LinkedList<Particle>(particles);
+		} finally {
+			particleLock.unlock();
+		}
 	}
 }
