@@ -19,6 +19,7 @@ public class Animation {
 			array = images;
 			width = image.getWidth(null);
 			height = image.getHeight(null);
+
 		} else {
 
 			this.speed = speed;
@@ -26,7 +27,6 @@ public class Animation {
 
 			height = image.getHeight(null);
 			width = (int) Math.floor(image.getWidth(null) / length);
-
 			for (int i = 0; i < length; i++) {
 
 				array[i] = new BufferedImage(width, height,

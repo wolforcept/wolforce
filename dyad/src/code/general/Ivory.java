@@ -13,12 +13,14 @@ import code.objects.Champion;
 import code.objects.GameObject;
 import code.objects.Magus;
 import code.objects.Player;
-
-
+import code.objects.Touchable;
+import code.objects.Touchable.TouchableType;
 
 public class Ivory {
 
 	public static final int REFRESH_FREQUENCY = 60;
+	public static final Dimension NUMBER_DIMENIONS = new Dimension(12, 12);
+	// private static final int NUMBER_OF_SWITCHES = 2;
 	public static int CELL_SIZE = 40;
 
 	private Point mouse;
@@ -29,15 +31,17 @@ public class Ivory {
 
 	private Magus magus;
 	private Champion champion;
-	private LinkedList<Button> buttons;
 	private LinkedList<Spell> spells;
 	private TargetingSpell u;
 	private String objective;
 	private ObjectiveType objectivetype;
 
-	private HashMap<Mana, Integer> mana;
+	private HashMap<Mana, Integer> manapool;
 
 	private int width, height;
+	private SpellButton[] spellButtons;
+
+	// private boolean[] switches;
 
 	public Ivory(Level level) {
 
@@ -45,14 +49,20 @@ public class Ivory {
 		objective = temp[1];
 		objectivetype = ObjectiveType.valueOf(temp[0].toUpperCase());
 
-		mana = new HashMap<>();
+		manapool = new HashMap<>();
 		String[] manas = level.getMana().split(":");
 		for (String man : manas) {
-			Mana m = Mana.valueOf(man.split("=")[0].toUpperCase());
-			int ammount = Integer.parseInt(man.split("=")[1]);
-			mana.put(m, ammount);
-			System.out.println("added " + ammount + " " + m.toString()
-					+ " to the manapool");
+			if (!man.equals("")) {
+				Mana m = Mana.valueOf(man.split("=")[0].toUpperCase());
+				int ammount = Integer.parseInt(man.split("=")[1]);
+				manapool.put(m, ammount);
+				System.out.println("added " + ammount + " " + m.toString()
+						+ " to the manapool");
+			}
+		}
+		for (Mana m : Mana.values()) {
+			if (!manapool.containsKey(m))
+				manapool.put(m, 0);
 		}
 
 		width = level.getSize().width;
@@ -61,23 +71,22 @@ public class Ivory {
 
 		mouse = new Point(0, 0);
 
-		buttons = new LinkedList<Button>();
-
 		SpellType[] vals = SpellType.values();
-		for (int i = 0; i < vals.length; i++) {
-			Button b = new Button(CELL_SIZE * 7, CELL_SIZE * i, vals[i]);
-			buttons.add(b);
-		}
+		spellButtons = new SpellButton[vals.length];
+		for (int i = 0; i < vals.length; i++)
+			spellButtons[i] = //
+			new SpellButton(vals[i]);
 
 		spells = new LinkedList<Spell>();
 
+		// switches = new boolean[Ivory.NUMBER_OF_SWITCHES];
+
 		for (int i = 0; i < level.getObjectList().length; i++) {
 
-			String name = level.getObjectList()[i].substring(2);
-			int x = Integer.parseInt(level.getObjectList()[i].charAt(0) + "",
-					10);
-			int y = Integer.parseInt(level.getObjectList()[i].charAt(1) + "",
-					10);
+			String[] object = level.getObjectList()[i].split(",");
+			int x = Integer.parseInt(object[0]);
+			int y = Integer.parseInt(object[1]);
+			String name = object[2];
 
 			field[x][y] = GameObject.makeByName(name, x, y);
 			if (name.equals("champion")) {
@@ -140,8 +149,8 @@ public class Ivory {
 		}
 	}
 
-	public LinkedList<Button> getButtons() {
-		return buttons;
+	public SpellButton[] getSpellButtons() {
+		return spellButtons;
 	}
 
 	public GameObject[][] getField() {
@@ -203,28 +212,58 @@ public class Ivory {
 	}
 
 	public void use() {
-		Point[] a = u.getSpellType().getArea();
 
-		int x = 0, y = 0;
-		if (u.getSpellType().isAnywhere()) {
-			if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
-					&& mouse.y < CELL_SIZE * height) {
-				x = (int) (mouse.x / CELL_SIZE);
-				y = (int) (mouse.y / CELL_SIZE);
+		boolean spellPossible = true;
+
+		HashMap<Mana, Integer> manalist = getMana();
+		MANA_TEST: for (Mana mana : Mana.values()) {
+			int needs = u.getSpellType().getManacost(mana);
+			int has = manalist.get(mana);
+			if (needs > has) {
+				spellPossible = false;
+				break MANA_TEST;
 			}
-		} else {
-			Player p = selected ? getMagus() : getChampion();
-			x = p.getX();
-			y = p.getY();
 		}
-		if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
-			double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
-					+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, mouse.x,
-					mouse.y));
-			spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
-					.getDirFromAngle(dir)));
+
+		if (spellPossible) {
+
+			for (Mana mana : Mana.values()) {
+				int cost = u.getSpellType().getManacost(mana);
+				if (cost > 0) {
+					System.out.println("reducing " + mana + " by " + cost);
+					reduceMana(mana, cost);
+				}
+			}
+
+			Point[] a = u.getSpellType().getArea();
+
+			int x = 0, y = 0;
+			if (u.getSpellType().isAnywhere()) {
+				if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
+						&& mouse.y < CELL_SIZE * height) {
+					x = (int) (mouse.x / CELL_SIZE);
+					y = (int) (mouse.y / CELL_SIZE);
+				}
+			} else {
+				Player p = selected ? getMagus() : getChampion();
+				x = p.getX();
+				y = p.getY();
+			}
+			if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
+				double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
+						+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2,
+						mouse.x, mouse.y));
+				spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
+						.getDirFromAngle(dir)));
+			}
 		}
 		u = null;
+
+	}
+
+	private void reduceMana(Mana m, int manacost) {
+		int newValue = manapool.get(m) - manacost;
+		manapool.put(m, newValue);
 	}
 
 	public TargetingSpell getTargetingSpell() {
@@ -248,10 +287,29 @@ public class Ivory {
 	}
 
 	public HashMap<Mana, Integer> getMana() {
-		return mana;
+		return manapool;
 	}
 
 	public Dimension getFieldSize() {
 		return new Dimension(width, height);
+	}
+
+	public void switchSwitch(int i) {
+		// switches[i] = !switches[i];
+		Point p = exists(TouchableType.valueOf("SWITCH" + i + "_DOOR"));
+		if (p != null) {
+			field[p.x][p.y] = null;
+		}
+	}
+
+	private Point exists(TouchableType t) {
+		for (int x = 0; x < field.length; x++) {
+			for (int y = 0; y < field[0].length; y++) {
+				if (field[x][y] instanceof Touchable
+						&& ((Touchable) field[x][y]).getType().equals(t))
+					return field[x][y].getPosition();
+			}
+		}
+		return null;
 	}
 }

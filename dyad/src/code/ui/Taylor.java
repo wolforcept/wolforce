@@ -1,18 +1,21 @@
 package code.ui;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
-import code.ui.TaylorData;
 import code.auxis.Auxi;
 import code.enums.Mana;
-import code.general.Button;
+import code.general.SpellButton;
 import code.general.Ivory;
 import code.general.Spell;
 import code.objects.Champion;
@@ -42,36 +45,32 @@ public class Taylor extends JPanel {
 	@Override
 	public void update(Graphics g) {
 		try {
+
 			final int cz = Ivory.CELL_SIZE, field_width = ivory.getFieldSize().width, field_height = ivory
 					.getFieldSize().height;
 
 			g.setColor(Color.black);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
-			for (Button b : ivory.getButtons()) {
-				g.drawImage(
-						data.getImages(b.getName()).getImage(
-								b.getCurrentImage()), b.getX(), b.getY(), this);
-
-				if (!b.isPossible(ivory.getMana())) {
-					for (int i = 0; i < 10; i++) {
-						g.setColor(new Color(250, 0, 0, 250 - i * 25));
-						g.drawRect(b.getX() + i, b.getY() + i, cz - i * 2, cz
-								- i * 2);
-					}
-					g.setColor(new Color(100, 100, 100, 100));
-					g.fillRect(b.getX(), b.getY(), cz, cz);
-				} else {
-
-					for (int i = 0; i < 10; i++) {
-						g.setColor(new Color(255, 255, 0, 100 - i * 10));
-						g.drawRect(b.getX() + i, b.getY() + i, cz - i * 2, cz
-								- i * 2);
+			{
+				SpellButton[] b = ivory.getSpellButtons();
+				int y = 0;
+				for (int i = 0; i < b.length; i++) {
+					if (b[i].isPossible(ivory.getMana())) {
+						g.drawImage(b[i].getImage(data),
+								ivory.getFieldSize().width * Ivory.CELL_SIZE,
+								Ivory.CELL_SIZE * y++, this);
 					}
 				}
-
 			}
-			// g.setColor(new Color(0.2f, 0.2f, 0.2f, 0.01f));
+			// for (Button b : ivory.getButtons()) {
+			// BufferedImage bimg = (BufferedImage) data
+			// .getImages(b.getName()).getImage(b.getCurrentImage());
+			// if (b.isPossible(ivory.getMana()))
+			// g.drawImage(bimg, b.getX(), b.getY(), this);
+			//
+			//
+			// }
 
 			GameObject[][] field = ivory.getField();
 
@@ -123,15 +122,61 @@ public class Taylor extends JPanel {
 			for (Spell s : ivory.getSpellsClone()) {
 				int image_x = s.getX() * cz + cz / 2;
 				int image_y = s.getY() * cz + cz / 2;
-				if (s.getType().hasImageCentre()) {
+				if (s.getType().isAnywhere()) {
 					image_x -= s.getType().getImageCentre().x;
 					image_y -= s.getType().getImageCentre().y;
-				}
+					g.drawImage(
+							data.getImages(s.getName()).getImage(
+									s.getCurrentImage() - 1), image_x, image_y,
+							this);
 
-				g.drawImage(
-						data.getImages(s.getName()).getImage(
-								s.getCurrentImage() - 1), image_x, image_y,
-						this);
+				} else if (s.getType().isEverywhere()) {
+
+					Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+							.getChampion();
+					image_x = p.getX() * cz + cz / 2
+							- s.getType().getImageCentre().x;
+					image_y = p.getY() * cz + cz / 2
+							- s.getType().getImageCentre().y;
+					g.drawImage(
+							data.getImages(s.getName()).getImage(
+									s.getCurrentImage() - 1), image_x, image_y,
+							this);
+
+				} else {
+					BufferedImage imageAfterTransform = transformImage(
+							data.getImages(s.getName()).getImage(
+									s.getCurrentImage() - 1), 1, 1,
+							s.getDirection(), 0, 0, 1f);
+					switch (s.getDirection()) {
+					case 0:
+						image_x -= s.getType().getImageCentre().x;
+						image_y -= s.getType().getImageCentre().y;
+						break;
+					case 1:
+						image_x -= s.getType().getImageCentre().x;
+						image_y += s.getType().getImageCentre().y;
+						image_y -= imageAfterTransform.getHeight();
+						break;
+					case 2:
+						image_x += s.getType().getImageCentre().x;
+						image_y += s.getType().getImageCentre().y;
+						image_y -= imageAfterTransform.getHeight();
+						image_x -= imageAfterTransform.getWidth();
+						break;
+
+					case 3:
+						image_x += s.getType().getImageCentre().x;
+						image_y -= s.getType().getImageCentre().y;
+						image_x -= imageAfterTransform.getWidth();
+						break;
+
+					default:
+						break;
+					}
+
+					g.drawImage(imageAfterTransform, image_x, image_y, this);
+				}
 			}
 
 			if (ivory.using()) {
@@ -141,6 +186,13 @@ public class Taylor extends JPanel {
 				int squares_centre_x = 0;
 				int squares_centre_y = 0;
 
+				if (ivory.getTargetingSpell().getSpellType().isEverywhere()) {
+					for (int i = 0; i < field_width; i++) {
+						for (int j = 0; j < field_height; j++) {
+							drawTargetSquare(g, i * cz, j * cz, cz);
+						}
+					}
+				}
 				if (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
 					squares_centre_x = (int) (ivory.getMouse().x / cz);
 					squares_centre_y = (int) (ivory.getMouse().y / cz);
@@ -201,18 +253,29 @@ public class Taylor extends JPanel {
 				g.drawImage(data.getImages(mana.toString().toLowerCase())
 						.getImage(0), m * cz, cz + cz * field_height, this);
 				int ammount = 0, xx = m * cz, yy = cz + cz * field_height;
-				if (manalist.containsKey(mana)) {
+				if (manalist.get(mana) > 0) {
 					ammount = manalist.get(mana);
 					g.setColor(new Color(255, 255, 0, 130));
 					g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
 				} else {
 					g.setColor(new Color(255, 50, 50, 255));
-					// g.drawLine(xx + 2, yy + 2, xx + cz - 4, yy + cz - 4);
 					g.setColor(new Color(150, 150, 150, 180));
 					g.fillRect(xx, yy, cz, cz);
 				}
-				g.drawImage(data.getImages("number_" + ammount).getImage(0), m
-						* cz, cz + cz * field_height, this);
+				char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
+				int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
+				int y = cz + //
+						cz * field_height + cz - Ivory.NUMBER_DIMENIONS.height;
+				for (int j = 0; j < ammountNumbers.length; j++) {
+
+					g.drawImage(
+							data.getImages(
+									"number_"
+											+ ammountNumbers[ammountNumbers.length
+													- 1 - j]).getImage(0), x
+									- j * Ivory.NUMBER_DIMENIONS.width, y, this);
+					// g.drawString(ammountNumbers[j] + ".", x, y);
+				}
 
 			}
 		} catch (Exception e) {
@@ -232,5 +295,21 @@ public class Taylor extends JPanel {
 			g.drawRect(x + i, y + i, cz - 2 * i, cz - 2 * i);
 		}
 
+	}
+
+	private BufferedImage transformImage(Image i, double scalex, double scaley,
+			int angle, int centerx, int centery, float alpha) {
+		int w = Math.max(i.getWidth(this), i.getHeight(this));
+		int h = w;
+
+		BufferedImage b = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D gg = (Graphics2D) b.getGraphics();
+
+		gg.rotate(-Math.PI * angle / 2, w / 2, h / 2);
+		gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				alpha));
+		gg.drawImage(i, 0, 0, this);
+
+		return b;
 	}
 }

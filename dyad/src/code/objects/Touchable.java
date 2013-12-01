@@ -15,13 +15,13 @@ public class Touchable extends GameObject {
 	}
 
 	public enum TouchableType {
-		RED_DOOR(1, 8), BLUE_DOOR(1, 8);
+		RED_DOOR(1, 8), BLUE_DOOR(1, 8), SWITCH1(2, 8), SWITCH2(2, 8), SWITCH1_DOOR(
+				1, 8);
 
 		private int noi, str;
 
 		private TouchableType(int noi, int str) {
 			this.noi = noi;
-			this.str = str;
 		}
 
 		public int getNoi() {
@@ -46,10 +46,24 @@ public class Touchable extends GameObject {
 			}
 			break;
 		case BLUE_DOOR:
-			if (p.has(Collectable.CollectableType.RED_KEY)) {
-				p.removeItemFromInventory(Collectable.CollectableType.RED_KEY);
+			if (p.has(Collectable.CollectableType.BLUE_KEY)) {
+				p.removeItemFromInventory(Collectable.CollectableType.BLUE_KEY);
+				ivory.setPosition(getX(), getY(), null);
 			}
 			break;
+
+		case SWITCH1:
+			ivory.switchSwitch(1);
+			break;
+
+		case SWITCH2:
+			ivory.switchSwitch(2);
+			break;
+		case SWITCH1_DOOR:
+			break;
+		default:
+			break;
+			
 		}
 
 	}

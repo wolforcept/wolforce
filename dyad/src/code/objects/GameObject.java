@@ -1,5 +1,7 @@
 package code.objects;
 
+import java.awt.Point;
+
 import code.ui.TaylorData;
 import code.enums.Material;
 import code.objects.Collectable.CollectableType;
@@ -73,16 +75,22 @@ public abstract class GameObject {
 		case "blue_key":
 			return new Collectable(x, y, CollectableType.BLUE_KEY);
 
-			// COLLECTABLES
+			// TOUCHABLES
 		case "red_door":
 			return new Touchable(x, y, TouchableType.RED_DOOR, Material.WOOD);
 		case "blue_door":
 			return new Touchable(x, y, TouchableType.BLUE_DOOR, Material.WOOD);
+		case "switch1_door":
+			return new Touchable(x, y, TouchableType.SWITCH1_DOOR, Material.METAL);
+		case "switch1":
+			return new Touchable(x, y, TouchableType.SWITCH1, Material.METAL);
+		case "switch2":
+			return new Touchable(x, y, TouchableType.SWITCH2, Material.METAL);
 
 			// WALLS
 		case "wood_wall":
 			return new Wall(x, y, Material.WOOD);
-			// case "stonewall":
+			// case "stone_wall":
 			// return new Wall(x, y, Material.STONE);
 		case "brick_wall":
 			return new Wall(x, y, Material.BRICK);
@@ -116,6 +124,10 @@ public abstract class GameObject {
 
 	public void setStrength(int s) {
 		strength = s;
+	}
+
+	public Point getPosition() {
+		return new Point(x, y);
 	}
 
 }

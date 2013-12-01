@@ -100,10 +100,17 @@ public class Controller {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
-					for (Button b : ivory.getButtons()) {
-						if (Auxi.collides(e, b)) {
-							ivory.using(b.getSpell());
+					SpellButton[] a = ivory.getSpellButtons();
+					int y = 0;
+					for (int i = 0; i < a.length; i++) {
+						if (a[i].isPossible(ivory.getMana())) {
+							if (Auxi.collides(e, ivory.getFieldSize().width
+									* Ivory.CELL_SIZE, Ivory.CELL_SIZE * y)) {
+								ivory.using(a[i].getSpell());
+							}
+							y++;
 						}
+
 					}
 				}
 			}

@@ -1,6 +1,5 @@
 package code.ui;
 
-
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,9 +23,9 @@ public class MainMenu {
 		private String name;
 		private Level level;
 
-		public LevelEntry(String name, Level level2) {
+		public LevelEntry(String name, Level level) {
 			this.name = name;
-			this.level = level2;
+			this.level = level;
 		}
 
 		public Level getLevel() {

@@ -5,27 +5,35 @@ import java.util.HashMap;
 
 public enum SpellType {
 
-	METEOR(4, true, 19, "heat=2", new Point(40, 80)), //
-	FLAME_COBRA(4, false, 6, "heat=2:mind=1", new Point(20, 20))//
-	// ,
+	METEOR(4, 1, 19, "heat=2", new Point(40, 80)), //
+	COLUMN_OF_FIRE(4, 0, 6, "heat=2:mind=1", new Point(20, 20)), //
+	WORLDS_END(4, 0, 6, "heat=2:earth=1", new Point(20, 20)), //
+	FREEZE(4, 1, 170, "cold=1", new Point(20, 20)), //
+	ICE_FALL(4, 0, 6, "cold=2:earth=1", new Point(20, 20)), //
+	SNOW(4, 2, 6, "cold=2", new Point(20, 20)), //
+	CHAOS(4, 1, 12, "mind=2", new Point(20, 20)), //
+	DARKNESS(4, 2, 19, "mind=1:cold=1", new Point(40, 80)), //
+	LIGHT(4, 2, 6, "mind=2:heat=1", new Point(20, 20)), //
+	SHATTER(8, 1, 6, "heat=1:cold=1:mind=1:earth=1", new Point(20, 20)), //
+	GROW(4, 1, 6, "earth=2", new Point(20, 20)), //
+	PUTRIFY(4, 1, 6, "earth=1:cold=1:heat=1", new Point(20, 20)), //
 	;
 
-	private boolean anywhere;
+	private boolean anywhere, everywhere;
 	private int noi, noib, strength;
 	private HashMap<Mana, Integer> manacost;
 	private Point centre;
+	private String buttonName;
 
-	private SpellType(int strength, boolean anywhere, int noi, String allcosts,
+	private SpellType(int strength, int where, int noi, String allcosts,
 			Point centre) {
-		this(strength, anywhere, noi, allcosts);
-		this.centre = centre;
-	}
-
-	private SpellType(int strength, boolean anywhere, int noi, String allcosts) {
-		this.anywhere = anywhere;
+		this.anywhere = (where == 1) ? true : false;
+		this.everywhere = (where == 2) ? true : false;
 		this.noi = noi;
 		this.noib = 1;
 		this.strength = strength;
+		this.centre = centre;
+		this.buttonName = name().toLowerCase() + "_button";
 
 		manacost = new HashMap<>();
 
@@ -35,6 +43,10 @@ public enum SpellType {
 			Mana m = Mana.valueOf(cost.split("=")[0].toUpperCase());
 			System.out.println(this + " costs " + val + " of " + m);
 			manacost.put(m, val);
+		}
+		for (Mana m : Mana.values()) {
+			if (!manacost.containsKey(m))
+				manacost.put(m, 0);
 		}
 
 	}
@@ -56,19 +68,34 @@ public enum SpellType {
 	}
 
 	public int getManacost(Mana m) {
-		if (manacost.containsKey(m))
-			return manacost.get(m);
-		return 0;
+		return manacost.get(m);
 	}
 
 	public Point[] getArea() {
 		switch (this) {
 		case METEOR:
-			return new Point[] { new Point(-1, -1), new Point(0, 0),
-					new Point(1, 1), new Point(-1, 1), new Point(1, -1) };
-		case FLAME_COBRA:
+			return new Point[] { new Point(-1, 0), new Point(0, 0),
+					new Point(1, 0), new Point(0, 1), new Point(0, -1) };
+		case COLUMN_OF_FIRE:
 			return new Point[] { new Point(1, 0), new Point(2, 0),
 					new Point(3, 0), new Point(4, 0) };
+		case CHAOS:
+			return new Point[] { new Point(0, 0) };
+		case FREEZE:
+			return new Point[] { new Point(0, 0) };
+		case PUTRIFY:
+			return new Point[] { new Point(0, 0) };
+		case SHATTER:
+			return new Point[] { new Point(0, 0) };
+		case ICE_FALL:
+			return new Point[] { new Point(1, 0), new Point(2, 0),
+					new Point(3, 0), new Point(4, 0) };
+		case GROW:
+			return new Point[] { new Point(0, 0), new Point(1, 0),
+					new Point(0, 1), new Point(1, 1) };
+		case WORLDS_END:
+			return new Point[] { new Point(1, -2), new Point(2, -1),
+					new Point(2, 0), new Point(2, 1), new Point(1, 2) };
 		default:
 			return new Point[] {};
 		}
@@ -78,7 +105,12 @@ public enum SpellType {
 		return centre;
 	}
 
-	public boolean hasImageCentre() {
-		return centre != null;
+	public boolean isEverywhere() {
+		return everywhere;
 	}
+
+	public String getButtonName() {
+		return buttonName;
+	}
+
 }

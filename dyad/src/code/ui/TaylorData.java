@@ -25,8 +25,10 @@ public class TaylorData {
 		addImage("champion_glow");
 		addImage("core", 360);
 		addImage("humanoid");
+		
+		addImage("unable_button", "spells/unable_button");
 
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 10; i++) {
 			String name = "number_" + i;
 			addImage(name, "numbers/" + name);
 		}
@@ -34,13 +36,13 @@ public class TaylorData {
 		Material[] materials = Material.values();
 		for (int i = 0; i < materials.length; i++) {
 			String name = materials[i].toString().toLowerCase() + "_wall";
-			addImage(name, "walls/" + name, 1);
+			addImage(name, "walls/" + name);
 		}
 
 		Mana[] manas = Mana.values();
 		for (int i = 0; i < manas.length; i++) {
 			String name = manas[i].toString().toLowerCase();
-			addImage(name, "mana/" + name, 1);
+			addImage(name, "mana/" + name);
 		}
 
 		Collectable.CollectableType[] collectables = Collectable.CollectableType

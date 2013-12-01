@@ -1,27 +1,21 @@
 package code.general;
 
+import java.awt.Image;
 import java.util.HashMap;
 
 import code.enums.Mana;
 import code.enums.SpellType;
-import code.objects.GameObject;
+import code.ui.TaylorData;
 
-
-public class Button extends GameObject {
+public class SpellButton {
 	private SpellType type;
 
-	public Button(int xx, int yy, SpellType type) {
-		super(type.toString().toLowerCase() + "_button", xx, yy, 100);
+	public SpellButton(SpellType type) {
 		this.type = type;
 	}
 
 	public TargetingSpell getSpell() {
 		return new TargetingSpell(type);
-	}
-
-	@Override
-	public int getStrength() {
-		return 1000;
 	}
 
 	public boolean isPossible(HashMap<Mana, Integer> mana_avaliable) {
@@ -37,6 +31,16 @@ public class Button extends GameObject {
 			}
 		}
 		return true;
+	}
+
+	public Image getImage(TaylorData data) {
+		try {
+			return data.getImages(type.getButtonName()).getImage(0);
+		} catch (Exception e) {
+			System.err.println("Unable to get Button Image for " + type.name());
+			System.exit(0);
+			return null;
+		}
 	}
 
 }

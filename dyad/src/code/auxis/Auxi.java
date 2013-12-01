@@ -1,10 +1,9 @@
 package code.auxis;
 
-
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
-import code.general.Button;
+import code.general.SpellButton;
 
 public class Auxi {
 
@@ -18,12 +17,12 @@ public class Auxi {
 		return Math.atan2((y1 - y2), (x2 - x1));
 	}
 
-	public static boolean collides(MouseEvent e, Button b) {
-		int x1 = e.getX(), x2 = b.getX();
-		int y1 = e.getY(), y2 = b.getY();
+	public static boolean collides(MouseEvent e, int x, int y) {
+		int x1 = e.getX();
+		int y1 = e.getY();
 		int s = 40;
 
-		if (x1 > x2 && y1 > y2 && x1 < x2 + s && y1 < y2 + s)
+		if (x1 > x && y1 > y && x1 < x + s && y1 < y + s)
 			return true;
 		return false;
 	}
