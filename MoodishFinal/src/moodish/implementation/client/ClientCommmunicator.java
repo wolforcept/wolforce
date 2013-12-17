@@ -1,4 +1,4 @@
-package moodish.dummy;
+package moodish.implementation.client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,10 +9,13 @@ import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import moodish.comm.ClientComm;
-import moodish.comm.ClientSideMessage;
+import moodish.implementation.server.ServerCommmunicator;
+import moodish.implementation.shared.MessageToClient;
+import moodish.implementation.shared.MessageToServer;
+import moodish.interfaces.comm.ClientComm;
+import moodish.interfaces.comm.ClientSideMessage;
 
-public class ClientCommDummy implements ClientComm {
+public class ClientCommmunicator implements ClientComm {
 
 	private String username;
 	private ObjectOutputStream out;
@@ -21,7 +24,7 @@ public class ClientCommDummy implements ClientComm {
 	private boolean connected;
 	private BlockingQueue<MessageToClient> client_messages = new LinkedBlockingQueue<MessageToClient>();
 
-	public ClientCommDummy() {
+	public ClientCommmunicator() {
 		connected = false;
 	}
 
@@ -31,7 +34,7 @@ public class ClientCommDummy implements ClientComm {
 		InetAddress address;
 		try {
 			address = InetAddress.getByName(serverAddress);
-			socket = new Socket(address, ServerCommDummy.PORT);
+			socket = new Socket(address, ServerCommmunicator.PORT);
 			out = new ObjectOutputStream(socket.getOutputStream());
 			in = new ObjectInputStream(socket.getInputStream());
 			MessageToServer first_msg = new MessageToServer(

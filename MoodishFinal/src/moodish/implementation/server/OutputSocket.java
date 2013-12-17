@@ -1,9 +1,11 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+
+import moodish.implementation.shared.MessageToClient;
 
 public class OutputSocket {
 

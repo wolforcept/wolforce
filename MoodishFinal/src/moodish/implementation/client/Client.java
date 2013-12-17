@@ -1,4 +1,4 @@
-package moodish.dummy;
+package moodish.implementation.client;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,16 +22,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import moodish.client.MoodishClient;
-import moodish.comm.ClientComm;
-import moodish.comm.ClientSideMessage;
+import moodish.implementation.client.UserDummy.Mood;
+import moodish.interfaces.client.MoodishClient;
+import moodish.interfaces.comm.ClientComm;
+import moodish.interfaces.comm.ClientSideMessage;
 
 /**
  * 
  * @author grupo32
  * 
  */
-public class MoodishClientDummy implements MoodishClient {
+public class Client implements MoodishClient {
 
 	/**
 	 * Variables needed for the component
@@ -77,6 +78,9 @@ public class MoodishClientDummy implements MoodishClient {
 
 			{
 				setOpaque(false);
+				setLineWrap(true);
+				setWrapStyleWord(true);
+				setEditable(false);
 			}
 
 			public void paintComponent(Graphics g) {
@@ -84,10 +88,6 @@ public class MoodishClientDummy implements MoodishClient {
 				super.paintComponent(g);
 			}
 		};
-
-		msgArea.setLineWrap(true);
-		msgArea.setWrapStyleWord(true);
-		msgArea.setEditable(false);
 
 		msgsPanel = new JPanel();
 		msgsPanel.setPreferredSize(new Dimension(500, 700));
@@ -248,7 +248,7 @@ public class MoodishClientDummy implements MoodishClient {
 		myUsername = JOptionPane.showInputDialog("Introduza o seu username.");
 		System.out.println(myUsername);
 
-		clientComm = new ClientCommDummy();
+		clientComm = new ClientCommmunicator();
 		start(clientComm);
 		new StartListeningMessages().start();
 
@@ -343,7 +343,7 @@ public class MoodishClientDummy implements MoodishClient {
 	 * method that connects an user
 	 */
 	public void dealWithConnectMsg() {
-		userDummy = new UserDummy(sender, moodish.dummy.UserDummy.Mood.HAPPY);
+		userDummy = new UserDummy(sender, moodish.implementation.client.UserDummy.Mood.HAPPY);
 		if (!sender.equals(myUsername)) {
 			addUser(userDummy);
 		}

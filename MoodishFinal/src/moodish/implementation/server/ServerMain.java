@@ -1,4 +1,4 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,13 +8,13 @@ import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
-import moodish.server.MoodishServer;
+import moodish.interfaces.server.MoodishServer;
 
-public class ServerMainDummy {
+public class ServerMain {
 
 	private JTextArea textArea;
 
-	public ServerMainDummy() {
+	public ServerMain() {
 
 		JFrame frame = new JFrame("Moodish Server");
 		textArea = new JTextArea();
@@ -58,10 +58,10 @@ public class ServerMainDummy {
 
 	public static void main(String[] args) {
 
-		new ServerMainDummy();
+		new ServerMain();
 
-		ServerCommDummy serverComm = new ServerCommDummy();
-		MoodishServer server = new MoodishServerDummy();
+		ServerCommmunicator serverComm = new ServerCommmunicator();
+		MoodishServer server = new Server();
 		server.start(serverComm);
 	}
 }

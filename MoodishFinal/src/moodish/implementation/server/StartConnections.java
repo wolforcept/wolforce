@@ -1,4 +1,4 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,13 +6,15 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import moodish.implementation.shared.MessageToServer;
+
 public class StartConnections extends Thread {
 
 	private ServerSocket server_socket;
 	private OutputSocket outs = new OutputSocket();
-	private ServerCommDummy server;
+	private ServerCommmunicator server;
 	
-	public StartConnections(ServerSocket server_socket, OutputSocket outs, ServerCommDummy server) {
+	public StartConnections(ServerSocket server_socket, OutputSocket outs, ServerCommmunicator server) {
 		this.server_socket = server_socket;
 		this.outs = outs;
 		this.server = server;

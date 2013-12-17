@@ -1,4 +1,4 @@
-package moodish.comm;
+package moodish.interfaces.comm;
 
 /**
  * 

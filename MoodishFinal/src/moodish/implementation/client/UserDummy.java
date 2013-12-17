@@ -1,4 +1,4 @@
-package moodish.dummy;
+package moodish.implementation.client;
 
 public class UserDummy {
 	private String name;

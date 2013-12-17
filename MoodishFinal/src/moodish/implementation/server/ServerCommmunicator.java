@@ -1,15 +1,17 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import moodish.comm.ServerComm;
-import moodish.comm.ServerSideMessage;
+import moodish.implementation.shared.MessageToClient;
+import moodish.implementation.shared.MessageToServer;
+import moodish.interfaces.comm.ServerComm;
+import moodish.interfaces.comm.ServerSideMessage;
 
 
-public class ServerCommDummy implements ServerComm {
+public class ServerCommmunicator implements ServerComm {
 
 	public static final int PORT = 60500;
 	private String server_address;

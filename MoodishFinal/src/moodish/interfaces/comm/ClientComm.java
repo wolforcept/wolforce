@@ -1,10 +1,10 @@
-package moodish.comm;
+package moodish.interfaces.comm;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 /**
- * Communication interface for {@link moodish.client.MoodishClient Moodish clients}. Moodish clients must 
+ * Communication interface for {@link moodish.interfaces.client.MoodishClient Moodish clients}. Moodish clients must 
  * communicate with a MoodishServer exclusively through this interface. 
  * 
  * @author alc

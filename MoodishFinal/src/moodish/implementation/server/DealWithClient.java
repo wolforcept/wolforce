@@ -1,14 +1,16 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import moodish.implementation.shared.MessageToServer;
+
 public class DealWithClient extends Thread {
 
-	private ServerCommDummy server;
+	private ServerCommmunicator server;
 	private ObjectInputStream in;
 	
-	public DealWithClient(ServerCommDummy serverCommDummy,
+	public DealWithClient(ServerCommmunicator serverCommDummy,
 			ObjectInputStream inputStream) {
 		server = serverCommDummy;
 		in = inputStream;

@@ -1,4 +1,4 @@
-package moodish.comm;
+package moodish.interfaces.comm;
 
 /**
  * Messages sent from a clients to the server. A message contains a type (enum), 

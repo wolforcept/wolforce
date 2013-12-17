@@ -1,8 +1,8 @@
-package moodish.dummy;
+package moodish.implementation.shared;
 
 import java.io.Serializable;
 
-import moodish.comm.ClientSideMessage;
+import moodish.interfaces.comm.ClientSideMessage;
 
 public class MessageToClient implements ClientSideMessage, Serializable {
 

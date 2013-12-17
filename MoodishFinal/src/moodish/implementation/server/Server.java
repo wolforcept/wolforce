@@ -1,13 +1,13 @@
-package moodish.dummy;
+package moodish.implementation.server;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import moodish.comm.ServerComm;
-import moodish.comm.ServerSideMessage;
-import moodish.server.MoodishServer;
+import moodish.interfaces.comm.ServerComm;
+import moodish.interfaces.comm.ServerSideMessage;
+import moodish.interfaces.server.MoodishServer;
 
-public class MoodishServerDummy implements MoodishServer {
+public class Server implements MoodishServer {
 
 	private List<ServerClient> clients = new LinkedList<ServerClient>();
 	private boolean serverStopped = false;
