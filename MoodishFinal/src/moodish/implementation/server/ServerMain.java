@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
@@ -18,7 +19,9 @@ public class ServerMain {
 		JFrame frame = new JFrame("Moodish Server");
 		textArea = new JTextArea();
 		textArea.setEditable(false);
-		frame.getContentPane().add(textArea);
+		JScrollPane scroll = new JScrollPane(textArea);
+
+		frame.getContentPane().add(scroll);
 
 		OutputStream out = new OutputStream() {
 			@Override

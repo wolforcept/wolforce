@@ -24,11 +24,9 @@ public class Server implements MoodishServer {
 				case CLIENT_CONNECTED:
 					connectClient(serverComm, message);
 					break;
-
 				case CLIENT_DISCONNECTED:
 					disconnectClient(serverComm, message);
 					break;
-
 				case FRIENDSHIP:
 					friendship(serverComm, message);
 					break;
@@ -106,19 +104,42 @@ public class Server implements MoodishServer {
 	 *            parameter
 	 */
 	public void friendship(ServerComm serverComm, ServerSideMessage message) {
-		for (int i = 0; i < clients.size(); i++) {
-			if (clients.get(i).getNickName().equals(message.getPayload())) {
-			}
-			if (clients.get(i).isFriend(message.getPayload())) {
-				serverComm.sendError(message.getClientNickname(),
-						"This User is Already Your Friend");
-			} else {
-				clients.get(i).addFriend(message.getClientNickname());
-				serverComm.sendNewFriendship(message.getClientNickname(),
-						message.getPayload());
-			}
+		for (ServerClient client : clients) {
+			if (client.getNickName().equals(message.getClientNickname())) {
+				List<String> friends = client.getFriends();
+				boolean foundFriend = false;
+				int f = 0;
 
+				while (!foundFriend && f != friends.size()) {
+					if (friends.get(f).equals(message.getPayload())) {
+						foundFriend = true;
+					}
+					f++;
+				}
+
+				if(foundFriend){
+					
+				}else{
+					
+				}
+			}
 		}
+
+		// for (int i = 0; i < clients.size(); i++) {
+		//
+		// if (clients.get(i).getNickName().equals(message.getPayload())) {
+		// // TODO
+		//
+		// }
+		// if (clients.get(i).isFriend(message.getPayload())) {
+		// serverComm.sendError(message.getClientNickname(),
+		// "This User is Already Your Friend");
+		// } else {
+		// clients.get(i).addFriend(message.getClientNickname());
+		// serverComm.sendNewFriendship(message.getClientNickname(),
+		// message.getPayload());
+		// }
+		// }
 	}
 
 	/**

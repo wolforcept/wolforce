@@ -83,13 +83,13 @@ public class Client implements MoodishClient {
 			}
 
 			public void paintComponent(Graphics g) {
-				g.drawImage(backgroundTextArea, 0, 0, 500, 700, this);
+				g.drawImage(backgroundTextArea, 0, 0, 500, 600, this);
 				super.paintComponent(g);
 			}
 		};
 
 		msgsPanel = new JPanel();
-		msgsPanel.setPreferredSize(new Dimension(500, 700));
+		msgsPanel.setPreferredSize(new Dimension(500, 600));
 		msgsPanel.setLayout(new BorderLayout());
 		msgsPanel.add(msgArea, BorderLayout.CENTER);
 
@@ -118,14 +118,15 @@ public class Client implements MoodishClient {
 
 					String msgSend = moods.getText();
 
-					if (msgSend.length() > 7
-							&& msgSend.substring(0, 8).equals("/friend ")) {
+					// if (msgSend.length() > 7
+					// && msgSend.startsWith("/friend ")) {
+					if (msgSend.startsWith("/friend ")) {
 						clientComm.friendship(msgSend.substring(8));
-					} else if (msgSend.length() > 9
-							&& msgSend.substring(0, 10).equals("/unfriend ")) {
+						// } else if (msgSend.length() > 9
+						// && msgSend.startsWith("/unfriend ")) {
+					} else if (msgSend.startsWith("/unfriend ")) {
 						clientComm.unfriendship(msgSend.substring(10));
 					} else {
-
 						msgArea.append(myUsername + ": " + msgSend + "\n");
 						clientComm.sendMoodishMessage(msgSend);
 					}
@@ -473,13 +474,12 @@ public class Client implements MoodishClient {
 
 				if (msg.getType() == ClientSideMessage.Type.FRIENDSHIP) {
 					dealWithFriendshipMsg();
-
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.UNFRIENDSHIP) {
 					dealWithUnfriendshipMsg();
-
 				}
+
 				if (msg.getType() == ClientSideMessage.Type.ERROR) {
 					dealWithErrorMsg();
 				}

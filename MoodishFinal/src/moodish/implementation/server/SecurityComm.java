@@ -84,9 +84,9 @@ public class SecurityComm implements ServerComm {
 
 			if (next.getType().equals(ServerSideMessage.Type.CLIENT_CONNECTED)
 					&& isBanned(from)) {
-				comm.sendMoodishMessage("Moodish Server", from,
-						"You are still banned.");
-				// comm.sendError(from, "You are still banned.");
+				// comm.sendMoodishMessage("Moodish Server", from,
+				// "You are still banned.");
+				comm.sendError(from, "You are still banned.");
 			} else {
 				serverMessages.add(next);
 			}
@@ -97,7 +97,7 @@ public class SecurityComm implements ServerComm {
 
 	/**
 	 * Method that sends a moodish message, this method provides the ways of
-	 * filtering the number of of mood messages sent by an user.
+	 * filtering the number of mood messages sent by an user.
 	 * <p/>
 	 * If the user sends two messages within the time span of 60 seconds, the
 	 * server will send a warning to him/her.
@@ -109,7 +109,7 @@ public class SecurityComm implements ServerComm {
 	public void sendMoodishMessage(String from, String to, String msgString) {
 
 		System.out.println("SECURITY CHECK: " + msgString);
-		
+
 		Client client = clients.get(from);
 		if (client == null) {
 			client = new Client();
@@ -118,29 +118,32 @@ public class SecurityComm implements ServerComm {
 		int nrMsgs = client.getNumberOfMessages();
 		client.updateMessageTimes();
 
-		if (nrMsgs <= 2) {
-
+		if (nrMsgs <= MAX_MOOD_CHANGES) {
 			comm.sendMoodishMessage(from, to, msgString);
 
-			if (nrMsgs == 2) {
+			if (nrMsgs == MAX_MOOD_CHANGES) {
 				// SEND WARNING TOO
-				String s = "Cuidado, já mandaste duas mensagens  nos ultimos 60 segundos.";
-				comm.sendMoodishMessage("Moodish Server", to, s);
-				// comm.sendError(to, "warning!");
+				String msg = "Cuidado, já mandaste " + MAX_MOOD_CHANGES
+						+ " mensagens  nos ultimos 60 segundos.";
+				// comm.sendMoodishMessage("Moodish Server", to, msg);
+				comm.sendError(from, msg);
 			}
-
 		} else {
 			// DISCONNECT
 			ServerMessage disconnectMessage = new ServerMessage(
 					ServerSideMessage.Type.CLIENT_DISCONNECTED, from);
 			serverMessages.add(disconnectMessage);
 			client.ban();
+			comm.sendError(from,
+					"Foste banido temporáriamente por enviar mais de "
+							+ MAX_MOOD_CHANGES + " mensagens em "
+							+ MOOD_CHANGE_SPAN + " segundos.");
 		}
 	}
 
 	@Override
-	public void sendNewFriendship(String toNickname, String newFriendship) {
-		comm.sendNewFriendship(toNickname, newFriendship);
+	public void sendNewFriendship(String fromNickname, String toNickName) {
+		comm.sendNewFriendship(fromNickname, toNickName);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import moodish.implementation.shared.MessageToServer;
 import moodish.interfaces.comm.ServerComm;
 import moodish.interfaces.comm.ServerSideMessage;
 
-
 public class ServerCommmunicator implements ServerComm {
 
 	public static final int PORT = 60500;
@@ -31,7 +30,7 @@ public class ServerCommmunicator implements ServerComm {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// } finally {
 		// try {
 		// server_socket.close();
@@ -45,7 +44,7 @@ public class ServerCommmunicator implements ServerComm {
 	@Override
 	public boolean hasNextMessage() {
 		return !server_messages.isEmpty();
-		
+
 	}
 
 	@Override
@@ -122,7 +121,7 @@ public class ServerCommmunicator implements ServerComm {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		}
+	}
 
 	private void sendMessage(MessageToClient msg, String toNickname) {
 		try {
@@ -132,12 +131,12 @@ public class ServerCommmunicator implements ServerComm {
 			e.printStackTrace();
 		}
 	}
-	
-	public String getServerAddress(){
+
+	public String getServerAddress() {
 		return server_address;
 	}
-	
-	public void clearAllMessages(){
+
+	public void clearAllMessages() {
 		server_messages.clear();
 	}
 }
