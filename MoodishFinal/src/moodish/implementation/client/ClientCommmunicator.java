@@ -118,7 +118,7 @@ public class ClientCommmunicator implements ClientComm {
 	@Override
 	public void unfriendship(String nickname) {
 		MessageToServer msg = new MessageToServer(
-				MessageToServer.Type.UNFREINDSHIP, username, nickname);
+				MessageToServer.Type.UNFRIENDSHIP, username, nickname);
 		sendMessage(msg);
 	}
 

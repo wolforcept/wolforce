@@ -39,7 +39,7 @@ public interface ServerSideMessage {
 		/**
 		 * An unfriendship request. The payload = nickname to be unfriend.
 		 */		
-		UNFREINDSHIP
+		UNFRIENDSHIP
 	};
 	
 	/**

@@ -30,7 +30,7 @@ public class Server implements MoodishServer {
 				case FRIENDSHIP:
 					friendship(serverComm, message);
 					break;
-				case UNFREINDSHIP:
+				case UNFRIENDSHIP:
 					unfriendship(serverComm, message);
 					break;
 				case MOODISH_MESSAGE:
@@ -122,7 +122,7 @@ public class Server implements MoodishServer {
 
 		if (client != null && friend != null) {
 			if (!client.isFriend(friend.getNickName())
-					|| !friend.isFriend(client.getNickName())) {
+					&& !friend.isFriend(client.getNickName())) {
 				client.addFriend(friend);
 				friend.addFriend(client);
 
@@ -164,20 +164,53 @@ public class Server implements MoodishServer {
 	 *            parameter
 	 */
 	public void unfriendship(ServerComm serverComm, ServerSideMessage message) {
-		for (int i = 0; i < clients.size(); i++) {
-			if (clients.get(i).getNickName()
-					.equals(message.getClientNickname())) {
-				if (clients.get(i).isFriend(message.getPayload())) {
-					serverComm.sendNewUnfriendship(message.getClientNickname(),
-							message.getPayload());
-					// clients.get(i).removeFriend(message.getPayload());
-				} else {
-					serverComm.sendError(message.getClientNickname(),
-							"This User it's not your friend");
-				}
+		ServerClient client = null;
+		ServerClient friend = null;
+
+		for (ServerClient c : clients) {
+			if (c.getNickName().equals(message.getClientNickname())) {
+				client = c;
+			}
+			if (c.getNickName().equals(message.getPayload())) {
+				friend = c;
 			}
 
+			if (client != null && friend != null) {
+				break;
+			}
 		}
+
+		if (client != null && friend != null) {
+			if (client.isFriend(friend.getNickName())
+					&& friend.isFriend(client.getNickName())) {
+				client.removeFriend(friend);
+				friend.removeFriend(client);
+
+				serverComm.sendNewUnfriendship(message.getClientNickname(),
+						message.getPayload());
+				serverComm.sendNewUnfriendship(message.getPayload(),
+						message.getClientNickname());
+			} else {
+				serverComm.sendError(message.getClientNickname(),
+						"This User it's not your friend!");
+			}
+		}
+		
+		
+//		for (int i = 0; i < clients.size(); i++) {
+//			if (clients.get(i).getNickName()
+//					.equals(message.getClientNickname())) {
+//				if (clients.get(i).isFriend(message.getPayload())) {
+//					serverComm.sendNewUnfriendship(message.getClientNickname(),
+//							message.getPayload());
+//					// clients.get(i).removeFriend(message.getPayload());
+//				} else {
+//					serverComm.sendError(message.getClientNickname(),
+//							"This User it's not your friend");
+//				}
+//			}
+//
+//		}
 	}
 
 	/**
@@ -191,16 +224,32 @@ public class Server implements MoodishServer {
 	 */
 	public void sendMoodishMessage(ServerComm serverComm,
 			ServerSideMessage message) {
-		for (int i = 0; i < clients.size(); i++) {
-			if (clients.get(i).getNickName()
-					.equals(message.getClientNickname())) {
-				// for (String name : clients.get(i).getFriends()) {
-				// System.out.println("Server.sendMoodishMessage()");
-				// serverComm.sendMoodishMessage(message.getClientNickname(),
-				// name, message.getPayload());
-				// }
+		ServerClient client = null;
+
+		for (ServerClient c : clients) {
+			if (c.getNickName().equals(message.getClientNickname())) {
+				client = c;
+				break;
 			}
 		}
+
+		if (client != null) {
+			for (ServerClient f : client.getFriends()) {
+				serverComm.sendMoodishMessage(client.getNickName(),
+						f.getNickName(), message.getPayload());
+			}
+		}
+
+		// for (int i = 0; i < clients.size(); i++) {
+		// if (clients.get(i).getNickName()
+		// .equals(message.getClientNickname())) {
+		// for (String name : clients.get(i).getFriends()) {
+		// System.out.println("Server.sendMoodishMessage()");
+		// serverComm.sendMoodishMessage(message.getClientNickname(),
+		// name, message.getPayload());
+		// }
+		// }
+		// }
 	}
 
 }
