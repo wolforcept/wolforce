@@ -1,5 +1,6 @@
 package moodish.implementation.server;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -7,8 +8,6 @@ import java.io.PrintStream;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
-
-import moodish.interfaces.server.MoodishServer;
 
 public class ServerMain {
 
@@ -51,6 +50,10 @@ public class ServerMain {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				textArea.setForeground(Color.red);
+				textArea.append("HA");
+				textArea.
+//				textArea.setForeground(Color.black);
 				textArea.append(text);
 			}
 		});
@@ -60,8 +63,6 @@ public class ServerMain {
 
 		new ServerMain();
 
-		ServerCommmunicator serverComm = new ServerCommmunicator();
-		MoodishServer server = new Server();
-		server.start(serverComm);
+		new Server().start(new SecurityComm());
 	}
 }

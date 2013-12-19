@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.swing.JOptionPane;
+
 import moodish.implementation.server.ServerCommmunicator;
 import moodish.implementation.shared.MessageToClient;
 import moodish.implementation.shared.MessageToServer;
@@ -40,15 +42,25 @@ public class ClientCommmunicator implements ClientComm {
 			MessageToServer first_msg = new MessageToServer(
 					MessageToServer.Type.CLIENT_CONNECTED, username, null);
 			out.writeObject(first_msg);
-			connected = true;
 			new DealWithServer(this, in).start();
+			connected = true;
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			connectionFailure("Não é possível connectar, host desconhecido!");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			connectionFailure("Não é possível connectar, host desconhecido!");
 		}
+	}
+
+	private void connectionFailure(String text) {
+		JOptionPane.showMessageDialog(null, text);
+		connected = false;
+		try {
+			if (socket != null)
+				socket.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 	}
 
 	@Override
@@ -60,13 +72,13 @@ public class ClientCommmunicator implements ClientComm {
 	public void disconnect() {
 		MessageToServer msg = new MessageToServer(
 				MessageToServer.Type.CLIENT_DISCONNECTED, username, null);
-		try {
-			out.writeObject(msg);
-			socket.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		if (connected)
+			try {
+				out.writeObject(msg);
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 	@Override
@@ -88,9 +100,12 @@ public class ClientCommmunicator implements ClientComm {
 
 	@Override
 	public void sendMoodishMessage(String moodishMessage) {
-		MessageToServer msg = new MessageToServer(
-				MessageToServer.Type.MOODISH_MESSAGE, username, moodishMessage);
-		sendMessage(msg);
+		if (connected) {
+			MessageToServer msg = new MessageToServer(
+					MessageToServer.Type.MOODISH_MESSAGE, username,
+					moodishMessage);
+			sendMessage(msg);
+		}
 	}
 
 	@Override
@@ -111,8 +126,7 @@ public class ClientCommmunicator implements ClientComm {
 		try {
 			out.writeObject(msg);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			connectionFailure("Foi Desconectado.");
 		}
 	}
 

@@ -60,6 +60,8 @@ public class Server implements MoodishServer {
 			if (!clients.get(i).equals(message.getClientNickname())) {
 				servercomm.sendClientConnected(clients.get(i).getNickName(),
 						message.getClientNickname());
+				servercomm.sendClientConnected(message.getClientNickname(),
+						clients.get(i).getNickName());
 			}
 		}
 	}
@@ -161,6 +163,7 @@ public class Server implements MoodishServer {
 			if (clients.get(i).getNickName()
 					.equals(message.getClientNickname())) {
 				for (String name : clients.get(i).getFriends()) {
+					System.out.println("Server.sendMoodishMessage()");
 					serverComm.sendMoodishMessage(message.getClientNickname(),
 							name, message.getPayload());
 				}

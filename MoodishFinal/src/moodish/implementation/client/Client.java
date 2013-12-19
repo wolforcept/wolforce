@@ -22,7 +22,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import moodish.implementation.client.UserDummy.Mood;
 import moodish.interfaces.client.MoodishClient;
 import moodish.interfaces.comm.ClientComm;
 import moodish.interfaces.comm.ClientSideMessage;
@@ -115,16 +114,23 @@ public class Client implements MoodishClient {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (clientComm != null) {
-					System.out.println(moods.getText());
+				if (clientComm != null && clientComm.isConnected()) {
+
 					String msgSend = moods.getText();
-					msgArea.setText(msgArea.getText() + myUsername + ": "
-							+ msgSend + "\n");
+
+					if (msgSend.length() > 7
+							&& msgSend.substring(0, 8).equals("/friend ")) {
+						clientComm.friendship(msgSend.substring(8));
+					} else if (msgSend.length() > 9
+							&& msgSend.substring(0, 10).equals("/unfriend ")) {
+						clientComm.unfriendship(msgSend.substring(10));
+					} else {
+
+						msgArea.append(myUsername + ": " + msgSend + "\n");
+						clientComm.sendMoodishMessage(msgSend);
+					}
 					moods.setText("");
-					clientComm.sendMoodishMessage(msgSend); // Não funciona sem
-															// a
-															// parte do grupo
-															// da comunicação
+
 				} else {
 					JOptionPane.showMessageDialog(null, "Não está Conectado");
 				}
@@ -237,8 +243,10 @@ public class Client implements MoodishClient {
 	 * Method that disconnects the user from the server
 	 */
 	public void disconnectFromServers() {
-		clientComm.disconnect();
-		JOptionPane.showMessageDialog(null, "Está desconectado!");
+		if (clientComm != null && clientComm.isConnected()) {
+			clientComm.disconnect();
+			JOptionPane.showMessageDialog(null, "Está desconectado!");
+		}
 	}
 
 	/**
@@ -305,11 +313,9 @@ public class Client implements MoodishClient {
 		try {
 			clientComm.connect(null, myUsername);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Could not connect");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Could not connect");
 		}
 	}
 
@@ -343,7 +349,8 @@ public class Client implements MoodishClient {
 	 * method that connects an user
 	 */
 	public void dealWithConnectMsg() {
-		userDummy = new UserDummy(sender, moodish.implementation.client.UserDummy.Mood.HAPPY);
+		userDummy = new UserDummy(sender,
+				moodish.implementation.client.UserDummy.Mood.HAPPY);
 		if (!sender.equals(myUsername)) {
 			addUser(userDummy);
 		}

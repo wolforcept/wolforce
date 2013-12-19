@@ -11,7 +11,7 @@ public class DealWithServer extends Thread {
 	private ObjectInputStream in;
 
 	public DealWithServer(ClientCommmunicator client, ObjectInputStream in) {
-		super();
+		super(null, null, "DealWithServer_Thread");
 		this.client = client;
 		this.in = in;
 	}
@@ -19,7 +19,7 @@ public class DealWithServer extends Thread {
 	@Override
 	public void run() {
 		try {
-			while (true) {
+			while (!isInterrupted()) {
 				MessageToClient msg_client = (MessageToClient) in.readObject();
 				System.out.println("Mensagem recebida no cliente: "
 						+ client.getUsername() + " : " + msg_client.getType());
