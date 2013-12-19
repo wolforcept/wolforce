@@ -50,10 +50,6 @@ public class ServerMain {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				textArea.setForeground(Color.red);
-				textArea.append("HA");
-				textArea.
-//				textArea.setForeground(Color.black);
 				textArea.append(text);
 			}
 		});
