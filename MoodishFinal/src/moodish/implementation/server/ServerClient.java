@@ -11,7 +11,7 @@ public class ServerClient {
 	 */
 
 	private String nickName;
-	private List<String> friends;
+	private List<ServerClient> friends;
 	private String mood;
 
 	/**
@@ -26,7 +26,7 @@ public class ServerClient {
 	 */
 
 	public ServerClient(String nickName, String mood) {
-		this.friends = new ArrayList<String>();
+		this.friends = new ArrayList<ServerClient>();
 		this.nickName = nickName;
 		this.mood = mood;
 
@@ -40,7 +40,7 @@ public class ServerClient {
 	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
-	public List<String> getFriends() {
+	public List<ServerClient> getFriends() {
 		return friends;
 	}
 
@@ -77,8 +77,8 @@ public class ServerClient {
 	 */
 	public boolean isFriend(String nickName) {
 		boolean isFriend = false;
-		for (String nick : friends) {
-			if (nickName.equals(nick)) {
+		for (ServerClient nick : friends) {
+			if (nickName.equals(nick.getNickName())) {
 				isFriend = true;
 			}
 		}
@@ -93,8 +93,8 @@ public class ServerClient {
 	 * @author João Mestre
 	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
-	public void addFriend(String payload) {
-		this.friends.add(payload);
+	public void addFriend(ServerClient friend) {
+		this.friends.add(friend);
 
 	}
 
@@ -107,9 +107,27 @@ public class ServerClient {
 	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
-	public void removeFriend(String payload) {
-		this.friends.remove(payload);
+	public void removeFriend(ServerClient friend) {
+		this.friends.remove(friend);
 
+	}
+
+	/**
+	 * Remove friend from friend list
+	 * 
+	 * @param User
+	 *            nickname to be removed
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
+	 */
+
+	public ServerClient getFriend(String nickName) {
+		for (ServerClient c : friends) {
+			if (c.getNickName().equals(nickName)) {
+				return c;
+			}
+		}
+		return null;
 	}
 
 }
