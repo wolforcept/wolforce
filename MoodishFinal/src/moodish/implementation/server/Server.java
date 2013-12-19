@@ -78,7 +78,7 @@ public class Server implements MoodishServer {
 			ServerSideMessage message) {
 		for (int i = 0; i < clients.size(); i++) {
 			if (clients.get(i).isFriend(message.getClientNickname())) {
-				clients.get(i).removeFriend(message.getClientNickname());
+				// clients.get(i).removeFriend(message.getClientNickname());
 			}
 		}
 		for (int i = 0; i < clients.size(); i++) {
@@ -104,24 +104,35 @@ public class Server implements MoodishServer {
 	 *            parameter
 	 */
 	public void friendship(ServerComm serverComm, ServerSideMessage message) {
-		for (ServerClient client : clients) {
-			if (client.getNickName().equals(message.getClientNickname())) {
-				List<String> friends = client.getFriends();
-				boolean foundFriend = false;
-				int f = 0;
+		ServerClient client = null;
+		ServerClient friend = null;
 
-				while (!foundFriend && f != friends.size()) {
-					if (friends.get(f).equals(message.getPayload())) {
-						foundFriend = true;
-					}
-					f++;
-				}
+		for (ServerClient c : clients) {
+			if (c.getNickName().equals(message.getClientNickname())) {
+				client = c;
+			}
+			if (c.getNickName().equals(message.getPayload())) {
+				friend = c;
+			}
 
-				if(foundFriend){
-					
-				}else{
-					
-				}
+			if (client != null && friend != null) {
+				break;
+			}
+		}
+
+		if (client != null && friend != null) {
+			if (!client.isFriend(friend.getNickName())
+					|| !friend.isFriend(client.getNickName())) {
+				client.addFriend(friend);
+				friend.addFriend(client);
+
+				serverComm.sendNewFriendship(message.getClientNickname(),
+						message.getPayload());
+				serverComm.sendNewFriendship(message.getPayload(),
+						message.getClientNickname());
+			} else {
+				serverComm.sendError(message.getClientNickname(),
+						"This User is Already Your Friend!");
 			}
 		}
 
@@ -159,7 +170,7 @@ public class Server implements MoodishServer {
 				if (clients.get(i).isFriend(message.getPayload())) {
 					serverComm.sendNewUnfriendship(message.getClientNickname(),
 							message.getPayload());
-					clients.get(i).removeFriend(message.getPayload());
+					// clients.get(i).removeFriend(message.getPayload());
 				} else {
 					serverComm.sendError(message.getClientNickname(),
 							"This User it's not your friend");
@@ -183,11 +194,11 @@ public class Server implements MoodishServer {
 		for (int i = 0; i < clients.size(); i++) {
 			if (clients.get(i).getNickName()
 					.equals(message.getClientNickname())) {
-				for (String name : clients.get(i).getFriends()) {
-					System.out.println("Server.sendMoodishMessage()");
-					serverComm.sendMoodishMessage(message.getClientNickname(),
-							name, message.getPayload());
-				}
+				// for (String name : clients.get(i).getFriends()) {
+				// System.out.println("Server.sendMoodishMessage()");
+				// serverComm.sendMoodishMessage(message.getClientNickname(),
+				// name, message.getPayload());
+				// }
 			}
 		}
 	}
