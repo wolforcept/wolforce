@@ -74,7 +74,7 @@ public class Server implements MoodishServer {
 				}
 			}
 		}else{
-			servercomm.sendError(message.getClientNickname(), "O username já existe!");
+			servercomm.sendError(message.getClientNickname(), "Erro 24: O username já existe!");
 		}
 	}
 
@@ -146,7 +146,7 @@ public class Server implements MoodishServer {
 						message.getClientNickname());
 			} else {
 				serverComm.sendError(message.getClientNickname(),
-						"This User is Already Your Friend!");
+						"Erro 37: Este utilizador já é seu amigo!");
 			}
 		}
 

@@ -137,7 +137,8 @@ public class Client implements MoodishClient {
 					// }
 
 				} else {
-					JOptionPane.showMessageDialog(null, "N�o est� Conectado");
+					JOptionPane.showMessageDialog(null,
+							"N�o est� Conectado");
 				}
 			}
 		});
@@ -369,9 +370,14 @@ public class Client implements MoodishClient {
 	 * 
 	 * @param msg_
 	 */
-	public void dealWithMoodishMsg(ClientSideMessage msg_) {
-		msgArea.append(msg_.getSendersNickname() + ": " + msg_.getPayload()
-				+ "\n");
+	public void dealWithMoodishMsg(ClientSideMessage msg) {
+		for (UserDummy friend : friendList) {
+			if (friend.getName().equals(msg.getSendersNickname())) {
+				friend.setMood(msg.getPayload());
+			}
+		}
+		// msgArea.append(msg_.getSendersNickname() + ": " + msg_.getPayload()
+		// + "\n");
 	}
 
 	/**
