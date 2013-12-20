@@ -30,15 +30,6 @@ public class ServerCommmunicator implements ServerComm {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		// } finally {
-		// try {
-		// server_socket.close();
-		// } catch (IOException e) {
-		// System.err.println("Erro: problemas a fechar o socket: "
-		// + e.getMessage());
-		// }
-		// }
 	}
 
 	@Override
@@ -95,7 +86,11 @@ public class ServerCommmunicator implements ServerComm {
 
 	@Override
 	public void disconnectClient(String nickname) {
-		outs.remove(nickname);
+		try {
+			outs.remove(nickname);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

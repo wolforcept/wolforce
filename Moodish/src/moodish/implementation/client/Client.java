@@ -9,7 +9,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -51,12 +51,11 @@ public class Client implements MoodishClient {
 	private JPanel friendsList, usersList;
 	private JButton sendButton, connectToServers, disconnectFromServers,
 			filterButton, clearFilterButton;
-
+	private boolean filtering = false;
 	/**
 	 * creation of Friends list and Users list
 	 */
-	private LinkedList<Person> users = new LinkedList<Person>();
-	private LinkedList<Person> friends = new LinkedList<Person>();
+	private HashMap<String, Person> persons = new HashMap<String, Person>();
 
 	/**
 	 * Starts the client and only returns when (if ever) the client is stopped.
@@ -107,6 +106,8 @@ public class Client implements MoodishClient {
 			}
 		});
 
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
 		frame.pack();
 		frame.setVisible(true);
 	}
@@ -116,10 +117,18 @@ public class Client implements MoodishClient {
 	 */
 	public void buildGui() {
 
-		frame = new JFrame("Moodish");
+		frame = new JFrame("Moodish") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void dispose() {
+				disconnectFromServers();
+				super.dispose();
+				System.exit(0);
+			}
+		};
 		frame.setLayout(new BorderLayout());
 		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// DEFINE PEOPLE LISTS
 		usersList = new JPanel();
@@ -180,14 +189,25 @@ public class Client implements MoodishClient {
 
 	}
 
+	private void updateLists() {
+		updateUsersList();
+		if (filtering) {
+			browseByMood((String) filterComboBox.getSelectedItem());
+		} else {
+			updateFriendsList();
+		}
+	}
+
 	/**
 	 * Method that fills the text area designated for the users
 	 */
 	private void updateUsersList() {
 		usersList.removeAll();
-		for (Person p : users) {
-			usersList.add(Box.createVerticalStrut(5));
-			usersList.add(new PeopleElement(p, false));
+		for (String p : persons.keySet()) {
+			if (!persons.get(p).isMyFriend()) {
+				usersList.add(Box.createVerticalStrut(5));
+				usersList.add(new PeopleElement(persons.get(p), false));
+			}
 		}
 		usersList.add(Box.createVerticalGlue());
 		frame.revalidate();
@@ -199,9 +219,11 @@ public class Client implements MoodishClient {
 	 */
 	private void updateFriendsList() {
 		friendsList.removeAll();
-		for (Person p : friends) {
-			friendsList.add(Box.createVerticalStrut(5));
-			friendsList.add(new PeopleElement(p, true));
+		for (String p : persons.keySet()) {
+			if (persons.get(p).isMyFriend()) {
+				friendsList.add(Box.createVerticalStrut(5));
+				friendsList.add(new PeopleElement(persons.get(p), true));
+			}
 		}
 		friendsList.add(Box.createVerticalGlue());
 		frame.revalidate();
@@ -214,6 +236,9 @@ public class Client implements MoodishClient {
 	private void disconnectFromServers() {
 		if (clientComm != null && clientComm.isConnected()) {
 			clientComm.disconnect();
+			persons.clear();
+			updateLists();
+			frame.setTitle("Moodish - nao conectado");
 			JOptionPane.showMessageDialog(null, "Est� desconectado!");
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
@@ -228,15 +253,17 @@ public class Client implements MoodishClient {
 		try {
 			myUsername = JOptionPane
 					.showInputDialog("Introduza o seu username.");
-			System.out.println(myUsername);
+			frame.setTitle("Moodish - conectado como " + myUsername);
 
-			clientComm.connect(null, myUsername);
-			connectToServers.setEnabled(false);
-			disconnectFromServers.setEnabled(true);
-			new StartListeningMessages().start();
+			if (myUsername != null) {
+				clientComm.connect(null, myUsername);
+				connectToServers.setEnabled(false);
+				disconnectFromServers.setEnabled(true);
+				new StartListeningMessages().start();
+				persons.clear();
+			}
 		} catch (IOException e) {
-			// TODO
-			JOptionPane.showMessageDialog(null, "Could not connect");
+			JOptionPane.showMessageDialog(null, "Nao foi possivel connectar");
 		}
 	}
 
@@ -244,13 +271,26 @@ public class Client implements MoodishClient {
 	 * Method that shows friends by mood. If the input is null it clears the
 	 * filter
 	 */
-	private void browseByMood(String mood) { // TODO browse
+	private void browseByMood(String mood) {
 		if (mood == null) {
-			// clear filter
+			updateFriendsList();
+			filtering = false;
 		} else {
-			// filter
+			filtering = true;
+			friendsList.removeAll();
+			for (String p : persons.keySet()) {
+				if (persons.get(p).isMyFriend() && //
+						persons.get(p).getMood() != null && //
+						persons.get(p).getMood().equals(mood)) {
+					friendsList.add(Box.createVerticalStrut(5));
+					friendsList.add(new PeopleElement(persons.get(p), true));
+				}
+			}
+			friendsList.add(Box.createVerticalGlue());
+			frame.revalidate();
+			frame.repaint();
 		}
-		updateFriendsList();
+
 	}
 
 	/**
@@ -267,11 +307,8 @@ public class Client implements MoodishClient {
 	 * method that disconnects an user
 	 */
 	private void dealWithDisconnectMsg(String sender) {
-		for (Person user : users) {
-			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
-				removeUser(user);
-			}
-		}
+		persons.remove(sender);
+		updateLists();
 	}
 
 	/**
@@ -279,83 +316,50 @@ public class Client implements MoodishClient {
 	 * 
 	 * @param msg_
 	 */
-	private void dealWithMoodishMsg(ClientSideMessage msg) {
-		for (Person friend : friends) {
-			if (friend.getName().equals(msg.getSendersNickname())) {
-				friend.setMood(msg.getPayload());
-			}
-		}
-		updateFriendsList();
+	private void dealWithMoodishMsg(String sender, String mood) {
+		persons.get(sender).setMood(mood);
+		updateLists();
 	}
 
 	/**
 	 * method that adds a friendship
 	 */
 	private void dealWithFriendshipMsg(String sender) {
-		for (Person user : users) {
-			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
-				addFriendship(user);
-			}
-		}
+		persons.get(sender).addAsFriend();
+		updateLists();
 	}
 
 	/**
 	 * method that deletes a friendship
 	 */
 	private void dealWithUnfriendshipMsg(String sender) {
-		for (Person user : friends) {
-			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
-				removeFriendship(user);
-
-			}
-		}
+		persons.get(sender).removeAsFriend();
+		updateLists();
 	}
 
 	/**
 	 * method that is called when an error appears
 	 */
 	private void dealWithErrorMsg(String error) {
-		if (error.startsWith("Erro 24") || error.startsWith("Erro 17")) {
+		if (error.startsWith("Erro 47:")) {
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
+		} else if (error.startsWith("Erro 24:") //
+				|| error.startsWith("Erro 2:") //
+				|| error.startsWith("Erro 87:")) {
+			connectToServers.setEnabled(true);
+			disconnectFromServers.setEnabled(false);
+			clientComm.disconnect();
 		}
 		JOptionPane.showMessageDialog(null, error, "Error", 1);
 	}
 
 	/**
-	 * Method that removes a user
+	 * Method that adds a person
 	 */
-	private void removeUser(Person user) {
-		users.remove(user);
-		updateUsersList();
-	}
-
-	/**
-	 * Method that adds a user
-	 */
-	private void addUser(Person user) {
-		users.add(user);
-		updateUsersList();
-	}
-
-	/**
-	 * Method that adds a friend
-	 */
-	private void addFriendship(Person user) {
-		friends.add(user);
-		updateFriendsList();
-		users.remove(user);
-		updateUsersList();
-	}
-
-	/**
-	 * Method that removes a friend
-	 */
-	private void removeFriendship(Person user) {
-		friends.remove(user);
-		updateFriendsList();
-		users.add(user);
-		updateUsersList();
+	private void addUser(Person p) {
+		persons.put(p.getName(), p);
+		updateLists();
 	}
 
 	// thread que fica � escuta de mensagens e lida com elas
@@ -364,30 +368,31 @@ public class Client implements MoodishClient {
 		public void run() {
 			while (true) {
 				ClientSideMessage msg = clientComm.getNextMessage();
-				String sender = msg.getPayload();
+				String sender = msg.getSendersNickname();
+				String payload = msg.getPayload();
 
 				if (msg.getType() == ClientSideMessage.Type.CONNECTED) {
-					dealWithConnectMsg(sender);
+					dealWithConnectMsg(payload);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.DISCONNECTED) {
-					dealWithDisconnectMsg(sender);
+					dealWithDisconnectMsg(payload);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.MOODISH_MESSAGE) {
-					dealWithMoodishMsg(msg);
+					dealWithMoodishMsg(sender, payload);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.FRIENDSHIP) {
-					dealWithFriendshipMsg(sender);
+					dealWithFriendshipMsg(payload);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.UNFRIENDSHIP) {
-					dealWithUnfriendshipMsg(sender);
+					dealWithUnfriendshipMsg(payload);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.ERROR) {
-					dealWithErrorMsg(msg.getPayload());
+					dealWithErrorMsg(payload);
 				}
 			}
 		}
@@ -430,10 +435,8 @@ public class Client implements MoodishClient {
 					}
 				}
 			});
-
 			add(button);
 			add(Box.createHorizontalStrut(5));
-
 		}
 
 	}

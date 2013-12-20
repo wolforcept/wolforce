@@ -1,8 +1,11 @@
 package moodish.implementation.server;
 
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
+import moodish.implementation.shared.MessageToServer;
 import moodish.interfaces.comm.ServerComm;
 import moodish.interfaces.comm.ServerSideMessage;
 
@@ -37,14 +40,14 @@ public class SecurityCommunicator implements ServerComm {
 	 *                  in seconds, which you can send the same mood a maximum
 	 *                  number of times.
 	 */
-	public static final int SAMEMOOD_CHANGE_SPAN = 30;
+	public static final int SAMEMOOD_CHANGE_SPAN = 60;
 	/**
 	 * @serialField
 	 *                  MOOD_CHANGE_SPAN the field that indicates the time, in
 	 *                  seconds, which you can send the maximum number of mood
 	 *                  changes.
 	 */
-	public static final int MOOD_CHANGE_SPAN = 60;
+	public static final int MOOD_CHANGE_SPAN = 30;
 	/**
 	 * @serialField
 	 *                  BAN_TIME the field that indicates the time, in seconds,
@@ -96,15 +99,70 @@ public class SecurityCommunicator implements ServerComm {
 			ServerSideMessage next = comm.getNextMessage();
 			String from = next.getClientNickname();
 
+			if (next.getType().equals(ServerSideMessage.Type.MOODISH_MESSAGE))
+				securityCheck(from, next.getPayload());
+
 			if (next.getType().equals(ServerSideMessage.Type.CLIENT_CONNECTED)
 					&& isBanned(from)) {
-				comm.sendError(from, "Ainda estas banido.");
+				comm.sendError(from, "Erro 2: Ainda estas banido.");
 			} else {
 				serverMessages.add(next);
 			}
 		}
 
 		return !serverMessages.isEmpty();
+	}
+
+	private void securityCheck(String from, String mood) {
+		System.out.println("SECURITY CHECK: " + mood);
+
+		Client client = clients.get(from);
+		if (client == null) {
+			client = new Client();
+			clients.put(from, client);
+		}
+		client.updateMessageTimes(mood);
+
+		int numberOfMoodMsgs = client.getNumberOfMessages();
+		int numberOfSameMoodMessages = client.getNumberOfSameMoodMessages(mood);
+
+		if (numberOfSameMoodMessages == MAX_SAMEMOOD_CHANGES) {
+			// WARN
+
+			comm.sendError(from, "Cuidado. Já repetiste o mood "
+					+ MAX_SAMEMOOD_CHANGES + " vezes em "
+					+ SAMEMOOD_CHANGE_SPAN + " segundos.");
+
+		} else if (numberOfSameMoodMessages > MAX_SAMEMOOD_CHANGES) {
+			// BAN
+			client.ban();
+			comm.sendError(from,
+					"Erro 24: Foste banido temporariamente por repetir o mood mais de "
+							+ MAX_SAMEMOOD_CHANGES + " vezes em "
+							+ SAMEMOOD_CHANGE_SPAN + " segundos.");
+
+			serverMessages.add(new MessageToServer(
+					ServerSideMessage.Type.CLIENT_DISCONNECTED, from, null));
+
+		}
+
+		if (numberOfMoodMsgs == MAX_MOOD_CHANGES) {
+			// WARN
+			String msg = "Cuidado, já mandaste " + MAX_MOOD_CHANGES
+					+ " mensagens  nos ultimos " + MOOD_CHANGE_SPAN
+					+ " segundos.";
+			comm.sendError(from, msg);
+		}
+		if (numberOfMoodMsgs > MAX_MOOD_CHANGES) {
+			// DISCONNECT
+			client.ban();
+			comm.sendError(from,
+					"Erro 87: Foste banido temporariamente por enviar mais de "
+							+ MAX_MOOD_CHANGES + " mensagens em "
+							+ MOOD_CHANGE_SPAN + " segundos.");
+			serverMessages.add(new MessageToServer(
+					ServerSideMessage.Type.CLIENT_DISCONNECTED, from, null));
+		}
 	}
 
 	/**
@@ -120,49 +178,7 @@ public class SecurityCommunicator implements ServerComm {
 	 */
 	@Override
 	public void sendMoodishMessage(String from, String to, String msgString) {
-
-		System.out.println("SECURITY CHECK: " + msgString);
-
-		Client client = clients.get(from);
-		if (client == null) {
-			client = new Client();
-			clients.put(from, client);
-		}
-		int nrMsgs = client.getNumberOfMessages();
-		client.updateMessageTimes();
-
-		if (client.exceededSameMoodChanges()) {
-			ServerMessage disconnectMessage = new ServerMessage(
-					ServerSideMessage.Type.CLIENT_DISCONNECTED, from);
-			serverMessages.add(disconnectMessage);
-			client.ban();
-			comm.sendError(from,
-					"Foste banido temporariamente por repetir o mood "
-							+ MAX_SAMEMOOD_CHANGES + " vezes em "
-							+ SAMEMOOD_CHANGE_SPAN + " segundos.");
-		}
-
-		if (nrMsgs <= MAX_MOOD_CHANGES) {
-			comm.sendMoodishMessage(from, to, msgString);
-
-			if (nrMsgs == MAX_MOOD_CHANGES) {
-				// SEND WARNING TOO
-				String msg = "Cuidado, já mandaste " + MAX_MOOD_CHANGES
-						+ " mensagens  nos ultimos " + MOOD_CHANGE_SPAN
-						+ " segundos.";
-				comm.sendError(from, msg);
-			}
-		} else {
-			// DISCONNECT
-			ServerMessage disconnectMessage = new ServerMessage(
-					ServerSideMessage.Type.CLIENT_DISCONNECTED, from);
-			serverMessages.add(disconnectMessage);
-			client.ban();
-			comm.sendError(from,
-					"Foste banido temporariamente por enviar mais de "
-							+ MAX_MOOD_CHANGES + " mensagens em "
-							+ MOOD_CHANGE_SPAN + " segundos.");
-		}
+		comm.sendMoodishMessage(from, to, msgString);
 	}
 
 	@Override
@@ -202,49 +218,6 @@ public class SecurityCommunicator implements ServerComm {
 	}
 
 	/**
-	 * Class ServerMessage that implements ServerSideMessage.
-	 * <p/>
-	 * This class is used to communicate with the server.
-	 * 
-	 * @author Adriano Fernandes
-	 * @author Miguel Fernandes
-	 * 
-	 */
-	class ServerMessage implements ServerSideMessage {
-
-		Type type;
-		String nickname;
-
-		/**
-		 * Constructor of the class ServerMessage
-		 * 
-		 * @param type
-		 *            argument that specifies the type of message.
-		 * @param nick
-		 *            argument that specifies the nickname of the user.
-		 */
-		public ServerMessage(Type type, String nick) {
-			this.type = type;
-			this.nickname = nick;
-		}
-
-		@Override
-		public Type getType() {
-			return type;
-		}
-
-		@Override
-		public String getPayload() {
-			return null;
-		}
-
-		@Override
-		public String getClientNickname() {
-			return nickname;
-		}
-	}
-
-	/**
 	 * Class Client.
 	 * <p/>
 	 * This class constructs a new client.
@@ -255,7 +228,7 @@ public class SecurityCommunicator implements ServerComm {
 	 */
 	private class Client {
 
-		private LinkedList<Long> messageTimes;
+		private LinkedList<Entry<Long, String>> messageTimes;
 		private boolean banned;
 		private long banTime;
 
@@ -263,19 +236,20 @@ public class SecurityCommunicator implements ServerComm {
 		 * Constructor of the class client.
 		 */
 		public Client() {
-			messageTimes = new LinkedList<Long>();
+			messageTimes = new LinkedList<Entry<Long, String>>();
 			banned = false;
 		}
 
-		public boolean exceededSameMoodChanges() {
+		public int getNumberOfSameMoodMessages(String mood) {
 
 			int times = 0;
-			for (long l : messageTimes) {
-				if (toSeconds(System.currentTimeMillis()) - toSeconds(l) > SAMEMOOD_CHANGE_SPAN) {
+			for (Entry<Long, String> e : messageTimes) {
+				if (e.getValue().equals(mood) && //
+						getTimeDifferenceInSeconds(e.getKey()) <= SAMEMOOD_CHANGE_SPAN) {
 					times++;
 				}
 			}
-			return times > MAX_SAMEMOOD_CHANGES;
+			return times;
 		}
 
 		/**
@@ -286,8 +260,8 @@ public class SecurityCommunicator implements ServerComm {
 		 */
 		public int getNumberOfMessages() {
 			int number = 0;
-			for (Long time : messageTimes) {
-				if (getTimeDifferenceInSeconds(time) <= SecurityCommunicator.MOOD_CHANGE_SPAN)
+			for (Entry<Long, String> e : messageTimes) {
+				if (getTimeDifferenceInSeconds(e.getKey()) <= SecurityCommunicator.MOOD_CHANGE_SPAN)
 					number++;
 			}
 			return number;
@@ -316,7 +290,7 @@ public class SecurityCommunicator implements ServerComm {
 		/**
 		 * Method that updates the list of times from messages.
 		 */
-		void updateMessageTimes() {
+		void updateMessageTimes(String mood) {
 			if (banned) {
 				if (toSeconds(System.currentTimeMillis()) - toSeconds(banTime) > BAN_TIME) {
 					banned = false;
@@ -326,7 +300,8 @@ public class SecurityCommunicator implements ServerComm {
 			if (messageTimes.size() > SecurityCommunicator.MAX_MOOD_CHANGES) {
 				messageTimes.removeLast();
 			}
-			messageTimes.addFirst(System.currentTimeMillis());
+			messageTimes.addFirst(new AbstractMap.SimpleEntry<Long, String>(
+					System.currentTimeMillis(), mood));
 		}
 
 		/**

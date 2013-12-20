@@ -23,8 +23,10 @@ public class OutputSocket {
 		clients_map_out.put(username, out);
 	}
 
-	public void remove(String username) {
+	public void remove(String username) throws IOException {
+		clients_map_sockets.get(username).close();
 		clients_map_sockets.remove(username);
+		clients_map_out.get(username).close();
 		clients_map_out.remove(username);
 	}
 
@@ -34,8 +36,9 @@ public class OutputSocket {
 
 	public void sendMessage(MessageToClient msg, String toNickname)
 			throws IOException {
-		System.out.println("Sent Message " + msg.getPayload() + " to "
-				+ toNickname + " from " + msg.getSendersNickname());
+		System.out.println("Sent Message " + msg.getType() + ": "
+				+ msg.getPayload() + " to " + toNickname + " from "
+				+ msg.getSendersNickname());
 		ObjectOutputStream out = clients_map_out.get(toNickname);
 		out.writeObject(msg);
 	}

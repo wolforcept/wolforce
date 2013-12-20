@@ -9,19 +9,20 @@ public class DealWithClient extends Thread {
 
 	private ServerCommmunicator server;
 	private ObjectInputStream in;
-	
+
 	public DealWithClient(ServerCommmunicator serverCommDummy,
 			ObjectInputStream inputStream) {
 		server = serverCommDummy;
 		in = inputStream;
 	}
-	
+
 	@Override
 	public void run() {
-		try {	
-		while(true){
-				MessageToServer msg_server = (MessageToServer)in.readObject();
-				System.out.println("Mensagem recebida: " + msg_server.getType());
+		try {
+			while (true) {
+				MessageToServer msg_server = (MessageToServer) in.readObject();
+				System.out
+						.println("Mensagem recebida: " + msg_server.getType());
 				server.addMessage(msg_server);
 			}
 		} catch (ClassNotFoundException e) {
