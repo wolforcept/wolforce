@@ -53,14 +53,28 @@ public class Server implements MoodishServer {
 	 *            parameter
 	 */
 	public void connectClient(ServerComm servercomm, ServerSideMessage message) {
-		clients.add(new ServerClient(message.getClientNickname(), null));
-		for (int i = 0; i < clients.size(); i++) {
-			if (!clients.get(i).equals(message.getClientNickname())) {
-				servercomm.sendClientConnected(clients.get(i).getNickName(),
-						message.getClientNickname());
-				servercomm.sendClientConnected(message.getClientNickname(),
-						clients.get(i).getNickName());
+		boolean alreadyExists = false;
+
+		for (ServerClient client : clients) {
+			if (client.getNickName().equals(message.getClientNickname())) {
+				alreadyExists = true;
+				break;
 			}
+		}
+		
+		if (!alreadyExists) {
+			clients.add(new ServerClient(message.getClientNickname(), null));
+			for (int i = 0; i < clients.size(); i++) {
+				if (!clients.get(i).equals(message.getClientNickname())) {
+					servercomm.sendClientConnected(
+							clients.get(i).getNickName(),
+							message.getClientNickname());
+					servercomm.sendClientConnected(message.getClientNickname(),
+							clients.get(i).getNickName());
+				}
+			}
+		}else{
+			servercomm.sendError(message.getClientNickname(), "O username já existe!");
 		}
 	}
 
@@ -195,22 +209,21 @@ public class Server implements MoodishServer {
 						"This User it's not your friend!");
 			}
 		}
-		
-		
-//		for (int i = 0; i < clients.size(); i++) {
-//			if (clients.get(i).getNickName()
-//					.equals(message.getClientNickname())) {
-//				if (clients.get(i).isFriend(message.getPayload())) {
-//					serverComm.sendNewUnfriendship(message.getClientNickname(),
-//							message.getPayload());
-//					// clients.get(i).removeFriend(message.getPayload());
-//				} else {
-//					serverComm.sendError(message.getClientNickname(),
-//							"This User it's not your friend");
-//				}
-//			}
-//
-//		}
+
+		// for (int i = 0; i < clients.size(); i++) {
+		// if (clients.get(i).getNickName()
+		// .equals(message.getClientNickname())) {
+		// if (clients.get(i).isFriend(message.getPayload())) {
+		// serverComm.sendNewUnfriendship(message.getClientNickname(),
+		// message.getPayload());
+		// // clients.get(i).removeFriend(message.getPayload());
+		// } else {
+		// serverComm.sendError(message.getClientNickname(),
+		// "This User it's not your friend");
+		// }
+		// }
+		//
+		// }
 	}
 
 	/**
