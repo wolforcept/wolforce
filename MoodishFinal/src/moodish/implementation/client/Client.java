@@ -34,13 +34,12 @@ import moodish.interfaces.comm.ClientSideMessage;
  */
 public class Client implements MoodishClient {
 
-	private static final String[] MOOD_NAMES = new String[] { "HAPPY", "SAD" };
+	static final String[] MOOD_NAMES = new String[] { "HAPPY", "SAD" };
 	/**
 	 * Variables needed for the component
 	 */
-	private String sender;
 	private UserDummy userDummy;
-	private ClientSideMessage msg;
+	// private ClientSideMessage msg;
 	private ClientComm clientComm;
 	private String myUsername;
 	// private StartListeningMessages startListeningMessages = new
@@ -131,7 +130,7 @@ public class Client implements MoodishClient {
 						clientComm.unfriendship(msgSend.substring(10));
 					} else if (msgSend.startsWith("/mood ")) {
 						clientComm.sendMoodishMessage(msgSend.substring(6));
-					} 
+					}
 					// else {
 					// msgArea.append(myUsername + ": " + msgSend + "\n");
 					// clientComm.sendMoodishMessage(msgSend);
@@ -273,16 +272,6 @@ public class Client implements MoodishClient {
 	}
 
 	/**
-	 * Defines the message that is going to be sent
-	 * 
-	 * @param msg
-	 */
-	public void setMsg(ClientSideMessage msg) {
-		this.msg = msg;
-		sender = msg.getPayload();
-	}
-
-	/**
 	 * Method that return the users list
 	 * 
 	 * @return usersList
@@ -345,22 +334,17 @@ public class Client implements MoodishClient {
 	public void fillFriendsList() {
 		friendsArea.setText("");
 		for (UserDummy username : friendList) {
-			for (int i = 0; i < 3; i++) {
-				if (username.getMood().getValor() == i) {
-					friendsArea.append(username.getName() + " - "
-							+ username.getMood() + "\n");
+			friendsArea.append(username.getName() + " - " + username.getMood()
+					+ "\n");
 
-				}
-			}
 		}
 	}
 
 	/**
 	 * method that connects an user
 	 */
-	public void dealWithConnectMsg() {
-		userDummy = new UserDummy(sender,
-				moodish.implementation.client.UserDummy.Mood.HAPPY);
+	public void dealWithConnectMsg(String sender, String mood) {
+		userDummy = new UserDummy(sender, mood);
 		if (!sender.equals(myUsername)) {
 			addUser(userDummy);
 		}
@@ -370,7 +354,7 @@ public class Client implements MoodishClient {
 	/**
 	 * method that disconnects an user
 	 */
-	public void dealWithDisconnectMsg() {
+	public void dealWithDisconnectMsg(String sender) {
 
 		for (UserDummy user : usersList) {
 			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
@@ -393,7 +377,7 @@ public class Client implements MoodishClient {
 	/**
 	 * method that adds a friendship
 	 */
-	public void dealWithFriendshipMsg() {
+	public void dealWithFriendshipMsg(String sender) {
 		for (UserDummy user : usersList) {
 			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
 				addFriendship(user);
@@ -404,7 +388,7 @@ public class Client implements MoodishClient {
 	/**
 	 * method that deletes a friendship
 	 */
-	public void dealWithUnfriendshipMsg() {
+	public void dealWithUnfriendshipMsg(String sender) {
 		for (UserDummy user : friendList) {
 			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
 				removeFriendship(user);
@@ -416,12 +400,12 @@ public class Client implements MoodishClient {
 	/**
 	 * method that is called when an error appears
 	 */
-	public void dealWithErrorMsg() {
-		if (msg.getPayload().equals("O username já existe!")) {
+	public void dealWithErrorMsg(String error) {
+		if (error.startsWith("Erro 24")) {
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
 		}
-		JOptionPane.showMessageDialog(null, msg.getPayload(), "Error", 1);
+		JOptionPane.showMessageDialog(null, error, "Error", 1);
 	}
 
 	/**
@@ -470,15 +454,15 @@ public class Client implements MoodishClient {
 		@Override
 		public void run() {
 			while (true) {
-				msg = clientComm.getNextMessage();
-				sender = msg.getPayload();
+				ClientSideMessage msg = clientComm.getNextMessage();
+				String sender = msg.getPayload();
 
 				if (msg.getType() == ClientSideMessage.Type.CONNECTED) {
-					dealWithConnectMsg();
+					dealWithConnectMsg(sender, msg.getPayload());
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.DISCONNECTED) {
-					dealWithDisconnectMsg();
+					dealWithDisconnectMsg(sender);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.MOODISH_MESSAGE) {
@@ -486,15 +470,15 @@ public class Client implements MoodishClient {
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.FRIENDSHIP) {
-					dealWithFriendshipMsg();
+					dealWithFriendshipMsg(sender);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.UNFRIENDSHIP) {
-					dealWithUnfriendshipMsg();
+					dealWithUnfriendshipMsg(sender);
 				}
 
 				if (msg.getType() == ClientSideMessage.Type.ERROR) {
-					dealWithErrorMsg();
+					dealWithErrorMsg(msg.getPayload());
 				}
 			}
 		}

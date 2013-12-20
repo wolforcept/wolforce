@@ -2,39 +2,28 @@ package moodish.implementation.client;
 
 public class UserDummy {
 	private String name;
-	private Mood mood;
+	private String mood;
 
-	public UserDummy(String name, Mood mood) {
-		super();
+	public UserDummy(String name, String mood) {
 		this.name = name;
 		this.mood = mood;
 
+	}
+
+	public UserDummy(String name) {
+		this(name, Client.MOOD_NAMES[0]);
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public Mood getMood() {
+	public String getMood() {
 		return mood;
 	}
 
-	public void setMood(Mood mood) {
+	public void setMood(String mood) {
 		this.mood = mood;
 	}
 
-	public enum Mood {
-		HAPPY(0), UNHAPPY(1), TIRED(2);
-
-		private final int valor;
-
-		Mood(int valorOpcao) {
-			valor = valorOpcao;
-		}
-
-		public int getValor() {
-			return valor;
-		}
-
-	}
 }
