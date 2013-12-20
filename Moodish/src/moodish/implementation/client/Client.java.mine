@@ -1,0 +1,413 @@
+package moodish.implementation.client;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.LinkedList;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+import moodish.interfaces.client.MoodishClient;
+import moodish.interfaces.comm.ClientComm;
+import moodish.interfaces.comm.ClientSideMessage;
+
+/**
+ * 
+ * @author grupo32
+ * 
+ */
+public class Client implements MoodishClient {
+
+	public static final String[] MOOD_NAMES = new String[] { "HAPPY", "SAD" };
+
+	private static final Dimension PEOPLE_LISTS_SIZE = new Dimension(100, 250);
+	private static final int BORDER = 3;
+	/**
+	 * Variables needed for the component
+	 */
+	private ClientComm clientComm;
+	private String myUsername;
+	// private StartListeningMessages startListeningMessages = new
+	// StartListeningMessages();
+
+	/**
+	 * Variables needed for graphical interface
+	 */
+	private JFrame frame;
+	private JComboBox<String> moodsComboBox, filterComboBox;
+	private JPanel friendsList, usersList;
+	private JButton sendButton, connectToServers, disconnectFromServers,
+			filterButton, clearFilterButton;
+
+	/**
+	 * creation of Friends list and Users list
+	 */
+	private LinkedList<UserListObject> users = new LinkedList<UserListObject>();
+	private LinkedList<UserListObject> friends = new LinkedList<UserListObject>();
+
+	/**
+	 * Starts the client and only returns when (if ever) the client is stopped.
+	 * 
+	 * @param clientComm
+	 *            the clientComm through which the client should communicate
+	 *            with the server.
+	 */
+	@Override
+	public void start(ClientComm comm) {
+		this.clientComm = comm;
+
+		connectToServers.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				connectToServers();
+			}
+		});
+		disconnectFromServers.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				disconnectFromServers();
+			}
+		});
+
+		sendButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (clientComm != null && clientComm.isConnected()) {
+					clientComm.sendMoodishMessage((String) moodsComboBox
+							.getSelectedItem());
+				} else {
+					JOptionPane.showMessageDialog(null, "N�o est� Conectado");
+				}
+			}
+		});
+
+		filterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				browseByMood((String) filterComboBox.getSelectedItem());
+			}
+		});
+
+		clearFilterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				browseByMood(null);
+			}
+		});
+
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	/**
+	 * Method that starts the graphical interface
+	 */
+	public void buildGui() {
+
+		frame = new JFrame("Moodish");
+		frame.setLayout(new BorderLayout());
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// DEFINE PEOPLE LISTS
+		JPanel usersList = new JPanel();
+		// usersList.setBackground(Color.white);
+		usersList.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER,
+				BORDER, BORDER));
+		usersList.setLayout(new FlowLayout(FlowLayout.LEADING));
+		usersList.setPreferredSize(PEOPLE_LISTS_SIZE);
+
+		JPanel friendsList = new JPanel();
+		// friendsList.setBackground(Color.white);
+		friendsList.setBorder(BorderFactory.createEmptyBorder(BORDER, BORDER,
+				BORDER, BORDER));
+		friendsList.setPreferredSize(PEOPLE_LISTS_SIZE);
+
+		// DEFINE PEOPLE LISTS PANELS
+		JPanel usersPanel = new JPanel();
+		usersPanel.setLayout(new BorderLayout());
+		usersPanel.add(new JLabel("Utilizadores", JLabel.CENTER),
+				BorderLayout.NORTH);
+		usersPanel.add(usersList, BorderLayout.CENTER);
+
+		JPanel friendsPanel = new JPanel();
+		friendsPanel.setLayout(new BorderLayout());
+		friendsPanel.add(new JLabel("Amigos", JLabel.CENTER),
+				BorderLayout.NORTH);
+		friendsPanel.add(friendsList, BorderLayout.CENTER);
+
+		// ADD USER LISTS
+		JPanel peoplePanel = new JPanel();
+		peoplePanel.setLayout(new GridLayout(1, 2));
+		peoplePanel.add(usersPanel);
+		peoplePanel.add(friendsPanel);
+
+		// DEFINE BOTTOM BUTTONS
+		moodsComboBox = new JComboBox<String>(MOOD_NAMES);
+		sendButton = new JButton("Enviar");
+		filterComboBox = new JComboBox<String>(MOOD_NAMES);
+		filterButton = new JButton("Filtrar");
+		clearFilterButton = new JButton("Todos");
+
+		// ADD BOTTOM BUTTONS
+		JPanel buttonsPanel = new JPanel();
+		// TODO escolher entre flow e grid
+		buttonsPanel.setLayout(new FlowLayout());
+		// buttonsPanel.setLayout(new GridLayout(1,4));
+		buttonsPanel.add(moodsComboBox);
+		buttonsPanel.add(sendButton);
+		buttonsPanel.add(filterComboBox);
+		buttonsPanel.add(filterButton);
+		buttonsPanel.add(clearFilterButton);
+
+		// DEFINE CONTROL BUTTONS
+		connectToServers = new JButton("Ligar aos servidores");
+		disconnectFromServers = new JButton("Desligar dos servidores");
+		disconnectFromServers.setEnabled(false);
+
+		// ADD CONTROL BUTTONS
+		JPanel controls = new JPanel();
+		controls.setLayout(new FlowLayout());
+		controls.add(disconnectFromServers);
+		controls.add(connectToServers);
+
+		// ///////////////////////////////////////////////////
+
+		friendsList.add(new JButton("TEaaaaaasTE"));
+		friendsList.add(new JButton("TEaaaaaaasTE"));
+		friendsList.add(new JButton("TEsaaaaaaaaTE"));
+		friendsList.add(new JButton("TEsTaaaaaaaaE"));
+		friendsList.add(new JButton("TEsaaaaaaTE"));
+
+		// ADD EVERYTHING
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(peoplePanel, BorderLayout.CENTER);
+		mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+		frame.add(mainPanel, BorderLayout.CENTER);
+		frame.add(controls, BorderLayout.SOUTH);
+
+	}
+
+	/**
+	 * Method that fills the text area designated for the users
+	 */
+	private void updateUsersList() {
+		// TODO
+
+		// usersArea.setText("");
+		// for (UserDummy username : users) {
+		// usersArea.append(username.getName() + "\n");
+		// }
+	}
+
+	/**
+	 * Method that fills the text area designated for the friends
+	 */
+	private void updateFriendsList() {
+		// TODO
+
+		// friendsArea.setText("");
+		// for (UserDummy username : friends) {
+		// friendsArea.append(username.getName() + " - " + username.getMood()
+		// + "\n");
+		//
+		// }
+	}
+
+	/**
+	 * Method that disconnects the user from the server
+	 */
+	private void disconnectFromServers() {
+		if (clientComm != null && clientComm.isConnected()) {
+			clientComm.disconnect();
+			JOptionPane.showMessageDialog(null, "Est� desconectado!");
+			connectToServers.setEnabled(true);
+			disconnectFromServers.setEnabled(false);
+		}
+	}
+
+	/**
+	 * Method that connects the user to the server
+	 */
+	private void connectToServers() {
+
+		try {
+			myUsername = JOptionPane
+					.showInputDialog("Introduza o seu username.");
+			clientComm.connect("localhost", myUsername);
+			connectToServers.setEnabled(false);
+			disconnectFromServers.setEnabled(true);
+			new StartListeningMessages().start();
+			System.out.println(myUsername);
+		} catch (IOException e) {
+			// TODO
+		}
+	}
+
+	/**
+	 * Method that shows friends by mood. If the input is null it clears the
+	 * filter
+	 */
+	private void browseByMood(String mood) { // TODO browse
+		if (mood == null) {
+			// clear filter
+		} else {
+			// filter
+		}
+		updateFriendsList();
+	}
+
+	/**
+	 * method that connects an user
+	 */
+	private void dealWithConnectMsg(String sender, String mood) {
+		UserListObject userDummy = new UserListObject(sender, mood);
+		if (!sender.equals(myUsername)) {
+			addUser(userDummy);
+		}
+	}
+
+	/**
+	 * method that disconnects an user
+	 */
+	private void dealWithDisconnectMsg(String sender) {
+		for (UserListObject user : users) {
+			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
+				removeUser(user);
+			}
+		}
+	}
+
+	/**
+	 * method responsible for the appearance of the message sent in the window
+	 * 
+	 * @param msg_
+	 */
+	private void dealWithMoodishMsg(ClientSideMessage msg) {
+		for (UserListObject friend : friends) {
+			if (friend.getName().equals(msg.getSendersNickname())) {
+				friend.setMood(msg.getPayload());
+			}
+		}
+		// msgArea.append(msg_.getSendersNickname() + ": " + msg_.getPayload()
+		// + "\n");
+	}
+
+	/**
+	 * method that adds a friendship
+	 */
+	private void dealWithFriendshipMsg(String sender) {
+		for (UserListObject user : users) {
+			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
+				addFriendship(user);
+			}
+		}
+	}
+
+	/**
+	 * method that deletes a friendship
+	 */
+	private void dealWithUnfriendshipMsg(String sender) {
+		for (UserListObject user : friends) {
+			if (user.getName().equals(sender) && !sender.equals(myUsername)) {
+				removeFriendship(user);
+
+			}
+		}
+	}
+
+	/**
+	 * method that is called when an error appears
+	 */
+	private void dealWithErrorMsg(String error) {
+		if (error.startsWith("Erro 24")) {
+			connectToServers.setEnabled(true);
+			disconnectFromServers.setEnabled(false);
+		}
+		JOptionPane.showMessageDialog(null, error, "Error", 1);
+	}
+
+	/**
+	 * Method that removes a user
+	 */
+	private void removeUser(UserListObject user) {
+		users.remove(user);
+		updateUsersList();
+
+	}
+
+	/**
+	 * Method that adds a user
+	 */
+	private void addUser(UserListObject user) {
+		users.add(user);
+		updateUsersList();
+	}
+
+	/**
+	 * Method that adds a friend
+	 */
+	private void addFriendship(UserListObject user) {
+		friends.add(user);
+		updateFriendsList();
+		users.remove(user);
+		updateUsersList();
+	}
+
+	/**
+	 * Method that removes a friend
+	 */
+	private void removeFriendship(UserListObject user) {
+		friends.remove(user);
+		updateFriendsList();
+		users.add(user);
+		updateUsersList();
+	}
+
+	// thread que fica � escuta de mensagens e lida com elas
+	public class StartListeningMessages extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				ClientSideMessage msg = clientComm.getNextMessage();
+				String sender = msg.getPayload();
+
+				if (msg.getType() == ClientSideMessage.Type.CONNECTED) {
+					dealWithConnectMsg(sender, msg.getPayload());
+				}
+
+				if (msg.getType() == ClientSideMessage.Type.DISCONNECTED) {
+					dealWithDisconnectMsg(sender);
+				}
+
+				if (msg.getType() == ClientSideMessage.Type.MOODISH_MESSAGE) {
+					dealWithMoodishMsg(msg);
+				}
+
+				if (msg.getType() == ClientSideMessage.Type.FRIENDSHIP) {
+					dealWithFriendshipMsg(sender);
+				}
+
+				if (msg.getType() == ClientSideMessage.Type.UNFRIENDSHIP) {
+					dealWithUnfriendshipMsg(sender);
+				}
+
+				if (msg.getType() == ClientSideMessage.Type.ERROR) {
+					dealWithErrorMsg(msg.getPayload());
+				}
+			}
+		}
+
+	}
+}
