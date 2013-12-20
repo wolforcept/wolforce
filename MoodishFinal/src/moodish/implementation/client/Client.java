@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,6 +34,7 @@ import moodish.interfaces.comm.ClientSideMessage;
  */
 public class Client implements MoodishClient {
 
+	private static final String[] MOOD_NAMES = new String[] { "HAPPY", "SAD" };
 	/**
 	 * Variables needed for the component
 	 */
@@ -48,7 +50,8 @@ public class Client implements MoodishClient {
 	 * Variables needed for graphical interface
 	 */
 	private JTextArea usersArea, msgArea, friendsArea, browseResult;
-	private JTextField browse, moods;
+	private JTextField browse;
+	private JComboBox<String> moods;
 	private JLabel msgs, friendsLabel, usersLabel;
 	private JFrame frame;
 	private JPanel msgsPanel, labelPanel, eastPanel, peoplePanel, usersPanel,
@@ -100,7 +103,7 @@ public class Client implements MoodishClient {
 		msgs = new JLabel("Digite uma mensagem:");
 		labelPanel.add(msgs);
 
-		moods = new JTextField(20);
+		moods = new JComboBox<String>(MOOD_NAMES);
 		labelPanel.add(moods);
 
 		sendMsg = new JButton("Enviar");
@@ -116,7 +119,7 @@ public class Client implements MoodishClient {
 
 				if (clientComm != null && clientComm.isConnected()) {
 
-					String msgSend = moods.getText();
+					String msgSend = (String) moods.getSelectedItem();
 
 					// if (msgSend.length() > 7
 					// && msgSend.startsWith("/friend ")) {
@@ -132,10 +135,9 @@ public class Client implements MoodishClient {
 						msgArea.append(myUsername + ": " + msgSend + "\n");
 						clientComm.sendMoodishMessage(msgSend);
 					}
-					moods.setText("");
 
 				} else {
-					JOptionPane.showMessageDialog(null, "Não está Conectado");
+					JOptionPane.showMessageDialog(null, "Nï¿½o estï¿½ Conectado");
 				}
 			}
 		});
@@ -249,7 +251,7 @@ public class Client implements MoodishClient {
 	public void disconnectFromServers() {
 		if (clientComm != null && clientComm.isConnected()) {
 			clientComm.disconnect();
-			JOptionPane.showMessageDialog(null, "Está desconectado!");
+			JOptionPane.showMessageDialog(null, "Estï¿½ desconectado!");
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
 		}
@@ -462,7 +464,7 @@ public class Client implements MoodishClient {
 		fillFriendsList();
 	}
 
-	// thread que fica à escuta de mensagens e lida com elas
+	// thread que fica ï¿½ escuta de mensagens e lida com elas
 	public class StartListeningMessages extends Thread {
 		@Override
 		public void run() {
