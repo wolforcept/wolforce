@@ -53,7 +53,7 @@ public class Client implements MoodishClient {
 	private JFrame frame;
 	private JPanel msgsPanel, labelPanel, eastPanel, peoplePanel, usersPanel,
 			friendsPanel, browsePanel, browseResultsPanel, browseButtonsPanel;
-	private JButton sendMsg;
+	private JButton sendMsg, connectToServers, disconnectFromServers;
 
 	/**
 	 * creation of Friends list and Users list
@@ -126,7 +126,7 @@ public class Client implements MoodishClient {
 						// && msgSend.startsWith("/unfriend ")) {
 					} else if (msgSend.startsWith("/unfriend ")) {
 						clientComm.unfriendship(msgSend.substring(10));
-					}else if(msgSend.startsWith("/mood ")){
+					} else if (msgSend.startsWith("/mood ")) {
 						clientComm.unfriendship(msgSend.substring(6));
 					} else {
 						msgArea.append(myUsername + ": " + msgSend + "\n");
@@ -208,8 +208,9 @@ public class Client implements MoodishClient {
 
 		frame.add(eastPanel, BorderLayout.EAST);
 
-		JButton connectToServers = new JButton("Ligar aos servidores");
-		JButton disconnectFromServers = new JButton("Desligar dos servidores");
+		connectToServers = new JButton("Ligar aos servidores");
+		disconnectFromServers = new JButton("Desligar dos servidores");
+		disconnectFromServers.setEnabled(false);
 
 		browseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -249,6 +250,8 @@ public class Client implements MoodishClient {
 		if (clientComm != null && clientComm.isConnected()) {
 			clientComm.disconnect();
 			JOptionPane.showMessageDialog(null, "Está desconectado!");
+			connectToServers.setEnabled(true);
+			disconnectFromServers.setEnabled(false);
 		}
 	}
 
@@ -256,13 +259,14 @@ public class Client implements MoodishClient {
 	 * Method that connects the user to the server
 	 */
 	public void connectToServers() {
+		connectToServers.setEnabled(false);
+		disconnectFromServers.setEnabled(true);
 		myUsername = JOptionPane.showInputDialog("Introduza o seu username.");
 		System.out.println(myUsername);
 
 		clientComm = new ClientCommmunicator();
 		start(clientComm);
 		new StartListeningMessages().start();
-
 	}
 
 	/**
@@ -410,6 +414,10 @@ public class Client implements MoodishClient {
 	 * method that is called when an error appears
 	 */
 	public void dealWithErrorMsg() {
+		if (msg.getPayload().equals("O username já existe!")) {
+			connectToServers.setEnabled(true);
+			disconnectFromServers.setEnabled(false);
+		}
 		JOptionPane.showMessageDialog(null, msg.getPayload(), "Error", 1);
 	}
 
