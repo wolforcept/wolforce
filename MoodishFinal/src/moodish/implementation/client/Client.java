@@ -262,8 +262,6 @@ public class Client implements MoodishClient {
 	 * Method that connects the user to the server
 	 */
 	public void connectToServers() {
-		connectToServers.setEnabled(false);
-		disconnectFromServers.setEnabled(true);
 		myUsername = JOptionPane.showInputDialog("Introduza o seu username.");
 		System.out.println(myUsername);
 
@@ -312,6 +310,8 @@ public class Client implements MoodishClient {
 	public void start(ClientComm clientComm) {
 		try {
 			clientComm.connect(null, myUsername);
+			connectToServers.setEnabled(false);
+			disconnectFromServers.setEnabled(true);
 		} catch (UnknownHostException e) {
 			JOptionPane.showMessageDialog(null, "Could not connect");
 		} catch (IOException e) {
@@ -407,7 +407,7 @@ public class Client implements MoodishClient {
 	 * method that is called when an error appears
 	 */
 	public void dealWithErrorMsg(String error) {
-		if (error.startsWith("Erro 24")) {
+		if (error.startsWith("Erro 24") || error.startsWith("Erro 17")) {
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
 		}

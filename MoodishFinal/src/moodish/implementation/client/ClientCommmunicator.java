@@ -45,9 +45,9 @@ public class ClientCommmunicator implements ClientComm {
 			new DealWithServer(this, in).start();
 			connected = true;
 		} catch (UnknownHostException e) {
-			connectionFailure("Não é possível connectar, host desconhecido!");
+			connectionFailure("Erro 17: Não é possível connectar, host desconhecido!");
 		} catch (IOException e) {
-			connectionFailure("Não é possível connectar, host desconhecido!");
+			connectionFailure("Erro 17: Não é possível connectar, host desconhecido!");
 		}
 	}
 
