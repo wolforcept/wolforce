@@ -130,11 +130,12 @@ public class Client implements MoodishClient {
 					} else if (msgSend.startsWith("/unfriend ")) {
 						clientComm.unfriendship(msgSend.substring(10));
 					} else if (msgSend.startsWith("/mood ")) {
-						clientComm.unfriendship(msgSend.substring(6));
-					} else {
-						msgArea.append(myUsername + ": " + msgSend + "\n");
-						clientComm.sendMoodishMessage(msgSend);
-					}
+						clientComm.sendMoodishMessage(msgSend.substring(6));
+					} 
+					// else {
+					// msgArea.append(myUsername + ": " + msgSend + "\n");
+					// clientComm.sendMoodishMessage(msgSend);
+					// }
 
 				} else {
 					JOptionPane.showMessageDialog(null, "N�o est� Conectado");
