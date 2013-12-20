@@ -1,6 +1,5 @@
 package moodish.implementation.server;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
