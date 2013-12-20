@@ -62,6 +62,6 @@ public class ServerMain {
 
 		new ServerMain();
 
-		new Server().start(new SecurityComm());
+		new Server().start(new SecurityCommunicator());
 	}
 }

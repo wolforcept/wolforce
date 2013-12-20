@@ -16,14 +16,28 @@ import moodish.interfaces.comm.ServerSideMessage;
  * @author Miguel Torres
  * 
  */
-public class SecurityComm implements ServerComm {
+public class SecurityCommunicator implements ServerComm {
 
 	/**
 	 * @serialField
 	 *                  MAX_MOOD_CHANGES the field that indicates the maximum
 	 *                  number of times that a client can change it's mood.
 	 */
-	public static final int MAX_MOOD_CHANGES = 2;
+	public static final int MAX_MOOD_CHANGES = 9;
+	/**
+	 * @serialField
+	 *                  MAX_SAMEMOOD_CHANGES the field that indicates the
+	 *                  maximum number of times that a client can send the same
+	 *                  mood in a row.
+	 */
+	public static final int MAX_SAMEMOOD_CHANGES = 2;
+	/**
+	 * @serialField
+	 *                  SAMEMOOD_CHANGE_SPAN the field that indicates the time,
+	 *                  in seconds, which you can send the same mood a maximum
+	 *                  number of times.
+	 */
+	public static final int SAMEMOOD_CHANGE_SPAN = 30;
 	/**
 	 * @serialField
 	 *                  MOOD_CHANGE_SPAN the field that indicates the time, in
@@ -84,9 +98,7 @@ public class SecurityComm implements ServerComm {
 
 			if (next.getType().equals(ServerSideMessage.Type.CLIENT_CONNECTED)
 					&& isBanned(from)) {
-				// comm.sendMoodishMessage("Moodish Server", from,
-				// "You are still banned.");
-				comm.sendError(from, "You are still banned.");
+				comm.sendError(from, "Ainda estas banido.");
 			} else {
 				serverMessages.add(next);
 			}
@@ -102,8 +114,9 @@ public class SecurityComm implements ServerComm {
 	 * If the user sends two messages within the time span of 60 seconds, the
 	 * server will send a warning to him/her.
 	 * <p/>
-	 * If the user sends more than two moodish messages within 60 seconds, the
-	 * user will be temporarily banned for 30 seconds.
+	 * If the user sends more than two moodish messages within
+	 * {@link SecurityCommunicator.MOOD_CHANGE_SPAN} seconds, the user will be
+	 * temporarily banned for {@link SecurityCommunicator.BAN_TIME} seconds.
 	 */
 	@Override
 	public void sendMoodishMessage(String from, String to, String msgString) {
@@ -118,14 +131,25 @@ public class SecurityComm implements ServerComm {
 		int nrMsgs = client.getNumberOfMessages();
 		client.updateMessageTimes();
 
+		if (client.exceededSameMoodChanges()) {
+			ServerMessage disconnectMessage = new ServerMessage(
+					ServerSideMessage.Type.CLIENT_DISCONNECTED, from);
+			serverMessages.add(disconnectMessage);
+			client.ban();
+			comm.sendError(from,
+					"Foste banido temporariamente por repetir o mood "
+							+ MAX_SAMEMOOD_CHANGES + " vezes em "
+							+ SAMEMOOD_CHANGE_SPAN + " segundos.");
+		}
+
 		if (nrMsgs <= MAX_MOOD_CHANGES) {
 			comm.sendMoodishMessage(from, to, msgString);
 
 			if (nrMsgs == MAX_MOOD_CHANGES) {
 				// SEND WARNING TOO
-				String msg = "Cuidado, já mandaste " + MAX_MOOD_CHANGES
-						+ " mensagens  nos ultimos 60 segundos.";
-				// comm.sendMoodishMessage("Moodish Server", to, msg);
+				String msg = "Cuidado, jÃ¡ mandaste " + MAX_MOOD_CHANGES
+						+ " mensagens  nos ultimos " + MOOD_CHANGE_SPAN
+						+ " segundos.";
 				comm.sendError(from, msg);
 			}
 		} else {
@@ -135,7 +159,7 @@ public class SecurityComm implements ServerComm {
 			serverMessages.add(disconnectMessage);
 			client.ban();
 			comm.sendError(from,
-					"Foste banido temporáriamente por enviar mais de "
+					"Foste banido temporariamente por enviar mais de "
 							+ MAX_MOOD_CHANGES + " mensagens em "
 							+ MOOD_CHANGE_SPAN + " segundos.");
 		}
@@ -243,6 +267,17 @@ public class SecurityComm implements ServerComm {
 			banned = false;
 		}
 
+		public boolean exceededSameMoodChanges() {
+
+			int times = 0;
+			for (long l : messageTimes) {
+				if (toSeconds(System.currentTimeMillis()) - toSeconds(l) > SAMEMOOD_CHANGE_SPAN) {
+					times++;
+				}
+			}
+			return times > MAX_SAMEMOOD_CHANGES;
+		}
+
 		/**
 		 * Method that returns the number of mood messages sent by the user
 		 * within the time span.
@@ -252,7 +287,7 @@ public class SecurityComm implements ServerComm {
 		public int getNumberOfMessages() {
 			int number = 0;
 			for (Long time : messageTimes) {
-				if (getTimeDifferenceInSeconds(time) <= SecurityComm.MOOD_CHANGE_SPAN)
+				if (getTimeDifferenceInSeconds(time) <= SecurityCommunicator.MOOD_CHANGE_SPAN)
 					number++;
 			}
 			return number;
@@ -288,7 +323,7 @@ public class SecurityComm implements ServerComm {
 				}
 			}
 
-			if (messageTimes.size() > SecurityComm.MAX_MOOD_CHANGES) {
+			if (messageTimes.size() > SecurityCommunicator.MAX_MOOD_CHANGES) {
 				messageTimes.removeLast();
 			}
 			messageTimes.addFirst(System.currentTimeMillis());
