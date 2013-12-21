@@ -21,8 +21,8 @@ public class ServerClient {
 	 *            User's NickName
 	 * @param mood
 	 *            User's mood, starts null
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
 	public ServerClient(String nickName, String mood) {
@@ -36,8 +36,8 @@ public class ServerClient {
 	 * User friends list.
 	 * 
 	 * @return List<String> friends list
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
 	public List<ServerClient> getFriends() {
@@ -48,7 +48,7 @@ public class ServerClient {
 	 * Getter to mood
 	 * 
 	 * @return user's mood
-	 * @author Jo�o Mestre
+	 * @author João Mestre
 	 * @author Megal Narenda * @author F�bio Ferreira
 	 */
 	public String getMood() {
@@ -59,8 +59,8 @@ public class ServerClient {
 	 * Getter to nickname
 	 * 
 	 * @return user's nickname
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 	public String getNickName() {
 		return nickName;
@@ -72,8 +72,8 @@ public class ServerClient {
 	 * @param user
 	 *            's nickname to be verified
 	 * @return true if it's friend, false if it's not
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 	public boolean isFriend(String nickName) {
 		boolean isFriend = false;
@@ -90,8 +90,8 @@ public class ServerClient {
 	 * 
 	 * @param User
 	 *            nickname to be added
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 	public void addFriend(ServerClient friend) {
 		this.friends.add(friend);
@@ -103,8 +103,8 @@ public class ServerClient {
 	 * 
 	 * @param User
 	 *            nickname to be removed
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
 	public void removeFriend(ServerClient friend) {
@@ -117,8 +117,8 @@ public class ServerClient {
 	 * 
 	 * @param User
 	 *            nickname to be removed
-	 * @author Jo�o Mestre
-	 * @author Megal Narenda * @author F�bio Ferreira
+	 * @author João Mestre
+	 * @author Megal Narenda * @author Fábio Ferreira
 	 */
 
 	public ServerClient getFriend(String nickName) {

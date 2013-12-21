@@ -84,8 +84,8 @@ public class SecurityCommunicator implements ServerComm {
 
 	/**
 	 * Verifies the ServerComm for a new message and filters the messages
-	 * received from a banned user, so the user can't connect for 30 seconds
-	 * after being banned.
+	 * received from a banned user, so the user can't connect for
+	 * {@link SecurityCommunicator.BAN_TIME} seconds after being banned.
 	 * <p/>
 	 * If the message receive comes from an unbanned user, then the message is
 	 * add to the serverMessages list.
@@ -113,6 +113,21 @@ public class SecurityCommunicator implements ServerComm {
 		return !serverMessages.isEmpty();
 	}
 
+	/**
+	 * Method that filters a moodish message, this method provides the ways of
+	 * filtering the number of mood messages sent by an user.
+	 * <p/>
+	 * If the user sends {@link SecurityCommunicator.MAX_SAMEMOOD_CHANGES}
+	 * messages of the same mood within the time span of
+	 * {@link SecurityCommunicator.MOOD_CHANGE_SPAN} seconds, the server will
+	 * send a warning to him/her.
+	 * <p/>
+	 * If the user sends more than
+	 * {@link SecurityCommunicator.MAX_SAMEMOOD_CHANGES} moodish messages with
+	 * the same mood within {@link SecurityCommunicator.MOOD_CHANGE_SPAN}
+	 * seconds, the user will be temporarily banned for
+	 * {@link SecurityCommunicator.BAN_TIME} seconds.
+	 */
 	private void securityCheck(String from, String mood) {
 		System.out.println("SECURITY CHECK: " + mood);
 
@@ -165,17 +180,6 @@ public class SecurityCommunicator implements ServerComm {
 		}
 	}
 
-	/**
-	 * Method that sends a moodish message, this method provides the ways of
-	 * filtering the number of mood messages sent by an user.
-	 * <p/>
-	 * If the user sends two messages within the time span of 60 seconds, the
-	 * server will send a warning to him/her.
-	 * <p/>
-	 * If the user sends more than two moodish messages within
-	 * {@link SecurityCommunicator.MOOD_CHANGE_SPAN} seconds, the user will be
-	 * temporarily banned for {@link SecurityCommunicator.BAN_TIME} seconds.
-	 */
 	@Override
 	public void sendMoodishMessage(String from, String to, String msgString) {
 		comm.sendMoodishMessage(from, to, msgString);

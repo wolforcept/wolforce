@@ -24,9 +24,9 @@ public class StartConnections extends Thread {
 	public void run() {
 		try {
 			while (true) {
-				System.out.println("¿ espera de uma ligaÁ„o...");
+				System.out.println("√Å espera de uma liga√ß√£o...");
 				Socket socket = server_socket.accept();
-				System.out.println("LigaÁ„o efetuada");
+				System.out.println("Liga√ß√£o efetuada");
 				ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 				ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 				MessageToServer first_msg = (MessageToServer) in.readObject();

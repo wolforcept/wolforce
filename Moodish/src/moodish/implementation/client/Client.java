@@ -87,7 +87,7 @@ public class Client implements MoodishClient {
 					clientComm.sendMoodishMessage((String) moodsComboBox
 							.getSelectedItem());
 				} else {
-					JOptionPane.showMessageDialog(null, "N�o est� Conectado");
+					JOptionPane.showMessageDialog(null, "Não está Conectado");
 				}
 			}
 		});
@@ -239,7 +239,7 @@ public class Client implements MoodishClient {
 			persons.clear();
 			updateLists();
 			frame.setTitle("Moodish - nao conectado");
-			JOptionPane.showMessageDialog(null, "Est� desconectado!");
+			JOptionPane.showMessageDialog(null, "Está desconectado!");
 			connectToServers.setEnabled(true);
 			disconnectFromServers.setEnabled(false);
 		}
@@ -362,7 +362,7 @@ public class Client implements MoodishClient {
 		updateLists();
 	}
 
-	// thread que fica � escuta de mensagens e lida com elas
+	// thread que fica à escuta de mensagens e lida com elas
 	private class StartListeningMessages extends Thread {
 		@Override
 		public void run() {
