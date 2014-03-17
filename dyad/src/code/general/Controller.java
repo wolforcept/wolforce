@@ -153,8 +153,8 @@ public class Controller {
 		}.start();
 		taylor.setPreferredSize(new Dimension(
 		//
-				(2 + level.getSize().width) * Ivory.CELL_SIZE,//
-				(2 + level.getSize().height) * Ivory.CELL_SIZE));
+				(2 + level.getGridSize().width) * Ivory.CELL_SIZE,//
+				(2 + level.getGridSize().height) * Ivory.CELL_SIZE));
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);

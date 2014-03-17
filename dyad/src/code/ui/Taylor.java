@@ -2,6 +2,9 @@ package code.ui;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -15,9 +18,9 @@ import javax.swing.JPanel;
 
 import code.auxis.Auxi;
 import code.enums.Mana;
-import code.general.SpellButton;
 import code.general.Ivory;
 import code.general.Spell;
+import code.general.SpellButton;
 import code.objects.Champion;
 import code.objects.Collectable;
 import code.objects.GameObject;
@@ -31,10 +34,19 @@ public class Taylor extends JPanel {
 
 	private Ivory ivory;
 	private TaylorData data;
+	private Font font;
 
 	public Taylor(Ivory ivory) throws IOException {
 		this.ivory = ivory;
 		data = new TaylorData();
+
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT,//
+					getClass().getResourceAsStream("/resources/font.ttf"));
+
+		} catch (FontFormatException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -45,6 +57,9 @@ public class Taylor extends JPanel {
 	@Override
 	public void update(Graphics g) {
 		try {
+
+			g.setFont(font.deriveFont(20f));
+			g.drawString("te", 20, 20);
 
 			final int cz = Ivory.CELL_SIZE, field_width = ivory.getFieldSize().width, field_height = ivory
 					.getFieldSize().height;
@@ -278,6 +293,18 @@ public class Taylor extends JPanel {
 				}
 
 			}
+			String text = "Tutorial: Learning the basics";
+			g.setFont(font.deriveFont(30f));
+			g.setColor(new Color(1f, 1f, 1f, 0.8f));
+
+			FontMetrics fm = g.getFontMetrics();
+			int textWidth = fm.stringWidth(text);
+			g.drawString(text, getWidth() / 2 - textWidth / 2, 50);
+			g.setColor(new Color(0f, 0f, 0f, 0.1f));
+			g.drawString(text, getWidth() / 2 - textWidth / 2 - 2, 50 - 2);
+			g.setColor(new Color(0f, 0f, 0f, 0.2f));
+			g.drawString(text, getWidth() / 2 - textWidth / 2 - 1, 50 - 1);
+
 		} catch (Exception e) {
 			System.err.println("UI Update Failed.");
 			System.err.println(e.getMessage());

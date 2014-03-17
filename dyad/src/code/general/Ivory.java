@@ -2,15 +2,16 @@ package code.general;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import code.auxis.Auxi;
 import code.enums.Mana;
+import code.enums.ObjectiveType;
 import code.enums.SpellType;
+import code.general.Level.UnbuiltObject;
 import code.objects.Champion;
 import code.objects.GameObject;
 import code.objects.Magus;
@@ -35,8 +36,8 @@ public class Ivory {
 	private Champion champion;
 	private LinkedList<Spell> spells;
 	private TargetingSpell u;
-	private String objective;
-	private ObjectiveType objectivetype;
+	private String target;
+	private ObjectiveType objective;
 
 	private HashMap<Mana, Integer> manapool;
 
@@ -47,28 +48,20 @@ public class Ivory {
 
 	public Ivory(Level level) {
 
-		String[] temp = level.getObjective().split(":");
-		objective = temp[1];
-		objectivetype = ObjectiveType.valueOf(temp[0].toUpperCase());
+		target = level.getTarget();
+		objective = level.getObjective();
 
 		manapool = new HashMap<>();
-		String[] manas = level.getMana().split(":");
-		for (String man : manas) {
-			if (!man.equals("")) {
-				Mana m = Mana.valueOf(man.split("=")[0].toUpperCase());
-				int ammount = Integer.parseInt(man.split("=")[1]);
-				manapool.put(m, ammount);
-				System.out.println("added " + ammount + " " + m.toString()
-						+ " to the manapool");
-			}
+		for (Entry<String, Integer> e : level.getMana().entrySet()) {
+			manapool.put(Mana.valueOf(e.getKey().toUpperCase()), e.getValue());
 		}
 		for (Mana m : Mana.values()) {
 			if (!manapool.containsKey(m))
 				manapool.put(m, 0);
 		}
 
-		width = level.getSize().width;
-		height = level.getSize().height;
+		width = level.getGridSize().width;
+		height = level.getGridSize().height;
 		field = new GameObject[width][height];
 
 		mouse = new Point(0, 0);
@@ -83,122 +76,31 @@ public class Ivory {
 
 		// switches = new boolean[Ivory.NUMBER_OF_SWITCHES];
 
-		for (int i = 0; i < level.getObjectList().length; i++) {
+		for (UnbuiltObject o : level.getObjectList()) {
 
-			String[] object = level.getObjectList()[i].split(",");
-			int x = Integer.parseInt(object[0]);
-			int y = Integer.parseInt(object[1]);
-			String name = object[2];
-
-			field[x][y] = GameObject.makeByName(name, x, y);
-			if (name.equals("champion")) {
-				champion = (Champion) field[x][y];
+			System.out.println("putting " + o.obj + " on " + o.x + "," + o.y);
+			field[o.x][o.y] = GameObject.makeByName(o.obj, o.x, o.y);
+			if (o.obj.equals("champion")) {
+				champion = (Champion) field[o.x][o.y];
 				selected = true;
 			}
-			if (name.equals("magus")) {
-				magus = (Magus) field[x][y];
+			if (o.obj.equals("magus")) {
+				magus = (Magus) field[o.x][o.y];
 				selected = false;
 			}
-		}
-		System.out.println("properties");
-		for (int i = 0; i < level.getProperties().length; i++) {
-			int x = Integer.parseInt(level.getProperties()[i].charAt(0) + "",
-					10);
-			int y = Integer.parseInt(level.getProperties()[i].charAt(1) + "",
-					10);
-			System.out.println("  on " + x + "," + y);
-
-			String[] properties = level.getProperties()[i].substring(3).split(
-					":");
-			for (int j = 0; j < properties.length; j++) {
-				System.out.println("    " + j + ">" + properties[j]);
-				String propertyName = properties[j].split("=")[0];
-				int propertyVal = Integer.parseInt(properties[j].split("=")[1]);
-				switch (propertyName) {
-				case "str":
-					field[x][y].setStrength(propertyVal);
-					break;
+			String[] properties = o.properties;
+			if (o.properties != null)
+				for (int j = 0; j < properties.length; j++) {
+					System.out.println("    " + j + ">" + properties[j]);
+					String propertyName = properties[j].split("=")[0];
+					int propertyVal = Integer
+							.parseInt(properties[j].split("=")[1]);
+					switch (propertyName) {
+					case "str":
+						field[o.x][o.y].setStrength(propertyVal);
+						break;
+					}
 				}
-			}
-		}
-	}
-
-	public Ivory() {
-
-		// READ OBJECTS
-		String[] temp = level.getObjective().split(":");
-		objective = temp[1];
-		objectivetype = ObjectiveType.valueOf(temp[0].toUpperCase());
-
-		manapool = new HashMap<>();
-		String[] manas = level.getMana().split(":");
-		for (String man : manas) {
-			if (!man.equals("")) {
-				Mana m = Mana.valueOf(man.split("=")[0].toUpperCase());
-				int ammount = Integer.parseInt(man.split("=")[1]);
-				manapool.put(m, ammount);
-				System.out.println("added " + ammount + " " + m.toString()
-						+ " to the manapool");
-			}
-		}
-		for (Mana m : Mana.values()) {
-			if (!manapool.containsKey(m))
-				manapool.put(m, 0);
-		}
-
-		width = level.getSize().width;
-		height = level.getSize().height;
-		field = new GameObject[width][height];
-
-		mouse = new Point(0, 0);
-
-		SpellType[] vals = SpellType.values();
-		spellButtons = new SpellButton[vals.length];
-		for (int i = 0; i < vals.length; i++)
-			spellButtons[i] = //
-			new SpellButton(vals[i]);
-
-		spells = new LinkedList<Spell>();
-
-		// switches = new boolean[Ivory.NUMBER_OF_SWITCHES];
-
-		for (int i = 0; i < level.getObjectList().length; i++) {
-
-			String[] object = level.getObjectList()[i].split(",");
-			int x = Integer.parseInt(object[0]);
-			int y = Integer.parseInt(object[1]);
-			String name = object[2];
-
-			field[x][y] = GameObject.makeByName(name, x, y);
-			if (name.equals("champion")) {
-				champion = (Champion) field[x][y];
-				selected = true;
-			}
-			if (name.equals("magus")) {
-				magus = (Magus) field[x][y];
-				selected = false;
-			}
-		}
-		System.out.println("properties");
-		for (int i = 0; i < level.getProperties().length; i++) {
-			int x = Integer.parseInt(level.getProperties()[i].charAt(0) + "",
-					10);
-			int y = Integer.parseInt(level.getProperties()[i].charAt(1) + "",
-					10);
-			System.out.println("  on " + x + "," + y);
-
-			String[] properties = level.getProperties()[i].substring(3).split(
-					":");
-			for (int j = 0; j < properties.length; j++) {
-				System.out.println("    " + j + ">" + properties[j]);
-				String propertyName = properties[j].split("=")[0];
-				int propertyVal = Integer.parseInt(properties[j].split("=")[1]);
-				switch (propertyName) {
-				case "str":
-					field[x][y].setStrength(propertyVal);
-					break;
-				}
-			}
 		}
 	}
 
@@ -361,10 +263,6 @@ public class Ivory {
 
 	public void setPosition(int x, int y, GameObject object) {
 		field[x][y] = object;
-	}
-
-	enum ObjectiveType {
-		RETRIEVE, DESTROY, KILL;
 	}
 
 	public HashMap<Mana, Integer> getMana() {

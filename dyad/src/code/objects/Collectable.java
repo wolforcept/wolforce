@@ -10,7 +10,7 @@ public class Collectable extends GameObject {
 	}
 
 	public enum CollectableType {
-		RED_KEY(1, 5), BLUE_KEY(1, 5);
+		SCROLL(1, 1), RED_KEY(1, 5), BLUE_KEY(1, 5);
 
 		private int noi, str;
 

@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import code.objects.Collectable.CollectableType;
 
-
 public class Player extends GameObject {
 
 	public static final int INVENTORY_ROOM = 4;
@@ -14,7 +13,6 @@ public class Player extends GameObject {
 	public Player(String name, int x, int y, int str) {
 		super(name, x, y, str);
 		inventory = new LinkedList<Collectable>();
-		// winCollectable(new Collectable(0, 0, CollectableType.RED_KEY));
 	}
 
 	@Override

@@ -81,7 +81,8 @@ public abstract class GameObject {
 		case "blue_door":
 			return new Touchable(x, y, TouchableType.BLUE_DOOR, Material.WOOD);
 		case "switch1_door":
-			return new Touchable(x, y, TouchableType.SWITCH1_DOOR, Material.METAL);
+			return new Touchable(x, y, TouchableType.SWITCH1_DOOR,
+					Material.METAL);
 		case "switch1":
 			return new Touchable(x, y, TouchableType.SWITCH1, Material.METAL);
 		case "switch2":
@@ -102,6 +103,8 @@ public abstract class GameObject {
 			// OBJECTS
 		case "core":
 			return new Core(x, y);
+		case "scroll":
+			return new Collectable(x, y, CollectableType.SCROLL);
 		case "door":
 			return new Door(x, y);
 		default:

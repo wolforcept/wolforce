@@ -79,7 +79,7 @@ public class MainMenu {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					new Controller(Level.getLevel(1));
+					new Controller(new Level("/levels/level1.txt"));
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (IOException ex) {
