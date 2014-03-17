@@ -1,6 +1,13 @@
 package code.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -12,16 +19,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
 
 import code.general.Controller;
 import code.general.Level;
 
 public class MainMenu {
-	class LevelEntry {
+	class LevelGroup {
+		String name;
+		JList<LevelEntry> levelList;
 
-		private String name;
-		private Level level;
+	}
+
+	class LevelEntry {
+		String name;
+		Level level;
 
 		public LevelEntry(String name, Level level) {
 			this.name = name;
@@ -39,39 +50,36 @@ public class MainMenu {
 	}
 
 	JFrame frame;
-	JList<LevelEntry> levelList;
+	JList<LevelGroup> levelList;
 
 	public MainMenu() throws IOException {
 
 		frame = new JFrame("Dyad");
-		frame.setLayout(new BorderLayout());
+		// frame.setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JLabel image = new JLabel(new ImageIcon(ImageIO.read(getClass()
-				.getClassLoader().getResource("resources/initial_image.png"))));
+		JPanel content = new PanelWithBackground(ImageIO.read(getClass()
+				.getClassLoader().getResource("resources/title_image.png")));
+		content.setLayout(new BorderLayout());
+		frame.add(content);
 
-		frame.add(image, BorderLayout.CENTER);
+		JPanel buttons_main = new JPanel(new FlowLayout());
+		buttons_main.setOpaque(false);
+		content.add(buttons_main, BorderLayout.SOUTH);
 
-		JPanel listAndStartButtonPanel = new JPanel();
-		listAndStartButtonPanel.setLayout(new BorderLayout());
+		JButton button_start = new ImageButton(ImageIO.read(getClass()
+				.getClassLoader().getResource("resources/start_button.png")));
+		buttons_main.add(button_start);
 
-		LevelEntry[] levels = new LevelEntry[Level.getNumberOfLevels()];
-		for (int i = 0; i < levels.length; i++) {
-			levels[i] = new LevelEntry("Level " + (i + 1),
-					Level.getLevel(i + 1));
-		}
-		levelList = new JList<>(levels);
-		levelList.setSelectedIndex(0);
-		levelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listAndStartButtonPanel.add(levelList, BorderLayout.CENTER);
+		JButton button_exit = new ImageButton(ImageIO.read(getClass()
+				.getClassLoader().getResource("resources/exit_button.png")));
+		buttons_main.add(button_exit);
 
-		JButton startButton = new JButton("Start");
-		listAndStartButtonPanel.add(startButton, BorderLayout.SOUTH);
-		startButton.addActionListener(new ActionListener() {
+		button_start.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent arg0) {
 				try {
-					new Controller(levelList.getSelectedValue().getLevel());
+					new Controller(Level.getLevel(1));
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (IOException ex) {
@@ -80,10 +88,93 @@ public class MainMenu {
 			}
 		});
 
-		frame.add(listAndStartButtonPanel, BorderLayout.EAST);
+		button_exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(0);
+			}
+		});
+
+		/*
+		 * JButton button_exit = new JButton("Exit"); buttons.add(button_exit);
+		 */
+
+		/*
+		 * JPanel listAndStartButtonPanel = new JPanel();
+		 * listAndStartButtonPanel.setLayout(new BorderLayout());
+		 * 
+		 * LevelEntry[] levels = new LevelEntry[Level.getNumberOfLevels()]; for
+		 * (int i = 0; i < levels.length; i++) { levels[i] = new
+		 * LevelEntry("Level " + (i + 1), Level.getLevel(i + 1)); } levelList =
+		 * new JList<>(levels); levelList.setSelectedIndex(0);
+		 * levelList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		 * listAndStartButtonPanel.add(levelList, BorderLayout.CENTER);
+		 * 
+		 * JButton startButton = new JButton("Start");
+		 * listAndStartButtonPanel.add(startButton, BorderLayout.SOUTH);
+		 * startButton.addActionListener(new ActionListener() {
+		 * 
+		 * @Override public void actionPerformed(ActionEvent e) { try { new
+		 * Controller(levelList.getSelectedValue().getLevel());
+		 * frame.setVisible(false); frame.dispose(); } catch (IOException ex) {
+		 * ex.printStackTrace(); } } });
+		 * 
+		 * frame.add(listAndStartButtonPanel, BorderLayout.EAST);
+		 */
 
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
+	}
+
+	class PanelWithBackground extends JPanel {
+
+		private static final long serialVersionUID = 1L;
+		Image background;
+
+		public PanelWithBackground(Image background) {
+			this.background = background;
+			setPreferredSize(new Dimension(background.getWidth(this),
+					background.getHeight(this)));
+		}
+
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+
+			if (background != null) {
+				Insets insets = getInsets();
+
+				int width = getWidth() - 1 - (insets.left + insets.right);
+				int height = getHeight() - 1 - (insets.top + insets.bottom);
+
+				int x = (width - background.getWidth(this)) / 2;
+				int y = (height - background.getHeight(this)) / 2;
+
+				g.drawImage(background, x, y, this);
+			}
+		}
+
+	}
+
+	class ImageButton extends JButton {
+
+		private static final long serialVersionUID = 1L;
+		Image background;
+
+		public ImageButton(Image background) {
+			this.background = background;
+			setPreferredSize(new Dimension(background.getWidth(this),
+					background.getHeight(this)));
+		}
+
+		@Override
+		public void paint(Graphics g) {
+
+			if (background != null) {
+				g.drawImage(background, 0, 0, this);
+			}
+		}
+
 	}
 }

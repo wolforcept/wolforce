@@ -1,11 +1,54 @@
 package code.general;
 
 import java.awt.Dimension;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 
 public class Level {
 
 	public static int getNumberOfLevels() {
 		return 2;
+	}
+
+	public static void main(String[] args) {
+		try {
+			readLevel("/levels/level1.txt");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void readLevel(String file) throws FileNotFoundException,
+			IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				Level.class.getResourceAsStream(file)));
+
+		// READ TITLE
+		String title = br.readLine();
+		System.out.println(title);
+
+		// READ GRID SIZE
+		String[] gridSizeline = br.readLine().replaceAll("\\s", "").split(",");
+		Dimension gridSize = new Dimension(Integer.parseInt(gridSizeline[0]),
+				Integer.parseInt(gridSizeline[1]));
+		System.out.println(gridSize);
+
+		// READ MANA
+		String[] manaline = br.readLine().replaceAll("\\s", "").split(",");
+		HashMap<String, Integer> manas = new HashMap<>();
+		for (String s : manaline) {
+			String[] thisMana = s.split("=");
+			manas.put(thisMana[0], Integer.parseInt(thisMana[1]));
+		}
+		System.out.println(manas.toString());
+		
+		// READ OBJECTIVE
+		String objective 
 	}
 
 	public static Level getLevel(int i) {

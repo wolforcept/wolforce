@@ -2,6 +2,8 @@ package code.general;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -45,6 +47,85 @@ public class Ivory {
 
 	public Ivory(Level level) {
 
+		String[] temp = level.getObjective().split(":");
+		objective = temp[1];
+		objectivetype = ObjectiveType.valueOf(temp[0].toUpperCase());
+
+		manapool = new HashMap<>();
+		String[] manas = level.getMana().split(":");
+		for (String man : manas) {
+			if (!man.equals("")) {
+				Mana m = Mana.valueOf(man.split("=")[0].toUpperCase());
+				int ammount = Integer.parseInt(man.split("=")[1]);
+				manapool.put(m, ammount);
+				System.out.println("added " + ammount + " " + m.toString()
+						+ " to the manapool");
+			}
+		}
+		for (Mana m : Mana.values()) {
+			if (!manapool.containsKey(m))
+				manapool.put(m, 0);
+		}
+
+		width = level.getSize().width;
+		height = level.getSize().height;
+		field = new GameObject[width][height];
+
+		mouse = new Point(0, 0);
+
+		SpellType[] vals = SpellType.values();
+		spellButtons = new SpellButton[vals.length];
+		for (int i = 0; i < vals.length; i++)
+			spellButtons[i] = //
+			new SpellButton(vals[i]);
+
+		spells = new LinkedList<Spell>();
+
+		// switches = new boolean[Ivory.NUMBER_OF_SWITCHES];
+
+		for (int i = 0; i < level.getObjectList().length; i++) {
+
+			String[] object = level.getObjectList()[i].split(",");
+			int x = Integer.parseInt(object[0]);
+			int y = Integer.parseInt(object[1]);
+			String name = object[2];
+
+			field[x][y] = GameObject.makeByName(name, x, y);
+			if (name.equals("champion")) {
+				champion = (Champion) field[x][y];
+				selected = true;
+			}
+			if (name.equals("magus")) {
+				magus = (Magus) field[x][y];
+				selected = false;
+			}
+		}
+		System.out.println("properties");
+		for (int i = 0; i < level.getProperties().length; i++) {
+			int x = Integer.parseInt(level.getProperties()[i].charAt(0) + "",
+					10);
+			int y = Integer.parseInt(level.getProperties()[i].charAt(1) + "",
+					10);
+			System.out.println("  on " + x + "," + y);
+
+			String[] properties = level.getProperties()[i].substring(3).split(
+					":");
+			for (int j = 0; j < properties.length; j++) {
+				System.out.println("    " + j + ">" + properties[j]);
+				String propertyName = properties[j].split("=")[0];
+				int propertyVal = Integer.parseInt(properties[j].split("=")[1]);
+				switch (propertyName) {
+				case "str":
+					field[x][y].setStrength(propertyVal);
+					break;
+				}
+			}
+		}
+	}
+
+	public Ivory() {
+
+		// READ OBJECTS
 		String[] temp = level.getObjective().split(":");
 		objective = temp[1];
 		objectivetype = ObjectiveType.valueOf(temp[0].toUpperCase());

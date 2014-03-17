@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import code.ui.MainMenu;
 
-
-
 public class Tester {
 
 	public static void main(String[] args) {

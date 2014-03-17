@@ -23,7 +23,10 @@ public class Controller {
 	private Taylor taylor;
 	private Ivory ivory;
 
-	public Controller(Level level) throws IOException {
+	public Controller(Level level) throws IOException, IllegalArgumentException {
+
+		if (level == null)
+			throw new IllegalArgumentException("NULL LEVEL");
 
 		TaylorData.init();
 

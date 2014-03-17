@@ -1,0 +1,16 @@
+this is the title
+10, 10
+heat = 2, cold = 1, mind = 2
+retrieve:scroll
+magus:1,1
+champion:4,1
+scroll:1,5
+wood_wall:
+wood_wall:
+wood_wall:
+wood_wall:
+brick_wall:
+brick_wall:
+red_key:5,5
+red_door:0,0
+humanoid:4,5/dir=1;st=5
