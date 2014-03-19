@@ -13,7 +13,7 @@ import code.enums.ObjectiveType;
 import code.enums.SpellType;
 import code.general.Level.UnbuiltObject;
 import code.objects.Champion;
-import code.objects.GameObject;
+import code.objects.FieldObject;
 import code.objects.Magus;
 import code.objects.Player;
 import code.objects.Touchable;
@@ -28,7 +28,7 @@ public class Ivory {
 
 	private Point mouse;
 
-	private GameObject[][] field;
+	private FieldObject[][] field;
 
 	private boolean selected;
 
@@ -62,7 +62,7 @@ public class Ivory {
 
 		width = level.getGridSize().width;
 		height = level.getGridSize().height;
-		field = new GameObject[width][height];
+		field = new FieldObject[width][height];
 
 		mouse = new Point(0, 0);
 
@@ -79,7 +79,7 @@ public class Ivory {
 		for (UnbuiltObject o : level.getObjectList()) {
 
 			System.out.println("putting " + o.obj + " on " + o.x + "," + o.y);
-			field[o.x][o.y] = GameObject.makeByName(o.obj, o.x, o.y);
+			field[o.x][o.y] = FieldObject.makeByName(o.obj, o.x, o.y);
 			if (o.obj.equals("champion")) {
 				champion = (Champion) field[o.x][o.y];
 				selected = true;
@@ -136,7 +136,7 @@ public class Ivory {
 		return spellButtons;
 	}
 
-	public GameObject[][] getField() {
+	public FieldObject[][] getField() {
 		return field;
 	}
 
@@ -148,7 +148,7 @@ public class Ivory {
 		return champion;
 	}
 
-	public GameObject getGameObject(String name) {
+	public FieldObject getFieldObject(String name) {
 		for (int i = 0; i < field.length; i++) {
 			for (int j = 0; j < field[i].length; j++) {
 				if (field[i][j] != null && name.equals(field[i][j].getName())) {
@@ -257,11 +257,11 @@ public class Ivory {
 		return new LinkedList<Spell>(spells);
 	}
 
-	public GameObject getObjectAt(int x, int y) {
+	public FieldObject getObjectAt(int x, int y) {
 		return field[x][y];
 	}
 
-	public void setPosition(int x, int y, GameObject object) {
+	public void setPosition(int x, int y, FieldObject object) {
 		field[x][y] = object;
 	}
 

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import code.objects.Collectable.CollectableType;
 
-public class Player extends GameObject {
+public class Player extends FieldObject {
 
 	public static final int INVENTORY_ROOM = 4;
 	LinkedList<Collectable> inventory;

@@ -3,10 +3,10 @@ package code.general;
 import java.awt.Point;
 
 import code.enums.SpellType;
-import code.objects.GameObject;
+import code.objects.FieldObject;
 
 
-public class Spell extends GameObject {
+public class Spell extends FieldObject {
 
 	private SpellType type;
 	private Point[] area;
@@ -23,7 +23,7 @@ public class Spell extends GameObject {
 	 * @param tar
 	 * @return Returns if the target was removed
 	 */
-	public boolean interact(GameObject tar) {
+	public boolean interact(FieldObject tar) {
 		if (tar != null) {
 			if (tar.getStrength() < getStrength())
 				return true;

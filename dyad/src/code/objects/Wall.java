@@ -2,7 +2,7 @@ package code.objects;
 
 import code.enums.Material;
 
-public class Wall extends GameObject {
+public class Wall extends FieldObject {
 
 	private Material walltype;
 

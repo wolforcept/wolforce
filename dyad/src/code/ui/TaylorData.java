@@ -1,5 +1,6 @@
 package code.ui;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import code.objects.Touchable;
 
 public class TaylorData {
 
+	public static Dimension TAYLOR_SIZE = new Dimension(600, 600);
 	private static Hashtable<String, Animation> images;
 
 	public static void init() throws IOException {
@@ -25,7 +27,8 @@ public class TaylorData {
 		addImage("champion_glow");
 		addImage("core", 360);
 		addImage("humanoid");
-		
+		addImage("back");
+
 		addImage("unable_button", "spells/unable_button");
 
 		for (int i = 0; i < 10; i++) {
@@ -98,12 +101,20 @@ public class TaylorData {
 		addImage(name, location, 1, null);
 	}
 
-	public Animation getImages(String name) throws Exception {
-		if (images.containsKey(name)) {
-			return images.get(name);
-		} else {
-			throw new Exception(//
-					"Image " + name + " not present in Images StaticHashtable");
+	public Animation getImages(String name) {
+		try {
+			if (images.containsKey(name)) {
+				return images.get(name);
+			} else {
+
+				throw new Exception(//
+						"Image " + name
+								+ " not present in Images StaticHashtable");
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 		}
 	}
 

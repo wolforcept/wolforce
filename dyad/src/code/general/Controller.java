@@ -1,6 +1,5 @@
 package code.general;
 
-import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -10,12 +9,12 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-import code.ui.Taylor;
-import code.ui.TaylorData;
 import code.auxis.Auxi;
 import code.objects.Collectable;
 import code.objects.Player;
 import code.objects.Touchable;
+import code.ui.Taylor;
+import code.ui.TaylorData;
 
 public class Controller {
 
@@ -151,24 +150,25 @@ public class Controller {
 
 			};
 		}.start();
-		taylor.setPreferredSize(new Dimension(
-		//
-				(2 + level.getGridSize().width) * Ivory.CELL_SIZE,//
-				(2 + level.getGridSize().height) * Ivory.CELL_SIZE));
+		taylor.setPreferredSize(TaylorData.TAYLOR_SIZE);
+		// (2 + level.getGridSize().width) * Ivory.CELL_SIZE
+		// (2 + level.getGridSize().height) * Ivory.CELL_SIZE
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
 		frame.setVisible(true);
 
+		taylor.init();
+
 	}
 
 	private void movePlayer(int xx, int yy) {
 		Player selected;
 		if (ivory.getSelected()) {
-			selected = (Player) ivory.getGameObject("magus");
+			selected = (Player) ivory.getFieldObject("magus");
 		} else {
-			selected = (Player) ivory.getGameObject("champion");
+			selected = (Player) ivory.getFieldObject("champion");
 		}
 		int x = selected.getX();
 		int y = selected.getY();

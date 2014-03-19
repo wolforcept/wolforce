@@ -1,6 +1,6 @@
 Movement
-6,7
-heat = 0
+10,10
+heat = 20, cold = 20, mind = 20
 retrieve:scroll
 magus:        1,1
 champion:     1,5

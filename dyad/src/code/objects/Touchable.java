@@ -3,7 +3,7 @@ package code.objects;
 import code.enums.Material;
 import code.general.Ivory;
 
-public class Touchable extends GameObject {
+public class Touchable extends FieldObject {
 
 	private TouchableType type;
 	private Material material;

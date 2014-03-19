@@ -1,6 +1,6 @@
 package code.objects;
 
-public class Collectable extends GameObject {
+public class Collectable extends FieldObject {
 
 	private CollectableType type;
 

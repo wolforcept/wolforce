@@ -7,14 +7,14 @@ import code.enums.Material;
 import code.objects.Collectable.CollectableType;
 import code.objects.Touchable.TouchableType;
 
-public abstract class GameObject {
+public abstract class FieldObject {
 
 	private int currentImage;
 	private String name;
 	private int numberOfImages;
 	private int x, y, strength;
 
-	public GameObject(String name, int x, int y, int str) {
+	public FieldObject(String name, int x, int y, int str) {
 		try {
 			this.name = name;
 			currentImage = 0;
@@ -55,7 +55,7 @@ public abstract class GameObject {
 		currentImage = (currentImage == numberOfImages) ? 0 : currentImage + 1;
 	}
 
-	public static GameObject makeByName(String name, int x, int y) {
+	public static FieldObject makeByName(String name, int x, int y) {
 
 		switch (name) {
 

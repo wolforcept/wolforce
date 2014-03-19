@@ -2,7 +2,7 @@ package code.objects;
 
 import code.enums.State;
 
-public class Humanoid extends GameObject {
+public class Humanoid extends FieldObject {
 
 	private State state;
 	private String humanoidName;
