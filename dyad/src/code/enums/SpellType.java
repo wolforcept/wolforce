@@ -21,7 +21,7 @@ public enum SpellType {
 
 	private boolean anywhere, everywhere;
 	private int noi, noib, strength;
-	private HashMap<Mana, Integer> manacost;
+	private HashMap<MagusMana, Integer> manacost;
 	private Point centre;
 	private String buttonName;
 
@@ -40,11 +40,11 @@ public enum SpellType {
 		String[] allcostsarray = allcosts.split(":");
 		for (String cost : allcostsarray) {
 			int val = Integer.parseInt(cost.split("=")[1]);
-			Mana m = Mana.valueOf(cost.split("=")[0].toUpperCase());
+			MagusMana m = MagusMana.valueOf(cost.split("=")[0].toUpperCase());
 			System.out.println(this + " costs " + val + " of " + m);
 			manacost.put(m, val);
 		}
-		for (Mana m : Mana.values()) {
+		for (MagusMana m : MagusMana.values()) {
 			if (!manacost.containsKey(m))
 				manacost.put(m, 0);
 		}
@@ -67,7 +67,7 @@ public enum SpellType {
 		return strength;
 	}
 
-	public int getManacost(Mana m) {
+	public int getManacost(MagusMana m) {
 		return manacost.get(m);
 	}
 
