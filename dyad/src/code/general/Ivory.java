@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import code.auxis.Auxi;
-import code.enums.Mana;
+import code.enums.MagusMana;
 import code.enums.ObjectiveType;
 import code.enums.SpellType;
 import code.general.Level.UnbuiltObject;
@@ -39,7 +39,7 @@ public class Ivory {
 	private String target;
 	private ObjectiveType objective;
 
-	private HashMap<Mana, Integer> manapool;
+	private HashMap<MagusMana, Integer> manapool;
 
 	private int width, height;
 	private SpellButton[] spellButtons;
@@ -53,9 +53,9 @@ public class Ivory {
 
 		manapool = new HashMap<>();
 		for (Entry<String, Integer> e : level.getMana().entrySet()) {
-			manapool.put(Mana.valueOf(e.getKey().toUpperCase()), e.getValue());
+			manapool.put(MagusMana.valueOf(e.getKey().toUpperCase()), e.getValue());
 		}
-		for (Mana m : Mana.values()) {
+		for (MagusMana m : MagusMana.values()) {
 			if (!manapool.containsKey(m))
 				manapool.put(m, 0);
 		}
@@ -198,8 +198,8 @@ public class Ivory {
 
 		boolean spellPossible = true;
 
-		HashMap<Mana, Integer> manalist = getMana();
-		MANA_TEST: for (Mana mana : Mana.values()) {
+		HashMap<MagusMana, Integer> manalist = getMana();
+		MANA_TEST: for (MagusMana mana : MagusMana.values()) {
 			int needs = u.getSpellType().getManacost(mana);
 			int has = manalist.get(mana);
 			if (needs > has) {
@@ -210,7 +210,7 @@ public class Ivory {
 
 		if (spellPossible) {
 
-			for (Mana mana : Mana.values()) {
+			for (MagusMana mana : MagusMana.values()) {
 				int cost = u.getSpellType().getManacost(mana);
 				if (cost > 0) {
 					System.out.println("reducing " + mana + " by " + cost);
@@ -244,7 +244,7 @@ public class Ivory {
 
 	}
 
-	private void reduceMana(Mana m, int manacost) {
+	private void reduceMana(MagusMana m, int manacost) {
 		int newValue = manapool.get(m) - manacost;
 		manapool.put(m, newValue);
 	}
@@ -265,7 +265,7 @@ public class Ivory {
 		field[x][y] = object;
 	}
 
-	public HashMap<Mana, Integer> getMana() {
+	public HashMap<MagusMana, Integer> getMana() {
 		return manapool;
 	}
 

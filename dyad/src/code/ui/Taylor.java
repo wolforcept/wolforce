@@ -2,7 +2,6 @@ package code.ui;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.FontMetrics;
@@ -18,7 +17,7 @@ import java.util.LinkedList;
 import javax.swing.JPanel;
 
 import code.auxis.Auxi;
-import code.enums.Mana;
+import code.enums.MagusMana;
 import code.general.Ivory;
 import code.general.Spell;
 import code.general.SpellButton;
@@ -36,7 +35,7 @@ public class Taylor extends JPanel {
 	private Ivory ivory;
 	private TaylorData data;
 	private Font font;
-	private int fieldX, fieldY, cz, fieldWidth, fieldHeight;
+	private int fieldX, fieldY, cz, fieldWidth, fieldHeight, centerX, centerY;
 
 	public Taylor(Ivory ivory) throws IOException {
 		this.ivory = ivory;
@@ -51,14 +50,6 @@ public class Taylor extends JPanel {
 		}
 	}
 
-	public void init() {
-		cz = Ivory.CELL_SIZE;
-		fieldX = getWidth() / 2 - ivory.getFieldSize().width * cz / 2;
-		fieldY = getHeight() / 2 - ivory.getFieldSize().height * cz / 2;
-		fieldWidth = ivory.getFieldSize().width;
-		fieldHeight = ivory.getFieldSize().height;
-	}
-
 	@Override
 	public void paint(Graphics g) {
 		update(g);
@@ -66,9 +57,23 @@ public class Taylor extends JPanel {
 
 	@Override
 	public void update(Graphics graphics) {
+
 		try {
 
-			graphics.drawImage(data.getImages("back").getImage(0), 0, 0, this);
+			cz = Ivory.CELL_SIZE;
+			fieldX = getWidth() / 2 - ivory.getFieldSize().width * cz / 2;
+			fieldY = getHeight() / 2 - 4 - ivory.getFieldSize().height * cz / 2;
+			fieldWidth = ivory.getFieldSize().width;
+			fieldHeight = ivory.getFieldSize().height;
+			centerX = getWidth() / 2;
+			centerY = getHeight() / 2;
+
+			graphics.setColor(Color.BLACK);
+			graphics.fillRect(0, 0, getWidth(), getHeight());
+
+			Image background = data.getImages("back").getImage(0);
+			graphics.drawImage(background, centerX - background.getWidth(this)
+					/ 2, centerY - background.getHeight(this) / 2, this);
 
 			graphics.setColor(new Color(1, 1, 1, 0.03f));
 			graphics.fillRect(fieldX, fieldY, fieldWidth * cz, fieldHeight * cz);
@@ -79,83 +84,25 @@ public class Taylor extends JPanel {
 
 			drawSpells(graphics);
 
+			drawInventory(graphics);
+
+			drawManaPool(graphics);
+
 			Graphics g = graphics;
 
-			// DRAW INV
-			int invWidth = cz * (1 + Player.INVENTORY_ROOM);
-			g.setColor(Color.WHITE);
-			g.drawRect(0, cz * fieldHeight, invWidth, cz);
-			LinkedList<Collectable> collectablesList;
-			if (ivory.getSelected()) {
-				g.drawImage(data.getImages("magus").getImage(0), 0, cz
-						* fieldHeight, this);
-				collectablesList = ivory.getMagus().getInventoryClone();
-			} else {
-				g.drawImage(data.getImages("champion").getImage(0), 0, cz
-						* fieldHeight, this);
-				collectablesList = ivory.getChampion().getInventoryClone();
-			}
-			int i = 0;
-			if (collectablesList != null)
-				for (Collectable c : collectablesList) {
-					i++;
-					g.drawImage(data.getImages(c.getName()).getImage(0),
-							i * cz, cz * fieldHeight, this);
-				}
-			g.setColor(new Color(255, 255, 255, 100));
-			g.fillRect(1, cz * fieldHeight + cz - 11, 20, 11);
-			g.setColor(new Color(255, 255, 255, 200));
-			g.drawString("INV", 1, cz * fieldHeight + cz - 1);
-
-			// DRAW MANA POOL
-			g.setColor(Color.WHITE);
-			g.drawString("MANA:", 0, cz * (fieldHeight + 2));
-			HashMap<Mana, Integer> manalist = ivory.getMana();
-			int m = 0;
-			for (Mana mana : Mana.values()) {
-				m++;
-				g.drawImage(data.getImages(mana.toString().toLowerCase())
-						.getImage(0), m * cz, cz + cz * fieldHeight, this);
-				int ammount = 0, xx = m * cz, yy = cz + cz * fieldHeight;
-				if (manalist.get(mana) > 0) {
-					ammount = manalist.get(mana);
-					g.setColor(new Color(255, 255, 0, 130));
-					g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
-				} else {
-					g.setColor(new Color(255, 50, 50, 255));
-					g.setColor(new Color(150, 150, 150, 180));
-					g.fillRect(xx, yy, cz, cz);
-				}
-				char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
-				int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
-				int y = cz + //
-						cz * fieldHeight + cz - Ivory.NUMBER_DIMENIONS.height;
-				for (int j = 0; j < ammountNumbers.length; j++) {
-
-					g.drawImage(
-							data.getImages(
-									"number_"
-											+ ammountNumbers[ammountNumbers.length
-													- 1 - j]).getImage(0), x
-									- j * Ivory.NUMBER_DIMENIONS.width, y, this);
-					// g.drawString(ammountNumbers[j] + ".", x, y);
-				}
-
-			}
-
 			//
+			g.setFont(font.deriveFont(40f));
 			FontMetrics fm = g.getFontMetrics();
 
 			// DRAW TITLE
 			String title = "Tutorial: Learning the basics";
-			g.setFont(font.deriveFont(40f));
 
 			int titleWidth = fm.stringWidth(title);
 
 			g.setColor(new Color(1f, 1f, 1f, 0.3f));
 
-			int titleX = getWidth() / 2 - titleWidth / 2 - 1;
-			int titleY = 40;
+			int titleX = getWidth() / 2 - titleWidth / 2;
+			int titleY = centerY - 256;
 
 			g.drawString(title, titleX - 1, titleY - 1);
 			// g.drawString(text, getWidth() / 2 - textWidth / 2 + 2, 50 + 2);
@@ -168,19 +115,91 @@ public class Taylor extends JPanel {
 
 			// DRAW SUBTITLE
 
-			String subtitle = "Tutorial: Learning the basics";
+			String subtitle = "movement";
 			g.setFont(font.deriveFont(25f));
+			fm = g.getFontMetrics();
+
 			g.setColor(new Color(1f, 1f, 1f, 0.3f));
 
 			int subtitleX = getWidth() / 2 - fm.stringWidth(subtitle) / 2 - 1;
 
-			graphics.drawString("movement", subtitleX, 82);
+			graphics.drawString(subtitle, subtitleX, centerY - 216);
+
+			// g.setColor(new Color(1, 0, 0, 0.1f));
+			// g.drawLine(getWidth() / 2, 0, getWidth() / 2, 1000);
+			// g.fillRect(0, 0, getWidth(), getHeight());
 
 		} catch (Exception e) {
 			System.err.println("UI Update Failed.");
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	private void drawManaPool(Graphics g) {
+		
+		final int[][] MPOS/*manaPositionsOnScreen*/ = //
+			{};
+		
+		HashMap<MagusMana, Integer> manalist = ivory.getMana();
+		
+		int m = 0;
+		for (MagusMana mana : MagusMana.values()) {
+			m++;
+			g.drawImage(
+					data.getImages(mana.toString().toLowerCase()).getImage(0),
+					m * cz, cz + cz * fieldHeight, this);
+			int ammount = 0, xx = m * cz, yy = cz + cz * fieldHeight;
+			if (manalist.get(mana) > 0) {
+				ammount = manalist.get(mana);
+				g.setColor(new Color(255, 255, 0, 130));
+				g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
+			} else {
+				g.setColor(new Color(255, 50, 50, 255));
+				g.setColor(new Color(150, 150, 150, 180));
+				g.fillRect(xx, yy, cz, cz);
+			}
+			char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
+			int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
+			int y = cz + //
+					cz * fieldHeight + cz - Ivory.NUMBER_DIMENIONS.height;
+			for (int j = 0; j < ammountNumbers.length; j++) {
+
+				g.drawImage(
+						data.getImages(
+								"number_"
+										+ ammountNumbers[ammountNumbers.length
+												- 1 - j]).getImage(0), x - j
+								* Ivory.NUMBER_DIMENIONS.width, y, this);
+				// g.drawString(ammountNumbers[j] + ".", x, y);
+			}
+
+		}
+	}
+
+	private void drawInventory(Graphics g) {
+		// DRAW INV
+		int invWidth = cz * (Player.INVENTORY_ROOM);
+		int invX = centerX - invWidth / 2;
+		int invY = centerY + 260;
+		g.setColor(Color.WHITE);
+		g.drawRect(invX, invY, invWidth, cz);
+
+		Image selectedImage = ivory.getSelected() ? data.getImages("magus")
+				.getImage(0) : data.getImages("champion").getImage(0);
+		LinkedList<Collectable> inventory = ivory.getSelected() ? ivory
+				.getMagus().getInventoryClone() : ivory.getChampion()
+				.getInventoryClone();
+		g.drawImage(selectedImage, centerX - selectedImage.getWidth(this) / 2,
+				centerY + 200, this);
+
+		int i = 0;
+		if (inventory != null)
+			for (Collectable c : inventory) {
+				g.drawImage(data.getImages(c.getName()).getImage(0), invX + i
+						* cz, invY, this);
+				i++;
+			}
 	}
 
 	private void drawSpells(Graphics g) {

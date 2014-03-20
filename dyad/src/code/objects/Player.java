@@ -7,7 +7,7 @@ import code.objects.Collectable.CollectableType;
 
 public class Player extends FieldObject {
 
-	public static final int INVENTORY_ROOM = 4;
+	public static final int INVENTORY_ROOM = 6;
 	LinkedList<Collectable> inventory;
 
 	public Player(String name, int x, int y, int str) {
@@ -49,5 +49,9 @@ public class Player extends FieldObject {
 				return true;
 		}
 		return false;
+	}
+
+	public int getInventorySize() {
+		return inventory.size();
 	}
 }

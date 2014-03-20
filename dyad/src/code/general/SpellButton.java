@@ -3,7 +3,7 @@ package code.general;
 import java.awt.Image;
 import java.util.HashMap;
 
-import code.enums.Mana;
+import code.enums.MagusMana;
 import code.enums.SpellType;
 import code.ui.TaylorData;
 
@@ -18,8 +18,8 @@ public class SpellButton {
 		return new TargetingSpell(type);
 	}
 
-	public boolean isPossible(HashMap<Mana, Integer> mana_avaliable) {
-		for (Mana m : Mana.values()) {
+	public boolean isPossible(HashMap<MagusMana, Integer> mana_avaliable) {
+		for (MagusMana m : MagusMana.values()) {
 
 			int required = type.getManacost(m);
 			if (mana_avaliable.containsKey(m)) {

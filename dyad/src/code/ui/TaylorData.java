@@ -8,7 +8,7 @@ import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
-import code.enums.Mana;
+import code.enums.MagusMana;
 import code.enums.Material;
 import code.enums.SpellType;
 import code.objects.Collectable;
@@ -42,7 +42,7 @@ public class TaylorData {
 			addImage(name, "walls/" + name);
 		}
 
-		Mana[] manas = Mana.values();
+		MagusMana[] manas = MagusMana.values();
 		for (int i = 0; i < manas.length; i++) {
 			String name = manas[i].toString().toLowerCase();
 			addImage(name, "mana/" + name);
