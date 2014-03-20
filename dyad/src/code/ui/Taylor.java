@@ -13,7 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
@@ -35,7 +34,8 @@ public class Taylor extends JPanel {
 	private Ivory ivory;
 	private TaylorData data;
 	private Font font;
-	private int fieldX, fieldY, cz, fieldWidth, fieldHeight, centerX, centerY;
+	private int fieldX, fieldY, fieldX2, fieldY2, cz, fieldWidth, fieldHeight,
+			centerX, centerY;
 
 	public Taylor(Ivory ivory) throws IOException {
 		this.ivory = ivory;
@@ -63,6 +63,8 @@ public class Taylor extends JPanel {
 			cz = Ivory.CELL_SIZE;
 			fieldX = getWidth() / 2 - ivory.getFieldSize().width * cz / 2;
 			fieldY = getHeight() / 2 - 4 - ivory.getFieldSize().height * cz / 2;
+			fieldX2 = fieldX + fieldWidth * cz;
+			fieldY2 = fieldY + fieldHeight * cz;
 			fieldWidth = ivory.getFieldSize().width;
 			fieldHeight = ivory.getFieldSize().height;
 			centerX = getWidth() / 2;
@@ -148,7 +150,7 @@ public class Taylor extends JPanel {
 		g.drawImage(nrimg,//
 				x + image.getWidth(this) - nrimg.getWidth(this), //
 				y + image.getHeight(this) - nrimg.getHeight(this), this);
-		//
+
 		// char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
 		//
 		// for (int i = 0; i < ammountNumbers.length; i++) {
@@ -221,6 +223,7 @@ public class Taylor extends JPanel {
 	}
 
 	private void drawSpells(Graphics g) {
+		
 		int image_x = fieldX;
 		int image_y = fieldY;
 		for (Spell s : ivory.getSpellsClone()) {
@@ -287,44 +290,22 @@ public class Taylor extends JPanel {
 
 			Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
 
+			int mx = ivory.getMouse().x, my = ivory.getMouse().y;
+
 			for (int i = 0; i < a.length; i++) {
-				int tarX = fieldX
-						+ cz
-						* (int) ((ivory.getMouse().x - fieldX + cz * a[i].x) / cz);
-				int tarY = fieldY
-						+ cz
-						* (int) ((ivory.getMouse().y - fieldY + cz * a[i].y) / cz);
+				int tarX = fieldX + cz
+						* (int) ((mx - fieldX + cz * a[i].x) / cz);
+				int tarY = fieldY + cz
+						* (int) ((my - fieldY + cz * a[i].y) / cz);
 
-				if (tarX > fieldX && tarY > fieldY //
-						&& tarX < fieldX + fieldWidth * cz //
-						&& tarY < fieldY + fieldHeight * cz)
+				if (mx + cz * a[i].x > fieldX && //
+						my + cz * a[i].y > fieldY && //
+						mx + cz * a[i].x < fieldX2 && //
+						my + cz * a[i].y < fieldY2) {
+
 					drawTargetSquare(g, tarX, tarY, cz);
-
+				}
 			}
-
-			/*
-			 * int squares_centre_x = fieldX; int squares_centre_y = fieldY;
-			 * 
-			 * if (ivory.getTargetingSpell().getSpellType().isEverywhere()) {
-			 * for (int i = 0; i < fieldWidth; i++) { for (int j = 0; j <
-			 * fieldHeight; j++) { drawTargetSquare(g, fieldX + i * cz, fieldY +
-			 * j * cz, cz); } } } if
-			 * (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
-			 * squares_centre_x += (int) (ivory.getMouse().x / cz);
-			 * squares_centre_y += (int) (ivory.getMouse().y / cz); } else {
-			 * Player p = ivory.getSelected() ? ivory.getMagus() : ivory
-			 * .getChampion(); int dir = Auxi.getDirFromAngle(Math.toDegrees(//
-			 * Auxi.point_direction(p.getX() * cz + cz / 2, p.getY() cz + cz /
-			 * 2, ivory.getMouse().x, ivory.getMouse().y)));
-			 * 
-			 * Auxi.rotatePointMatrixWithDir(a, dir);
-			 * 
-			 * squares_centre_x += p.getX(); squares_centre_y += p.getY(); } for
-			 * (int i = 0; i < a.length; i++) { int xx = squares_centre_x +
-			 * a[i].x; int yy = squares_centre_y + a[i].y; if (xx >= 0 && yy >=
-			 * 0 && xx < fieldWidth && yy < fieldHeight) drawTargetSquare(g,
-			 * fieldX + xx * cz, fieldY + yy * cz, cz); }
-			 */
 		}
 	}
 
