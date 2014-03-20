@@ -151,10 +151,10 @@ public class Controller {
 			};
 		}.start();
 		taylor.setPreferredSize(TaylorData.TAYLOR_SIZE);
-		frame.setSize(TaylorData.TAYLOR_SIZE);
+		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
-		// frame.setResizable(false);
+		 frame.setResizable(false);
 		frame.setVisible(true);
 
 	}
@@ -174,7 +174,8 @@ public class Controller {
 		if (x2 >= 0 && y2 >= 0 && x2 < ivory.getFieldSize().width
 				&& y2 < ivory.getFieldSize().height) {
 			if (ivory.getObjectAt(x2, y2) != null) {
-				if (ivory.getObjectAt(x2, y2) instanceof Collectable && selected.getInventorySize() < Player.INVENTORY_ROOM) {
+				if (ivory.getObjectAt(x2, y2) instanceof Collectable
+						&& selected.getInventorySize() < Player.INVENTORY_ROOM) {
 					selected.winCollectable((Collectable) ivory.getObjectAt(x2,
 							y2));
 					ivory.move(x, y, x2, y2);

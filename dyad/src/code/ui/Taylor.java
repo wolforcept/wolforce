@@ -13,10 +13,10 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
-import code.auxis.Auxi;
 import code.enums.MagusMana;
 import code.general.Ivory;
 import code.general.Spell;
@@ -136,45 +136,63 @@ public class Taylor extends JPanel {
 		}
 	}
 
+	private void drawManaIcon(Graphics g, int ix, int iy, Integer ammount,
+			Image image) {
+
+		int x = centerX + ix - image.getHeight(this) / 2;
+		int y = centerY + iy - image.getWidth(this) / 2;
+
+		g.drawImage(image, x, y, this);
+
+		Image nrimg = data.getImages("number_" + ammount).getImage(0);
+		g.drawImage(nrimg,//
+				x + image.getWidth(this) - nrimg.getWidth(this), //
+				y + image.getHeight(this) - nrimg.getHeight(this), this);
+		//
+		// char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
+		//
+		// for (int i = 0; i < ammountNumbers.length; i++) {
+		// g.drawImage(
+		// data.getImages(
+		// "number_"
+		// + ammountNumbers[ammountNumbers.length - 1
+		// - i]).getImage(0), x - i
+		// * Ivory.NUMBER_DIMENIONS.width, y, this);
+		// }
+	}
+
 	private void drawManaPool(Graphics g) {
-		
-		final int[][] MPOS/*manaPositionsOnScreen*/ = //
-			{};
-		
-		HashMap<MagusMana, Integer> manalist = ivory.getMana();
-		
-		int m = 0;
-		for (MagusMana mana : MagusMana.values()) {
-			m++;
-			g.drawImage(
-					data.getImages(mana.toString().toLowerCase()).getImage(0),
-					m * cz, cz + cz * fieldHeight, this);
-			int ammount = 0, xx = m * cz, yy = cz + cz * fieldHeight;
-			if (manalist.get(mana) > 0) {
-				ammount = manalist.get(mana);
-				g.setColor(new Color(255, 255, 0, 130));
-				g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
-			} else {
-				g.setColor(new Color(255, 50, 50, 255));
-				g.setColor(new Color(150, 150, 150, 180));
-				g.fillRect(xx, yy, cz, cz);
-			}
-			char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
-			int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
-			int y = cz + //
-					cz * fieldHeight + cz - Ivory.NUMBER_DIMENIONS.height;
-			for (int j = 0; j < ammountNumbers.length; j++) {
 
-				g.drawImage(
-						data.getImages(
-								"number_"
-										+ ammountNumbers[ammountNumbers.length
-												- 1 - j]).getImage(0), x - j
-								* Ivory.NUMBER_DIMENIONS.width, y, this);
-				// g.drawString(ammountNumbers[j] + ".", x, y);
-			}
+		HashMap<MagusMana, Integer> manapool = ivory.getMana();
 
-		}
+		drawManaIcon(g, -100, 232, manapool.get(MagusMana.HEAT), data
+				.getImages("heat").getImage(0));
+		drawManaIcon(g, -50, 226, manapool.get(MagusMana.COLD),
+				data.getImages("cold").getImage(0));
+		drawManaIcon(g, 50, 226, manapool.get(MagusMana.MIND),
+				data.getImages("mind").getImage(0));
+		drawManaIcon(g, 100, 232, manapool.get(MagusMana.EARTH), data
+				.getImages("earth").getImage(0));
+
+		// ammount = manalist.get(mana);
+		// g.setColor(new Color(255, 255, 0, 130));
+		// g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
+		// } else {
+		// g.setColor(new Color(255, 50, 50, 255));
+		// g.setColor(new Color(150, 150, 150, 180));
+		// g.fillRect(xx, yy, cz, cz);
+		// }
+		//
+		// int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
+		// int y = cz + //
+		// cz * fieldHeight + cz - Ivory.NUMBER_DIMENIONS.height;
+		// for (int j = 0; j < ammountNumbers.length; j++) {
+		//
+
+		// // g.drawString(ammountNumbers[j] + ".", x, y);
+		// }
+		//
+		// }
 	}
 
 	private void drawInventory(Graphics g) {
@@ -203,9 +221,11 @@ public class Taylor extends JPanel {
 	}
 
 	private void drawSpells(Graphics g) {
+		int image_x = fieldX;
+		int image_y = fieldY;
 		for (Spell s : ivory.getSpellsClone()) {
-			int image_x = s.getX() * cz + cz / 2;
-			int image_y = s.getY() * cz + cz / 2;
+			image_x += s.getX() * cz + cz / 2;
+			image_y += s.getY() * cz + cz / 2;
 			if (s.getType().isAnywhere()) {
 				image_x -= s.getType().getImageCentre().x;
 				image_y -= s.getType().getImageCentre().y;
@@ -218,9 +238,9 @@ public class Taylor extends JPanel {
 
 				Player p = ivory.getSelected() ? ivory.getMagus() : ivory
 						.getChampion();
-				image_x = p.getX() * cz + cz / 2
+				image_x += p.getX() * cz + cz / 2
 						- s.getType().getImageCentre().x;
-				image_y = p.getY() * cz + cz / 2
+				image_y += p.getY() * cz + cz / 2
 						- s.getType().getImageCentre().y;
 				g.drawImage(
 						data.getImages(s.getName()).getImage(
@@ -267,37 +287,44 @@ public class Taylor extends JPanel {
 
 			Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
 
-			int squares_centre_x = 0;
-			int squares_centre_y = 0;
-
-			if (ivory.getTargetingSpell().getSpellType().isEverywhere()) {
-				for (int i = 0; i < fieldWidth; i++) {
-					for (int j = 0; j < fieldHeight; j++) {
-						drawTargetSquare(g, i * cz, j * cz, cz);
-					}
-				}
-			}
-			if (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
-				squares_centre_x = (int) (ivory.getMouse().x / cz);
-				squares_centre_y = (int) (ivory.getMouse().y / cz);
-			} else {
-				Player p = ivory.getSelected() ? ivory.getMagus() : ivory
-						.getChampion();
-				int dir = Auxi.getDirFromAngle(Math.toDegrees(//
-						Auxi.point_direction(p.getX() * cz + cz / 2, p.getY()
-								* cz + cz / 2, ivory.getMouse().x,
-								ivory.getMouse().y)));
-				Auxi.rotatePointMatrixWithDir(a, dir);
-
-				squares_centre_x = p.getX();
-				squares_centre_y = p.getY();
-			}
 			for (int i = 0; i < a.length; i++) {
-				int xx = squares_centre_x + a[i].x;
-				int yy = squares_centre_y + a[i].y;
-				if (xx >= 0 && yy >= 0 && xx < fieldWidth && yy < fieldHeight)
-					drawTargetSquare(g, xx * cz, yy * cz, cz);
+				int tarX = fieldX
+						+ cz
+						* (int) ((ivory.getMouse().x - fieldX + cz * a[i].x) / cz);
+				int tarY = fieldY
+						+ cz
+						* (int) ((ivory.getMouse().y - fieldY + cz * a[i].y) / cz);
+
+				if (tarX > fieldX && tarY > fieldY //
+						&& tarX < fieldX + fieldWidth * cz //
+						&& tarY < fieldY + fieldHeight * cz)
+					drawTargetSquare(g, tarX, tarY, cz);
+
 			}
+
+			/*
+			 * int squares_centre_x = fieldX; int squares_centre_y = fieldY;
+			 * 
+			 * if (ivory.getTargetingSpell().getSpellType().isEverywhere()) {
+			 * for (int i = 0; i < fieldWidth; i++) { for (int j = 0; j <
+			 * fieldHeight; j++) { drawTargetSquare(g, fieldX + i * cz, fieldY +
+			 * j * cz, cz); } } } if
+			 * (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
+			 * squares_centre_x += (int) (ivory.getMouse().x / cz);
+			 * squares_centre_y += (int) (ivory.getMouse().y / cz); } else {
+			 * Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+			 * .getChampion(); int dir = Auxi.getDirFromAngle(Math.toDegrees(//
+			 * Auxi.point_direction(p.getX() * cz + cz / 2, p.getY() cz + cz /
+			 * 2, ivory.getMouse().x, ivory.getMouse().y)));
+			 * 
+			 * Auxi.rotatePointMatrixWithDir(a, dir);
+			 * 
+			 * squares_centre_x += p.getX(); squares_centre_y += p.getY(); } for
+			 * (int i = 0; i < a.length; i++) { int xx = squares_centre_x +
+			 * a[i].x; int yy = squares_centre_y + a[i].y; if (xx >= 0 && yy >=
+			 * 0 && xx < fieldWidth && yy < fieldHeight) drawTargetSquare(g,
+			 * fieldX + xx * cz, fieldY + yy * cz, cz); }
+			 */
 		}
 	}
 
