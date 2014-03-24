@@ -28,6 +28,7 @@ public class TaylorData {
 		addImage("core", 360);
 		addImage("humanoid");
 		addImage("back");
+		addImage("spell_not_available");
 
 		addImage("unable_button", "spells/unable_button");
 
@@ -105,6 +106,23 @@ public class TaylorData {
 		try {
 			if (images.containsKey(name)) {
 				return images.get(name);
+			} else {
+
+				throw new Exception(//
+						"Image " + name
+								+ " not present in Images StaticHashtable");
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public Image getImage(String name) {
+		try {
+			if (images.containsKey(name)) {
+				return images.get(name).getImage(0);
 			} else {
 
 				throw new Exception(//

@@ -34,11 +34,11 @@ public class Taylor extends JPanel {
 	private Ivory ivory;
 	private TaylorData data;
 	private Font font;
-	private int fieldX, fieldY, fieldX2, fieldY2, cz, fieldWidth, fieldHeight,
-			centerX, centerY;
+	private Measures m;
 
 	public Taylor(Ivory ivory) throws IOException {
 		this.ivory = ivory;
+		this.m = ivory.getMeasures();
 		data = new TaylorData();
 
 		try {
@@ -60,29 +60,34 @@ public class Taylor extends JPanel {
 
 		try {
 
-			cz = Ivory.CELL_SIZE;
-			fieldX = getWidth() / 2 - ivory.getFieldSize().width * cz / 2;
-			fieldY = getHeight() / 2 - 4 - ivory.getFieldSize().height * cz / 2;
-			fieldX2 = fieldX + fieldWidth * cz;
-			fieldY2 = fieldY + fieldHeight * cz;
-			fieldWidth = ivory.getFieldSize().width;
-			fieldHeight = ivory.getFieldSize().height;
-			centerX = getWidth() / 2;
-			centerY = getHeight() / 2;
+			m.cz = Ivory.CELL_SIZE;
+			m.fieldX = getWidth() / 2 - ivory.getFieldSize().width * m.cz / 2;
+			m.fieldY = getHeight() / 2 - 4 - ivory.getFieldSize().height * m.cz
+					/ 2;
+			m.fieldX2 = m.fieldX + m.fieldWidth * m.cz;
+			m.fieldY2 = m.fieldY + m.fieldHeight * m.cz;
+			m.fieldWidth = ivory.getFieldSize().width;
+			m.fieldHeight = ivory.getFieldSize().height;
+			m.centerX = getWidth() / 2;
+			m.centerY = getHeight() / 2;
 
 			graphics.setColor(Color.BLACK);
 			graphics.fillRect(0, 0, getWidth(), getHeight());
 
-			Image background = data.getImages("back").getImage(0);
-			graphics.drawImage(background, centerX - background.getWidth(this)
-					/ 2, centerY - background.getHeight(this) / 2, this);
+			Image background = data.getImage("back");
+			graphics.drawImage(background,
+					m.centerX - background.getWidth(this) / 2, m.centerY
+							- background.getHeight(this) / 2, this);
 
 			graphics.setColor(new Color(1, 1, 1, 0.03f));
-			graphics.fillRect(fieldX, fieldY, fieldWidth * cz, fieldHeight * cz);
+			graphics.fillRect(m.fieldX, m.fieldY, m.fieldWidth * m.cz,
+					m.fieldHeight * m.cz);
 
 			drawButtons(graphics);
 
 			drawField(graphics);
+
+			drawUsing(graphics);
 
 			drawSpells(graphics);
 
@@ -104,7 +109,7 @@ public class Taylor extends JPanel {
 			g.setColor(new Color(1f, 1f, 1f, 0.3f));
 
 			int titleX = getWidth() / 2 - titleWidth / 2;
-			int titleY = centerY - 256;
+			int titleY = m.centerY - 256;
 
 			g.drawString(title, titleX - 1, titleY - 1);
 			// g.drawString(text, getWidth() / 2 - textWidth / 2 + 2, 50 + 2);
@@ -125,7 +130,7 @@ public class Taylor extends JPanel {
 
 			int subtitleX = getWidth() / 2 - fm.stringWidth(subtitle) / 2 - 1;
 
-			graphics.drawString(subtitle, subtitleX, centerY - 216);
+			graphics.drawString(subtitle, subtitleX, m.centerY - 216);
 
 			// g.setColor(new Color(1, 0, 0, 0.1f));
 			// g.drawLine(getWidth() / 2, 0, getWidth() / 2, 1000);
@@ -138,15 +143,57 @@ public class Taylor extends JPanel {
 		}
 	}
 
+	private void drawUsing(Graphics g) {
+		if (ivory.using()) {
+
+			Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
+
+			if (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
+
+				int mx = ivory.getMouse().x, my = ivory.getMouse().y;
+
+				for (int i = 0; i < a.length; i++) {
+					int tarX = m.fieldX + m.cz
+							* (int) ((mx - m.fieldX + m.cz * a[i].x) / m.cz);
+					int tarY = m.fieldY + m.cz
+							* (int) ((my - m.fieldY + m.cz * a[i].y) / m.cz);
+
+					if (mx + m.cz * a[i].x > m.fieldX && //
+							my + m.cz * a[i].y > m.fieldY && //
+							mx + m.cz * a[i].x < m.fieldX2 && //
+							my + m.cz * a[i].y < m.fieldY2) {
+
+						drawTargetSquare(g, tarX, tarY);
+					}
+				}
+			} else {
+				for (int i = 0; i < a.length; i++) {
+					Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+							.getChampion();
+
+					int xx = p.getX() + a[i].x;
+					int yy = p.getY() + a[i].y;
+					int sx = m.fieldX + xx * m.cz;
+					int sy = m.fieldY + yy * m.cz;
+					if (sx > m.fieldX && sy > m.fieldY && sx < m.fieldX2
+							&& sy < m.fieldY2) {
+
+						drawTargetSquare(g, sx, sy);
+					}
+				}
+			}
+		}
+	}
+
 	private void drawManaIcon(Graphics g, int ix, int iy, Integer ammount,
 			Image image) {
 
-		int x = centerX + ix - image.getHeight(this) / 2;
-		int y = centerY + iy - image.getWidth(this) / 2;
+		int x = m.centerX + ix - image.getHeight(this) / 2;
+		int y = m.centerY + iy - image.getWidth(this) / 2;
 
 		g.drawImage(image, x, y, this);
 
-		Image nrimg = data.getImages("number_" + ammount).getImage(0);
+		Image nrimg = data.getImage("number_" + ammount);
 		g.drawImage(nrimg,//
 				x + image.getWidth(this) - nrimg.getWidth(this), //
 				y + image.getHeight(this) - nrimg.getHeight(this), this);
@@ -178,16 +225,16 @@ public class Taylor extends JPanel {
 
 		// ammount = manalist.get(mana);
 		// g.setColor(new Color(255, 255, 0, 130));
-		// g.drawRect(xx + 1, yy + 1, cz - 2, cz - 2);
+		// g.drawRect(xx + 1, yy + 1, m.m.cz - 2, m.m.cz - 2);
 		// } else {
 		// g.setColor(new Color(255, 50, 50, 255));
 		// g.setColor(new Color(150, 150, 150, 180));
-		// g.fillRect(xx, yy, cz, cz);
+		// g.fillRect(xx, yy, m.m.cz, m.m.cz);
 		// }
 		//
-		// int x = cz + m * cz - Ivory.NUMBER_DIMENIONS.width;
-		// int y = cz + //
-		// cz * fieldHeight + cz - Ivory.NUMBER_DIMENIONS.height;
+		// int x = m.m.cz + m * m.m.cz - Ivory.NUMBER_DIMENIONS.width;
+		// int y = m.m.cz + //
+		// m.m.cz * m.fieldHeight + m.m.cz - Ivory.NUMBER_DIMENIONS.height;
 		// for (int j = 0; j < ammountNumbers.length; j++) {
 		//
 
@@ -199,36 +246,37 @@ public class Taylor extends JPanel {
 
 	private void drawInventory(Graphics g) {
 		// DRAW INV
-		int invWidth = cz * (Player.INVENTORY_ROOM);
-		int invX = centerX - invWidth / 2;
-		int invY = centerY + 260;
+		int invWidth = m.cz * (Player.INVENTORY_ROOM);
+		int invX = m.centerX - invWidth / 2;
+		int invY = m.centerY + 260;
 		g.setColor(Color.WHITE);
-		g.drawRect(invX, invY, invWidth, cz);
+		g.drawRect(invX, invY, invWidth, m.cz);
 
-		Image selectedImage = ivory.getSelected() ? data.getImages("magus")
-				.getImage(0) : data.getImages("champion").getImage(0);
+		Image selectedImage = ivory.getSelected() ? data.getImage("magus")
+				: data.getImage("champion");
 		LinkedList<Collectable> inventory = ivory.getSelected() ? ivory
 				.getMagus().getInventoryClone() : ivory.getChampion()
 				.getInventoryClone();
-		g.drawImage(selectedImage, centerX - selectedImage.getWidth(this) / 2,
-				centerY + 200, this);
+		g.drawImage(selectedImage,
+				m.centerX - selectedImage.getWidth(this) / 2, m.centerY + 200,
+				this);
 
 		int i = 0;
 		if (inventory != null)
 			for (Collectable c : inventory) {
-				g.drawImage(data.getImages(c.getName()).getImage(0), invX + i
-						* cz, invY, this);
+				g.drawImage(data.getImage(c.getName()), invX + i * m.cz, invY,
+						this);
 				i++;
 			}
 	}
 
 	private void drawSpells(Graphics g) {
-		
-		int image_x = fieldX;
-		int image_y = fieldY;
+
+		int image_x = m.fieldX;
+		int image_y = m.fieldY;
 		for (Spell s : ivory.getSpellsClone()) {
-			image_x += s.getX() * cz + cz / 2;
-			image_y += s.getY() * cz + cz / 2;
+			image_x += s.getX() * m.cz + m.cz / 2;
+			image_y += s.getY() * m.cz + m.cz / 2;
 			if (s.getType().isAnywhere()) {
 				image_x -= s.getType().getImageCentre().x;
 				image_y -= s.getType().getImageCentre().y;
@@ -241,9 +289,9 @@ public class Taylor extends JPanel {
 
 				Player p = ivory.getSelected() ? ivory.getMagus() : ivory
 						.getChampion();
-				image_x += p.getX() * cz + cz / 2
+				image_x += p.getX() * m.cz + m.cz / 2
 						- s.getType().getImageCentre().x;
-				image_y += p.getY() * cz + cz / 2
+				image_y += p.getY() * m.cz + m.cz / 2
 						- s.getType().getImageCentre().y;
 				g.drawImage(
 						data.getImages(s.getName()).getImage(
@@ -285,28 +333,6 @@ public class Taylor extends JPanel {
 				g.drawImage(imageAfterTransform, image_x, image_y, this);
 			}
 		}
-
-		if (ivory.using()) {
-
-			Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
-
-			int mx = ivory.getMouse().x, my = ivory.getMouse().y;
-
-			for (int i = 0; i < a.length; i++) {
-				int tarX = fieldX + cz
-						* (int) ((mx - fieldX + cz * a[i].x) / cz);
-				int tarY = fieldY + cz
-						* (int) ((my - fieldY + cz * a[i].y) / cz);
-
-				if (mx + cz * a[i].x > fieldX && //
-						my + cz * a[i].y > fieldY && //
-						mx + cz * a[i].x < fieldX2 && //
-						my + cz * a[i].y < fieldY2) {
-
-					drawTargetSquare(g, tarX, tarY, cz);
-				}
-			}
-		}
 	}
 
 	private void drawField(Graphics graphics) {
@@ -314,14 +340,16 @@ public class Taylor extends JPanel {
 		FieldObject[][] field = ivory.getField();
 
 		graphics.setColor(new Color(1, 1, 1, 0.5f));
-		graphics.drawRect(fieldX, fieldY, fieldWidth * cz, fieldHeight * cz);
+		graphics.drawRect(m.fieldX, m.fieldY, m.fieldWidth * m.cz,
+				m.fieldHeight * m.cz);
 
 		for (int i = 0; i < field.length; i++) {
 			for (int j = 0; j < field[0].length; j++) {
 
 				FieldObject obj = field[i][j];
 				graphics.setColor(new Color(1, 1, 1, 0.1f));
-				graphics.drawRect(fieldX + i * cz, fieldY + j * cz, cz, cz);
+				graphics.drawRect(m.fieldX + i * m.cz, m.fieldY + j * m.cz,
+						m.cz, m.cz);
 
 				if (obj == null)
 					continue;
@@ -335,8 +363,8 @@ public class Taylor extends JPanel {
 					for (int jj = 0; jj < 20; jj++) {
 						graphics.setColor(new Color(255, 255, 255,
 								(int) (2.5 * jj)));
-						graphics.fillOval(fieldX + i * cz + jj, fieldY + j * cz
-								+ jj, cz - jj * 2, cz - jj * 2);
+						graphics.fillOval(m.fieldX + i * m.cz + jj, m.fieldY
+								+ j * m.cz + jj, m.cz - jj * 2, m.cz - jj * 2);
 					}
 					imageName = obj.getClass().getSimpleName().toString()
 							.toLowerCase()
@@ -345,13 +373,13 @@ public class Taylor extends JPanel {
 
 				graphics.drawImage(
 						data.getImages(imageName).getImage(
-								obj.getCurrentImage()), fieldX + i * cz, fieldY
-								+ j * cz, this);
+								obj.getCurrentImage()), m.fieldX + i * m.cz,
+						m.fieldY + j * m.cz, this);
 
 				if (obj instanceof Humanoid) {
 					graphics.setColor(Color.WHITE);
 					graphics.drawString(((Humanoid) obj).getHumanoidName(),
-							obj.getX() * cz + 7, obj.getY() * cz + cz - 5);
+							obj.getX() * m.cz + 7, obj.getY() * m.cz + m.cz - 5);
 				}
 
 				graphics.setColor(new Color(1f, 1f, 1f, 0.2f));
@@ -363,30 +391,36 @@ public class Taylor extends JPanel {
 	private void drawButtons(Graphics g) {
 		{
 			SpellButton[] b = ivory.getSpellButtons();
-			int y = 0;
+			int yy = 0;
 			for (int i = 0; i < b.length; i++) {
-				if (b[i].isPossible(ivory.getMana())) {
-					g.drawImage(b[i].getImage(data), ivory.getFieldSize().width
-							* Ivory.CELL_SIZE, Ivory.CELL_SIZE * y++, this);
+				// int x = m.centerX + 230;
+				// int y = 100 + Ivory.CELL_SIZE * yy++;
+				int x = b[i].getX();
+				int y = b[i].getY();
+				g.drawImage(b[i].getImage(data), x, y, this);
+				if (!b[i].isPossible(ivory.getMana())) {
+					g.drawImage(data.getImage("spell_not_available"), x, y,
+							this);
 				}
 			}
 		}
 	}
 
-	private void drawTargetSquare(Graphics g, int x, int y, int cz) {
+	private void drawTargetSquare(Graphics g, int x, int y) {
 		g.setColor(new Color(255, 0, 0, 50));
-		g.fillRect(x, y, cz, cz);
+		g.fillRect(x, y, m.cz, m.cz);
 		g.setColor(new Color(255, 100, 0, 100));
-		g.drawRect(x, y, cz, cz);
-		for (int i = 0; i < (int) (cz / 2); i++) {
-			g.setColor(new Color(255, 100, 0, (int) (cz) - i * 2));
-			g.drawRect(x + i, y + i, cz - 2 * i, cz - 2 * i);
+		g.drawRect(x, y, m.cz, m.cz);
+		for (int i = 0; i < (int) (m.cz / 2); i++) {
+			g.setColor(new Color(255, 100, 0, (int) (m.cz) - i * 2));
+			g.drawRect(x + i, y + i, m.cz - 2 * i, m.cz - 2 * i);
 		}
 
 	}
 
 	private BufferedImage transformImage(Image i, double scalex, double scaley,
-			int angle, int centerx, int centery, float alpha) {
+			int angle, int centerX, int centerY, float alpha) {
+
 		int w = Math.max(i.getWidth(this), i.getHeight(this));
 		int h = w;
 

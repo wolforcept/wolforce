@@ -103,14 +103,11 @@ public class Controller {
 			public void mousePressed(MouseEvent e) {
 				if (e.getButton() == MouseEvent.BUTTON1) {
 					SpellButton[] a = ivory.getSpellButtons();
-					int y = 0;
 					for (int i = 0; i < a.length; i++) {
 						if (a[i].isPossible(ivory.getMana())) {
-							if (Auxi.collides(e, ivory.getFieldSize().width
-									* Ivory.CELL_SIZE, Ivory.CELL_SIZE * y)) {
+							if (Auxi.collides(e.getPoint(), a[i])) {
 								ivory.using(a[i].getSpell());
 							}
-							y++;
 						}
 
 					}
@@ -154,7 +151,7 @@ public class Controller {
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
-		 frame.setResizable(false);
+		frame.setResizable(false);
 		frame.setVisible(true);
 
 	}

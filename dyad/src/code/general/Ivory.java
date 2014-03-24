@@ -18,6 +18,7 @@ import code.objects.Magus;
 import code.objects.Player;
 import code.objects.Touchable;
 import code.objects.Touchable.TouchableType;
+import code.ui.Measures;
 
 public class Ivory {
 
@@ -44,16 +45,21 @@ public class Ivory {
 	private int width, height;
 	private SpellButton[] spellButtons;
 
+	private Measures m;
+
 	// private boolean[] switches;
 
 	public Ivory(Level level) {
+
+		m = new Measures();
 
 		target = level.getTarget();
 		objective = level.getObjective();
 
 		manapool = new HashMap<>();
 		for (Entry<String, Integer> e : level.getMana().entrySet()) {
-			manapool.put(MagusMana.valueOf(e.getKey().toUpperCase()), e.getValue());
+			manapool.put(MagusMana.valueOf(e.getKey().toUpperCase()),
+					e.getValue());
 		}
 		for (MagusMana m : MagusMana.values()) {
 			if (!manapool.containsKey(m))
@@ -70,7 +76,7 @@ public class Ivory {
 		spellButtons = new SpellButton[vals.length];
 		for (int i = 0; i < vals.length; i++)
 			spellButtons[i] = //
-			new SpellButton(vals[i]);
+			new SpellButton(vals[i], i, 230, 100, 40, 40, m);
 
 		spells = new LinkedList<Spell>();
 
@@ -195,50 +201,40 @@ public class Ivory {
 	}
 
 	public void use() {
+		// boolean spellPossible = true; HashMap<MagusMana, Integer> manalist =
+		// getMana(); MANA_TEST: for (MagusMana mana : MagusMana.values()) { int
+		// needs = u.getSpellType().getManacost(mana); int has =
+		// manalist.get(mana);if (needs > has) { spellPossible = false;break
+		// MANA_TEST;}} if (spellPossible) {}
 
-		boolean spellPossible = true;
-
-		HashMap<MagusMana, Integer> manalist = getMana();
-		MANA_TEST: for (MagusMana mana : MagusMana.values()) {
-			int needs = u.getSpellType().getManacost(mana);
-			int has = manalist.get(mana);
-			if (needs > has) {
-				spellPossible = false;
-				break MANA_TEST;
+		for (MagusMana mana : MagusMana.values()) {
+			int cost = u.getSpellType().getManacost(mana);
+			if (cost > 0) {
+				System.out.println("reducing " + mana + " by " + cost);
+				reduceMana(mana, cost);
 			}
 		}
 
-		if (spellPossible) {
+		Point[] a = u.getSpellType().getArea();
 
-			for (MagusMana mana : MagusMana.values()) {
-				int cost = u.getSpellType().getManacost(mana);
-				if (cost > 0) {
-					System.out.println("reducing " + mana + " by " + cost);
-					reduceMana(mana, cost);
-				}
+		int x = 0, y = 0;
+		if (u.getSpellType().isAnywhere()) {
+			if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
+					&& mouse.y < CELL_SIZE * height) {
+				x = (int) ((mouse.x - m.fieldX) / CELL_SIZE);
+				y = (int) ((mouse.y - m.fieldY) / CELL_SIZE);
 			}
-
-			Point[] a = u.getSpellType().getArea();
-
-			int x = 0, y = 0;
-			if (u.getSpellType().isAnywhere()) {
-				if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
-						&& mouse.y < CELL_SIZE * height) {
-					x = (int) (mouse.x / CELL_SIZE);
-					y = (int) (mouse.y / CELL_SIZE);
-				}
-			} else {
-				Player p = selected ? getMagus() : getChampion();
-				x = p.getX();
-				y = p.getY();
-			}
-			if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
-				double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
-						+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2,
-						mouse.x, mouse.y));
-				spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
-						.getDirFromAngle(dir)));
-			}
+		} else {
+			Player p = selected ? getMagus() : getChampion();
+			x = p.getX();
+			y = p.getY();
+		}
+		if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
+			double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
+					+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, mouse.x,
+					mouse.y));
+			spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
+					.getDirFromAngle(dir)));
 		}
 		u = null;
 
@@ -290,5 +286,9 @@ public class Ivory {
 			}
 		}
 		return null;
+	}
+
+	public Measures getMeasures() {
+		return m;
 	}
 }

@@ -5,19 +5,19 @@ import java.util.HashMap;
 
 public enum SpellType {
 
-	METEOR(4, 1, 19, "heat=2", new Point(40, 80)), //
-	COLUMN_OF_FIRE(4, 0, 6, "heat=2:mind=1", new Point(20, 20)), //
-	WORLDS_END(4, 0, 6, "heat=2:earth=1", new Point(20, 20)), //
-	FREEZE(4, 1, 170, "cold=1", new Point(20, 20)), //
-	ICE_FALL(4, 0, 6, "cold=2:earth=1", new Point(20, 20)), //
-	SNOW(4, 2, 6, "cold=2", new Point(20, 20)), //
-	CHAOS(4, 1, 12, "mind=2", new Point(20, 20)), //
-	DARKNESS(4, 2, 19, "mind=1:cold=1", new Point(40, 80)), //
-	LIGHT(4, 2, 6, "mind=2:heat=1", new Point(20, 20)), //
-	SHATTER(8, 1, 6, "heat=1:cold=1:mind=1:earth=1", new Point(20, 20)), //
-	GROW(4, 1, 6, "earth=2", new Point(20, 20)), //
-	PUTRIFY(4, 1, 6, "earth=1:cold=1:heat=1", new Point(20, 20)), //
-	;
+	METEOR(4, 1, 19, "heat=1:earth=1", new Point(40, 80)), //
+	SHATTER(8, 1, 6, "heat=1:mind=1", new Point(20, 20)), //
+	CHILLWIND(4, 0, 6, "cold=2", new Point(20, 20)), //
+	FORM(4, 1, 6, "heat=1:earth=1", new Point(20, 20)), //
+	CORRUPTION(4, 1, 6, "earth=1:cold=1:heat=1", new Point(20, 20)), //
+	DARKNESS(4, 2, 19, "mind=1:cold=1", new Point(40, 80));
+	
+	// COLUMN_OF_FIRE(4, 0, 6, "heat=2:mind=1", new Point(20, 20)), //
+	// WORLDS_END(4, 0, 6, "heat=2:earth=1", new Point(20, 20)), //
+	// FREEZE(4, 1, 170, "cold=1", new Point(20, 20)), //
+	// SNOW(4, 2, 6, "cold=2", new Point(20, 20)), //
+	// CHAOS(4, 1, 12, "mind=2", new Point(20, 20)), //
+	// LIGHT(4, 2, 6, "mind=2:heat=1", new Point(20, 20)), //
 
 	private boolean anywhere, everywhere;
 	private int noi, noib, strength;
@@ -76,28 +76,20 @@ public enum SpellType {
 		case METEOR:
 			return new Point[] { new Point(-1, 0), new Point(0, 0),
 					new Point(1, 0), new Point(0, 1), new Point(0, -1) };
-		case COLUMN_OF_FIRE:
+			// case COLUMN_OF_FIRE:
+			// return new Point[] { new Point(1, 0), new Point(2, 0),
+			// new Point(3, 0), new Point(4, 0) };
+		case CHILLWIND:
 			return new Point[] { new Point(1, 0), new Point(2, 0),
 					new Point(3, 0), new Point(4, 0) };
-		case CHAOS:
-			return new Point[] { new Point(0, 0) };
-		case FREEZE:
-			return new Point[] { new Point(0, 0) };
-		case PUTRIFY:
-			return new Point[] { new Point(0, 0) };
-		case SHATTER:
-			return new Point[] { new Point(0, 0) };
-		case ICE_FALL:
-			return new Point[] { new Point(1, 0), new Point(2, 0),
-					new Point(3, 0), new Point(4, 0) };
-		case GROW:
+		case FORM:
 			return new Point[] { new Point(0, 0), new Point(1, 0),
 					new Point(0, 1), new Point(1, 1) };
-		case WORLDS_END:
-			return new Point[] { new Point(1, -2), new Point(2, -1),
-					new Point(2, 0), new Point(2, 1), new Point(1, 2) };
+			// case WORLDS_END:
+			// return new Point[] { new Point(1, -2), new Point(2, -1),
+			// new Point(2, 0), new Point(2, 1), new Point(1, 2) };
 		default:
-			return new Point[] {};
+			return new Point[] { new Point(0, 0) };
 		}
 	}
 

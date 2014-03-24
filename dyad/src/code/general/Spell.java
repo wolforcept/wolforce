@@ -2,21 +2,26 @@ package code.general;
 
 import java.awt.Point;
 
+import code.auxis.Auxi;
+import code.enums.Facing;
 import code.enums.SpellType;
 import code.objects.FieldObject;
 
-
-public class Spell extends FieldObject {
+public class Spell {
 
 	private SpellType type;
 	private Point[] area;
-	private int dir;
+	private Facing facing;
 
-	public Spell(SpellType spellType, int x, int y, Point[] area, int dir) {
-		super(spellType.toString().toLowerCase(), x, y, spellType.getStrength());
+	private int x, y, currentImage;
+
+	public Spell(SpellType spellType, int x, int y, Point[] area, Facing facing) {
+		this.x = x;
+		this.y = y;
 		this.type = spellType;
 		this.area = area;
-		this.dir = dir;
+		this.facing = facing;
+		currentImage = 0;
 	}
 
 	/**
@@ -32,6 +37,10 @@ public class Spell extends FieldObject {
 
 	}
 
+	public int getStrength() {
+		return type.getStrength();
+	}
+
 	public SpellType getType() {
 		return type;
 	}
@@ -40,8 +49,32 @@ public class Spell extends FieldObject {
 		return area;
 	}
 
-	public int getDirection() {
-		return dir;
+	public Facing getDirection() {
+		return facing;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public String getName() {
+		return type.toString().toLowerCase();
+	}
+
+	public int getCurrentImage() {
+		return currentImage;
+	}
+
+	public int getNumberOfImages() {
+		return type.getNOI();
+	}
+
+	public void incrementImage() {
+		currentImage++;
 	}
 
 }

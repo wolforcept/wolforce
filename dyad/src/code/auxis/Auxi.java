@@ -1,11 +1,32 @@
 package code.auxis;
 
 import java.awt.Point;
-import java.awt.event.MouseEvent;
+import java.awt.Rectangle;
 
+import code.enums.Facing;
 import code.general.SpellButton;
 
 public class Auxi {
+
+	/**
+	 * @param angle
+	 *            angle to calculate facing, in degrees
+	 */
+	public static Facing getFacing(int a) {
+
+		double angle = a % 360;
+
+		if (angle < 45 || angle > 315)
+			return Facing.EAST;
+
+		if (angle < 135)
+			return Facing.NORTH;
+
+		if (angle < 225)
+			return Facing.WEST;
+
+		return Facing.SOUTH;
+	}
 
 	public static double point_distance(double x1, double y1, double x2,
 			double y2) {
@@ -17,41 +38,26 @@ public class Auxi {
 		return Math.atan2((y1 - y2), (x2 - x1));
 	}
 
-	public static boolean collides(MouseEvent e, int x, int y) {
-		int x1 = e.getX();
-		int y1 = e.getY();
-		int s = 40;
-
-		if (x1 > x && y1 > y && x1 < x + s && y1 < y + s)
-			return true;
-		return false;
+	public static boolean collides(Point p, SpellButton b) {
+		Rectangle r = new Rectangle(b.getW(), b.getH());
+		r.translate(b.getX(), b.getY());
+		return r.contains(p);
 	}
 
-	public static int getDirFromAngle(double dir) {
-		if (dir < 45 && dir > -45) {
-			return 0;
-		} else if (dir > 45 && dir < 45 + 90) {
-			return 1;
-		} else if (dir > 45 + 90 || dir < -45 - 90) {
-			return 2;
-		} else {
-			return 3;
-		}
-	}
-
-	public static void rotatePointMatrixWithDir(Point[] a, int dir) {
-		switch (dir) {
-		case 1:
+	@SuppressWarnings("incomplete-switch")
+	public static void rotatePointMatrixWithDir(Point[] a, Facing facing) {
+		switch (facing) {
+		case NORTH:
 			for (int i = 0; i < a.length; i++) {
 				a[i].setLocation(a[i].y, -a[i].x);
 			}
 			break;
-		case 2:
+		case WEST:
 			for (int i = 0; i < a.length; i++) {
 				a[i].setLocation(-a[i].x, -a[i].y);
 			}
 			break;
-		case 3:
+		case SOUTH:
 			for (int i = 0; i < a.length; i++) {
 				a[i].setLocation(-a[i].y, a[i].x);
 			}
