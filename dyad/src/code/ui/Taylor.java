@@ -39,6 +39,8 @@ public class Taylor extends JPanel {
 	private Font font;
 	private Measures m;
 
+	private boolean showFinish;
+
 	public Taylor(Ivory ivory) throws IOException {
 		this.ivory = ivory;
 		this.m = ivory.getMeasures();
@@ -51,6 +53,9 @@ public class Taylor extends JPanel {
 		} catch (FontFormatException e) {
 			e.printStackTrace();
 		}
+
+		showFinish = false;
+
 	}
 
 	@Override
@@ -74,9 +79,6 @@ public class Taylor extends JPanel {
 			m.centerX = getWidth() / 2;
 			m.centerY = getHeight() / 2;
 
-			graphics.setColor(Color.BLACK);
-			graphics.fillRect(0, 0, getWidth(), getHeight());
-
 			Image background = data.getImage("back");
 			graphics.drawImage(background,
 					m.centerX - background.getWidth(this) / 2, m.centerY
@@ -86,13 +88,18 @@ public class Taylor extends JPanel {
 			graphics.fillRect(m.fieldX, m.fieldY, m.fieldWidth * m.cz,
 					m.fieldHeight * m.cz);
 
+			if (showFinish) {
+				drawFinish(graphics);
+				return;
+			}
+
 			drawButtons(graphics);
 
 			drawField(graphics);
 
 			drawUsing(graphics);
 
-			drawSpells(graphics);
+			drawSpell(graphics);
 
 			drawInventory(graphics);
 
@@ -146,11 +153,28 @@ public class Taylor extends JPanel {
 		}
 	}
 
+	private void drawFinish(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, getWidth(), getHeight());
+
+		String endingPhrase = "Good Job!";
+
+		g.setFont(font.deriveFont(60f));
+		FontMetrics fm = g.getFontMetrics();
+
+		g.setColor(new Color(1f, 1f, 1f, 0.3f));
+
+		int endingPhraseX = getWidth() / 2 - fm.stringWidth(endingPhrase) / 2
+				- 1;
+
+		g.drawString(endingPhrase, endingPhraseX, m.centerY - 216);
+	}
+
 	private void drawUsing(Graphics g) {
 		if (ivory.using()) {
 
-			Point[] area = ivory.getTargetingSpell().getSpellType().getArea();
-			SpellType type = ivory.getTargetingSpell().getSpellType();
+			Point[] area = ivory.getUsing().getArea();
+			SpellType type = ivory.getUsing();
 			if (type.isAnywhere()) {
 
 				int mx = ivory.getMouse().x, my = ivory.getMouse().y;
@@ -178,6 +202,7 @@ public class Taylor extends JPanel {
 						point.setLocation(-point.y, point.x);
 					case SOUTH:
 						point.setLocation(-point.y, point.x);
+					default:
 					}
 					Player p = ivory.getSelected() ? ivory.getMagus() : ivory
 							.getChampion();
@@ -281,68 +306,71 @@ public class Taylor extends JPanel {
 			}
 	}
 
-	private void drawSpells(Graphics g) {
+	private void drawSpell(Graphics g) {
+
+		Spell s = ivory.getSpell();
+		if (s == null)
+			return;
 
 		int image_x = m.fieldX;
 		int image_y = m.fieldY;
-		for (Spell s : ivory.getSpellsClone()) {
-			image_x += s.getX() * m.cz + m.cz / 2;
-			image_y += s.getY() * m.cz + m.cz / 2;
-			if (s.getType().isAnywhere()) {
+
+		// TODO REWRITE ALL THIS CODE
+
+		image_x += s.getX() * m.cz + m.cz / 2;
+		image_y += s.getY() * m.cz + m.cz / 2;
+		if (s.getType().isAnywhere()) {
+			image_x -= s.getType().getImageCentre().x;
+			image_y -= s.getType().getImageCentre().y;
+			g.drawImage(
+					data.getImages(s.getName()).getImage(
+							s.getCurrentImage() - 1), image_x, image_y, this);
+
+		} else if (s.getType().isEverywhere()) {
+
+			Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+					.getChampion();
+			image_x += p.getX() * m.cz + m.cz / 2
+					- s.getType().getImageCentre().x;
+			image_y += p.getY() * m.cz + m.cz / 2
+					- s.getType().getImageCentre().y;
+			g.drawImage(
+					data.getImages(s.getName()).getImage(
+							s.getCurrentImage() - 1), image_x, image_y, this);
+
+		} else {
+			BufferedImage imageAfterTransform = transformImage(
+					data.getImages(s.getName()).getImage(
+							s.getCurrentImage() - 1), 1, 1, s.getDirection(),
+					0, 0, 1f);
+			switch (s.getDirection()) {
+			case EAST:
 				image_x -= s.getType().getImageCentre().x;
 				image_y -= s.getType().getImageCentre().y;
-				g.drawImage(
-						data.getImages(s.getName()).getImage(
-								s.getCurrentImage() - 1), image_x, image_y,
-						this);
+				break;
+			case NORTH:
+				image_x -= s.getType().getImageCentre().x;
+				image_y += s.getType().getImageCentre().y;
+				image_y -= imageAfterTransform.getHeight();
+				break;
+			case WEST:
+				image_x += s.getType().getImageCentre().x;
+				image_y += s.getType().getImageCentre().y;
+				image_y -= imageAfterTransform.getHeight();
+				image_x -= imageAfterTransform.getWidth();
+				break;
 
-			} else if (s.getType().isEverywhere()) {
+			case SOUTH:
+				image_x += s.getType().getImageCentre().x;
+				image_y -= s.getType().getImageCentre().y;
+				image_x -= imageAfterTransform.getWidth();
+				break;
 
-				Player p = ivory.getSelected() ? ivory.getMagus() : ivory
-						.getChampion();
-				image_x += p.getX() * m.cz + m.cz / 2
-						- s.getType().getImageCentre().x;
-				image_y += p.getY() * m.cz + m.cz / 2
-						- s.getType().getImageCentre().y;
-				g.drawImage(
-						data.getImages(s.getName()).getImage(
-								s.getCurrentImage() - 1), image_x, image_y,
-						this);
-
-			} else {
-				BufferedImage imageAfterTransform = transformImage(
-						data.getImages(s.getName()).getImage(
-								s.getCurrentImage() - 1), 1, 1,
-						s.getDirection(), 0, 0, 1f);
-				switch (s.getDirection()) {
-				case EAST:
-					image_x -= s.getType().getImageCentre().x;
-					image_y -= s.getType().getImageCentre().y;
-					break;
-				case NORTH:
-					image_x -= s.getType().getImageCentre().x;
-					image_y += s.getType().getImageCentre().y;
-					image_y -= imageAfterTransform.getHeight();
-					break;
-				case WEST:
-					image_x += s.getType().getImageCentre().x;
-					image_y += s.getType().getImageCentre().y;
-					image_y -= imageAfterTransform.getHeight();
-					image_x -= imageAfterTransform.getWidth();
-					break;
-
-				case SOUTH:
-					image_x += s.getType().getImageCentre().x;
-					image_y -= s.getType().getImageCentre().y;
-					image_x -= imageAfterTransform.getWidth();
-					break;
-
-				default:
-					break;
-				}
-
-				g.drawImage(imageAfterTransform, image_x, image_y, this);
+			default:
+				break;
 			}
+
+			g.drawImage(imageAfterTransform, image_x, image_y, this);
 		}
 	}
 
@@ -446,5 +474,9 @@ public class Taylor extends JPanel {
 		gg.drawImage(i, 0, 0, this);
 
 		return b;
+	}
+
+	public void showFinish(boolean f) {
+		showFinish = f;
 	}
 }

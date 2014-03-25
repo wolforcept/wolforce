@@ -1,5 +1,5 @@
 package code.enums;
 
 public enum ObjectiveType {
-	RETRIEVE_ALL_SCROLLS, DESTROY, KILL;
+	RETRIEVE_SCROLLS, DESTROY, KILL;
 }

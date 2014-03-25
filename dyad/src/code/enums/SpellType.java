@@ -6,7 +6,7 @@ import java.util.HashMap;
 public enum SpellType {
 
 	METEOR(4, 1, 19, "heat=1:earth=1", new Point(40, 80)), //
-	SHATTER(8, 1, 6, "heat=1:mind=1", new Point(20, 20)), //
+	SHATTER(8, 1, 170, "heat=1:mind=1", new Point(20, 20)), //
 	CHILLWIND(4, 0, 6, "cold=2", new Point(20, 20)), //
 	FORM(4, 1, 6, "heat=1:earth=1", new Point(20, 20)), //
 	CORRUPTION(4, 1, 6, "earth=1:cold=1:heat=1", new Point(20, 20)), //

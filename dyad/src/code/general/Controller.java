@@ -10,7 +10,6 @@ import javax.swing.JFrame;
 
 import code.auxis.Auxi;
 import code.objects.Collectable;
-import code.objects.FieldObject;
 import code.objects.Player;
 import code.objects.Touchable;
 import code.ui.Taylor;
@@ -36,10 +35,6 @@ public class Controller {
 		frame.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-
-				if (ivory.getTargetingSpell() != null) {
-					ivory.using(ivory.getTargetingSpell());
-				}
 
 				if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 					ivory.toggleSelected();
@@ -86,18 +81,21 @@ public class Controller {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				if (ivory.using()) {
-					ivory.use();
+					ivory.startUse();
 				}
 			}
 
 			@Override
 			public void mousePressed(MouseEvent e) {
-				if (e.getButton() == MouseEvent.BUTTON1) {
+				if (e.getButton() == MouseEvent.BUTTON1
+						&& ivory.getSpell() == null) {
 					SpellButton[] a = ivory.getSpellButtons();
 					for (int i = 0; i < a.length; i++) {
 						if (a[i].isPossible(ivory.getMana())) {
 							if (Auxi.collides(e.getPoint(), a[i])) {
-								ivory.using(a[i].getSpell());
+								ivory.using(a[i].getSpellType());
+								System.out.println("using now "
+										+ a[i].getSpellType());
 							}
 						}
 					}
@@ -107,26 +105,7 @@ public class Controller {
 
 		frame.add(taylor);
 		taylor.requestFocus();
-		new Thread() {
-			public void run() {
-				try {
-					while (true) {
-						setName("Updater");
-						ivory.updateSpells();
-						taylor.repaint();
-						checkFinish();
-						sleep(1000 / Ivory.REFRESH_FREQUENCY);
-					}
-				} catch (InterruptedException e) {
-					System.err
-							.println("Updater interrupted\nController.Thread() {...}.run()");
-					System.exit(0);
-					System.gc();
-				}
-
-			}
-
-		}.start();
+		new ControllerThread(ivory, taylor, frame).start();
 		taylor.setPreferredSize(TaylorData.TAYLOR_SIZE);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -135,25 +114,6 @@ public class Controller {
 		frame.setVisible(true);
 
 	}
-
-	private boolean checkFinish() {
-		switch (ivory.getObjective()) {
-
-		case RETRIEVE_ALL_SCROLLS:
-			FieldObject[][] field = ivory.getField();
-			for (int i = 0; i < field.length; i++) {
-				for (int j = 0; j < field[i].length; j++) {
-					if (field[i][j] instanceof Collectable
-							&& ((Collectable) field[i][j]).getName().equals(
-									"scroll"))
-						return false;
-				}
-			}
-
-		default:
-			return true;
-		}
-	};
 
 	private void movePlayer(int xx, int yy) {
 		Player selected;

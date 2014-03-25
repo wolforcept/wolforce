@@ -25,8 +25,8 @@ public class SpellButton {
 		this.orderNr = orderNr;
 	}
 
-	public TargetingSpell getSpell() {
-		return new TargetingSpell(type);
+	public SpellType getSpellType() {
+		return type;
 	}
 
 	public boolean isPossible(HashMap<MagusMana, Integer> mana_avaliable) {

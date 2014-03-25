@@ -3,7 +3,6 @@ package code.general;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
@@ -14,6 +13,7 @@ import code.enums.ObjectiveType;
 import code.enums.SpellType;
 import code.general.Level.UnbuiltObject;
 import code.objects.Champion;
+import code.objects.Collectable;
 import code.objects.FieldObject;
 import code.objects.Magus;
 import code.objects.Player;
@@ -36,9 +36,11 @@ public class Ivory {
 
 	private Magus magus;
 	private Champion champion;
-	private LinkedList<Spell> spells;
-	private TargetingSpell u;
-	private String target;
+
+	private Spell spell;
+	private SpellType spelltype;
+
+	private Object target;
 	private ObjectiveType objective;
 
 	private HashMap<MagusMana, Integer> manapool;
@@ -79,7 +81,7 @@ public class Ivory {
 			spellButtons[i] = //
 			new SpellButton(vals[i], i, 230, 100, 40, 40, m);
 
-		spells = new LinkedList<Spell>();
+		spell = null;
 
 		// switches = new boolean[Ivory.NUMBER_OF_SWITCHES];
 
@@ -108,34 +110,6 @@ public class Ivory {
 						break;
 					}
 				}
-		}
-	}
-
-	public void updateSpells() {
-
-		for (Iterator<Spell> iterator = spells.iterator(); iterator.hasNext();) {
-			Spell spell = (Spell) iterator.next();
-
-			if (spell.getCurrentImage() == spell.getNumberOfImages()) {
-				Point[] area = spell.getArea();
-				// Array coordinates of the spell centre
-				int x = spell.getX(), y = spell.getY();
-				if (!spell.getType().isAnywhere()) {
-					Auxi.rotatePointMatrixWithDir(area, spell.getDirection());
-				}
-				for (int p = 0; p < area.length; p++) {
-					int px = x + area[p].x;
-					int py = y + area[p].y;
-					if (px >= 0 && py >= 0 && px < field.length
-							&& py < field[0].length)
-
-						if (spell.interact(field[px][py])) {
-							field[px][py] = null;
-						}
-				}
-				iterator.remove();
-			}
-			spell.incrementImage();
 		}
 	}
 
@@ -189,25 +163,27 @@ public class Ivory {
 		selected = selected ? false : true;
 	}
 
-	public void using(TargetingSpell u) {
-		this.u = u;
+	public void using(SpellType spellType) {
+		this.spelltype = spellType;
 	}
 
 	public boolean using() {
-		return u != null;
+		return spelltype != null;
 	}
 
-	public TargetingSpell getUsing() {
-		return u;
+	public SpellType getUsing() {
+		return spelltype;
 	}
 
-	public void use() {
+	public void startUse() {
 
-		if (mouse.x < m.fieldX || mouse.y < m.fieldY || mouse.x > m.fieldX2
-				|| mouse.y > m.fieldY2) {
-			u = null;
+		if (mouse.x < m.fieldX || mouse.y < m.fieldY || //
+				mouse.x > m.fieldX2 || mouse.y > m.fieldY2 || //
+				spelltype == null)
 			return;
-		}
+
+		System.out.println(spelltype + " STARTED");
+
 		// boolean spellPossible = true; HashMap<MagusMana, Integer> manalist =
 		// getMana(); MANA_TEST: for (MagusMana mana : MagusMana.values()) { int
 		// needs = u.getSpellType().getManacost(mana); int has =
@@ -215,17 +191,17 @@ public class Ivory {
 		// MANA_TEST;}} if (spellPossible) {}
 
 		for (MagusMana mana : MagusMana.values()) {
-			int cost = u.getSpellType().getManacost(mana);
+			int cost = spelltype.getManacost(mana);
 			if (cost > 0) {
 				System.out.println("reducing " + mana + " by " + cost);
 				reduceMana(mana, cost);
 			}
 		}
 
-		Point[] a = u.getSpellType().getArea();
+		Point[] a = spelltype.getArea();
 
 		int x = 0, y = 0;
-		if (u.getSpellType().isAnywhere()) {
+		if (spelltype.isAnywhere()) {
 			if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
 					&& mouse.y < CELL_SIZE * height) {
 				x = (int) ((mouse.x - m.fieldX) / CELL_SIZE);
@@ -236,14 +212,17 @@ public class Ivory {
 			x = p.getX();
 			y = p.getY();
 		}
+		System.out.println("Ivory.use()");
 		if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
 			double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
 					+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, mouse.x,
 					mouse.y));
-			spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
-					.getFacing((int) Math.toDegrees(dir))));
+			System.out.println("CREATED SPELL");
+			spell = new Spell(spelltype, x, y, a, Auxi.getFacing((int) Math
+					.toDegrees(dir)));
 		}
-		u = null;
+
+		spelltype = null;
 
 	}
 
@@ -252,12 +231,8 @@ public class Ivory {
 		manapool.put(m, newValue);
 	}
 
-	public TargetingSpell getTargetingSpell() {
-		return u;
-	}
-
-	public LinkedList<Spell> getSpellsClone() {
-		return new LinkedList<>(spells);
+	public Spell getSpell() {
+		return spell;
 	}
 
 	public FieldObject getObjectAt(int x, int y) {
@@ -308,11 +283,34 @@ public class Ivory {
 		double dir = Math.toDegrees(Auxi.point_direction(
 				realLocation(p.getX()), realLocation(p.getY()), mouse.x,
 				mouse.y));
-		System.out.println("DIR " + dir);
 		return Auxi.getFacing(dir);
 	}
 
 	private double realLocation(int l) {
 		return m.fieldX + m.cz * l + m.cz / 2;
 	}
+
+	public void finishSpell() {
+		spell = null;
+	}
+
+	public Object getTarget() {
+		return target;
+	}
+
+	public int getScrollNumber() {
+		int scrolls = 0;
+
+		LinkedList<Collectable> allCollectables = getMagus()
+				.getInventoryClone();
+		allCollectables.addAll(getChampion().getInventoryClone());
+
+		for (Collectable collectable : allCollectables) {
+			if (collectable.getType()
+					.equals(Collectable.CollectableType.SCROLL))
+				scrolls++;
+		}
+		return scrolls;
+	}
+
 }

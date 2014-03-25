@@ -17,6 +17,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 
 import code.general.Controller;
+import code.general.GameData;
 import code.general.Level;
 
 public class MainMenu {
@@ -48,14 +49,13 @@ public class MainMenu {
 	JFrame frame;
 	JList<LevelGroup> levelList;
 
-	public MainMenu() throws IOException {
+	public MainMenu() {
 
 		frame = new JFrame("Dyad");
 		// frame.setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JPanel content = new PanelWithBackground(ImageIO.read(getClass()
-				.getClassLoader().getResource("resources/title_image.png")));
+		JPanel content = new PanelWithBackground(GameData.title_image);
 		content.setLayout(new BorderLayout());
 		frame.add(content);
 
@@ -63,12 +63,10 @@ public class MainMenu {
 		buttons_main.setOpaque(false);
 		content.add(buttons_main, BorderLayout.SOUTH);
 
-		JButton button_start = new ImageButton(ImageIO.read(getClass()
-				.getClassLoader().getResource("resources/start_button.png")));
+		JButton button_start = new ImageButton(GameData.start_button);
 		buttons_main.add(button_start);
 
-		JButton button_exit = new ImageButton(ImageIO.read(getClass()
-				.getClassLoader().getResource("resources/exit_button.png")));
+		JButton button_exit = new ImageButton(GameData.exit_button);
 		buttons_main.add(button_exit);
 
 		button_start.addActionListener(new ActionListener() {
