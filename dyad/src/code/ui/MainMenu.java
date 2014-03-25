@@ -16,6 +16,8 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
+import levels.LevelLoader;
+
 import code.general.Controller;
 import code.general.GameData;
 import code.general.Level;
@@ -73,7 +75,7 @@ public class MainMenu {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					new Controller(new Level("/levels/level1.txt"));
+					new Controller(LevelLoader.levels[0]);
 					frame.setVisible(false);
 					frame.dispose();
 				} catch (IOException ex) {

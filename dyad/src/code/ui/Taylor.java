@@ -132,7 +132,7 @@ public class Taylor extends JPanel {
 
 			// DRAW SUBTITLE
 
-			String subtitle = "movement";
+			String subtitle = ivory.getTitle();
 			g.setFont(font.deriveFont(25f));
 			fm = g.getFontMetrics();
 

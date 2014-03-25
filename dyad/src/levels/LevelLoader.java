@@ -8,35 +8,50 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import code.enums.ObjectiveType;
+import code.general.Level;
+import code.general.UnbuiltObject;
 
 public class LevelLoader {
 
-	public static 
-	
-	public static void load() {
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				ClassLoader.getSystemClassLoader().getResourceAsStream("")));
+	public static Level[] levels = new Level[3];
 
-		try {
+	public static void load() throws IOException {
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(
+				ClassLoader.getSystemClassLoader().getResourceAsStream(
+						"levels/levels.txt")));
+
+		int i = 0;
+
+		do {
+			String nextLine = null;
+			do {
+				nextLine = br.readLine();
+				if (nextLine == null)
+					return;
+			} while (!nextLine.contains("{"));
+
 			/*
 			 * READ TITLE
 			 */
-			title = br.readLine();
-			System.out.println(title);
+
+			String title = nextLine.substring(0, nextLine.indexOf("{"));
+			System.out.println("------------- " + title + " --------------");
 
 			/*
 			 * READ GRID SIZE
 			 */
 			String[] gridSizeline = br.readLine().replaceAll("\\s", "")
 					.split(",");
-			gridSize = new Dimension(Integer.parseInt(gridSizeline[0]),
+			Dimension gridSize = new Dimension(
+					Integer.parseInt(gridSizeline[0]),
 					Integer.parseInt(gridSizeline[1]));
 			System.out.println(gridSize);
 
 			/*
 			 * READ MANA
 			 */
-			mana = new HashMap<>();
+			HashMap<String, Integer> mana = new HashMap<>();
 
 			String[] manaline = br.readLine().replaceAll("\\s", "").split(",");
 			for (String s : manaline) {
@@ -50,7 +65,9 @@ public class LevelLoader {
 			 */
 			String[] objectiveline = br.readLine().replaceAll("\\s", "")
 					.split(":");
-			objective = ObjectiveType.valueOf(objectiveline[0].toUpperCase());
+			ObjectiveType objective = //
+			ObjectiveType.valueOf(objectiveline[0].toUpperCase());
+			Object target = null;
 			switch (objective) {
 			case RETRIEVE_SCROLLS:
 				target = Integer.parseInt(objectiveline[1]);
@@ -60,34 +77,49 @@ public class LevelLoader {
 				break;
 			}
 
-		} catch (IOException e) {
+			LinkedList<UnbuiltObject> objectList = new LinkedList<>();
 
-		}
-		objectList = new LinkedList<UnbuiltObject>();
-		try {
 			/*
 			 * READ OBJECTS
 			 */
-			while (true) {
-				UnbuiltObject o = new UnbuiltObject();
 
-				String[] objLine = br.readLine().replaceAll("\\s", "")
-						.split("/");
-				String[] obj = objLine[0].split(":");
-				String[] point = obj[1].split(",");
+			boolean exit = false;
 
-				o.obj = obj[0];
-				o.x = Integer.parseInt(point[0]);
-				o.y = Integer.parseInt(point[1]);
+			while (!exit) {
 
-				if (objLine.length == 2) {
-					o.properties = objLine[1].split(";");
+				String line = br.readLine().replaceAll("\\s", "");
+
+				if (line.equals("}")) {
+
+					exit = true;
+
+				} else {
+
+					String[] objLine = line.split("/");
+					String[] obj = objLine[0].split(":");
+					String[] point = obj[1].split(",");
+
+					String objName = obj[0];
+					int x = Integer.parseInt(point[0]);
+					int y = Integer.parseInt(point[1]);
+
+					String[] properties = {};
+					if (objLine.length == 2) {
+						properties = objLine[1].split(";");
+					}
+
+					UnbuiltObject o = //
+					new UnbuiltObject(objName, x, y, properties);
+
+					System.out.println(o);
+					objectList.add(o);
+
 				}
-				System.out.println(o);
-				objectList.add(o);
 			}
-		} catch (Exception E) {
-			System.out.println("-----");
-		}
+
+			levels[i++] = new Level(title, gridSize, mana, objective, target,
+					objectList);
+
+		} while (true);
 	}
 }

@@ -11,7 +11,7 @@ import code.enums.Facing;
 import code.enums.MagusMana;
 import code.enums.ObjectiveType;
 import code.enums.SpellType;
-import code.general.Level.UnbuiltObject;
+import code.general.UnbuiltObject;
 import code.objects.Champion;
 import code.objects.Collectable;
 import code.objects.FieldObject;
@@ -50,9 +50,13 @@ public class Ivory {
 
 	private Measures m;
 
+	private String title;
+
 	// private boolean[] switches;
 
 	public Ivory(Level level) {
+
+		title = level.getTitle();
 
 		m = new Measures();
 
@@ -313,4 +317,7 @@ public class Ivory {
 		return scrolls;
 	}
 
+	public String getTitle() {
+		return title;
+	}
 }

@@ -42,18 +42,11 @@ public class Level {
 		return gridSize;
 	}
 
-	class UnbuiltObject {
-		String obj;
-		int x, y;
-		String[] properties;
-
-		@Override
-		public String toString() {
-			return obj + " (" + x + "," + y + ") " + (properties != null);
-		}
-	}
-
 	public Object getTarget() {
 		return target;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 }
