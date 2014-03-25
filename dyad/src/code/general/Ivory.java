@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import code.auxis.Auxi;
+import code.enums.Facing;
 import code.enums.MagusMana;
 import code.enums.ObjectiveType;
 import code.enums.SpellType;
@@ -201,6 +202,12 @@ public class Ivory {
 	}
 
 	public void use() {
+
+		if (mouse.x < m.fieldX || mouse.y < m.fieldY || mouse.x > m.fieldX2
+				|| mouse.y > m.fieldY2) {
+			u = null;
+			return;
+		}
 		// boolean spellPossible = true; HashMap<MagusMana, Integer> manalist =
 		// getMana(); MANA_TEST: for (MagusMana mana : MagusMana.values()) { int
 		// needs = u.getSpellType().getManacost(mana); int has =
@@ -294,5 +301,18 @@ public class Ivory {
 
 	public Measures getMeasures() {
 		return m;
+	}
+
+	public Facing getCurrentFacing() {
+		Player p = selected ? getMagus() : getChampion();
+		double dir = Math.toDegrees(Auxi.point_direction(
+				realLocation(p.getX()), realLocation(p.getY()), mouse.x,
+				mouse.y));
+		System.out.println("DIR " + dir);
+		return Auxi.getFacing(dir);
+	}
+
+	private double realLocation(int l) {
+		return m.fieldX + m.cz * l + m.cz / 2;
 	}
 }

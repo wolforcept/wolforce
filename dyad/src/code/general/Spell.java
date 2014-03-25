@@ -2,7 +2,6 @@ package code.general;
 
 import java.awt.Point;
 
-import code.auxis.Auxi;
 import code.enums.Facing;
 import code.enums.SpellType;
 import code.objects.FieldObject;

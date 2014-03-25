@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import code.auxis.Auxi;
 import code.enums.Facing;
 import code.enums.MagusMana;
+import code.enums.SpellType;
 import code.general.Ivory;
 import code.general.Spell;
 import code.general.SpellButton;
@@ -148,36 +149,44 @@ public class Taylor extends JPanel {
 	private void drawUsing(Graphics g) {
 		if (ivory.using()) {
 
-			Point[] a = ivory.getTargetingSpell().getSpellType().getArea();
-
-			if (ivory.getTargetingSpell().getSpellType().isAnywhere()) {
+			Point[] area = ivory.getTargetingSpell().getSpellType().getArea();
+			SpellType type = ivory.getTargetingSpell().getSpellType();
+			if (type.isAnywhere()) {
 
 				int mx = ivory.getMouse().x, my = ivory.getMouse().y;
 
-				for (int i = 0; i < a.length; i++) {
+				for (int i = 0; i < area.length; i++) {
 					int tarX = m.fieldX + m.cz
-							* (int) ((mx - m.fieldX + m.cz * a[i].x) / m.cz);
+							* (int) ((mx - m.fieldX + m.cz * area[i].x) / m.cz);
 					int tarY = m.fieldY + m.cz
-							* (int) ((my - m.fieldY + m.cz * a[i].y) / m.cz);
+							* (int) ((my - m.fieldY + m.cz * area[i].y) / m.cz);
 
-					if (mx + m.cz * a[i].x > m.fieldX && //
-							my + m.cz * a[i].y > m.fieldY && //
-							mx + m.cz * a[i].x < m.fieldX2 && //
-							my + m.cz * a[i].y < m.fieldY2) {
+					if (mx + m.cz * area[i].x > m.fieldX && //
+							my + m.cz * area[i].y > m.fieldY && //
+							mx + m.cz * area[i].x < m.fieldX2 && //
+							my + m.cz * area[i].y < m.fieldY2) {
 
 						drawTargetSquare(g, tarX, tarY);
 					}
 				}
 			} else {
-				for (int i = 0; i < a.length; i++) {
+				for (Point point : area) {
+					switch (ivory.getCurrentFacing()) {
+					case NORTH:
+						point.setLocation(point.y, point.x);
+					case WEST:
+						point.setLocation(-point.y, point.x);
+					case SOUTH:
+						point.setLocation(-point.y, point.x);
+					}
 					Player p = ivory.getSelected() ? ivory.getMagus() : ivory
 							.getChampion();
 
-					int xx = p.getX() + a[i].x;
-					int yy = p.getY() + a[i].y;
+					int xx = p.getX() + point.x;
+					int yy = p.getY() + point.y;
 					int sx = m.fieldX + xx * m.cz;
 					int sy = m.fieldY + yy * m.cz;
-					if (sx > m.fieldX && sy > m.fieldY && sx < m.fieldX2
+					if (sx >= m.fieldX && sy >= m.fieldY && sx < m.fieldX2
 							&& sy < m.fieldY2) {
 
 						drawTargetSquare(g, sx, sy);
@@ -430,7 +439,7 @@ public class Taylor extends JPanel {
 		Graphics2D gg = (Graphics2D) b.getGraphics();
 
 		int angle = Auxi.getAngleFromFacing(facing);
-		
+
 		gg.rotate(-Math.PI * angle / 2, w / 2, h / 2);
 		gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 				alpha));

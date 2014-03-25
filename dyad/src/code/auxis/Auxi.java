@@ -3,8 +3,6 @@ package code.auxis;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
-
 import code.enums.Facing;
 import code.general.SpellButton;
 
@@ -14,9 +12,10 @@ public class Auxi {
 	 * @param angle
 	 *            angle to calculate facing, in degrees
 	 */
-	public static Facing getFacing(int a) {
+	public static Facing getFacing(double a) {
 
-		double angle = a % 360;
+		double angle = a < 0 ? a + 360 : a;
+		angle %= 360;
 
 		if (angle < 45 || angle > 315)
 			return Facing.EAST;
