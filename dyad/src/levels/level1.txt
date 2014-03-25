@@ -1,7 +1,7 @@
 Movement
 10,10
 heat = 9, cold = 9, mind = 9, earth = 9
-retrieve:scroll
+retrieve_all_scrolls
 magus:        1,1
 champion:     1,5
 scroll:       4,1

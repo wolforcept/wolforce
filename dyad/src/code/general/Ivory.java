@@ -234,7 +234,7 @@ public class Ivory {
 					+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, mouse.x,
 					mouse.y));
 			spells.add(new Spell(u.getSpellType(), x, y, a, Auxi
-					.getDirFromAngle(dir)));
+					.getFacing((int) Math.toDegrees(dir))));
 		}
 		u = null;
 
@@ -250,7 +250,7 @@ public class Ivory {
 	}
 
 	public LinkedList<Spell> getSpellsClone() {
-		return new LinkedList<Spell>(spells);
+		return new LinkedList<>(spells);
 	}
 
 	public FieldObject getObjectAt(int x, int y) {
@@ -286,6 +286,10 @@ public class Ivory {
 			}
 		}
 		return null;
+	}
+
+	public ObjectiveType getObjective() {
+		return objective;
 	}
 
 	public Measures getMeasures() {

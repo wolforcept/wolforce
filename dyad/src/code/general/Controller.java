@@ -1,16 +1,16 @@
 package code.general;
 
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
 import javax.swing.JFrame;
 
 import code.auxis.Auxi;
 import code.objects.Collectable;
+import code.objects.FieldObject;
 import code.objects.Player;
 import code.objects.Touchable;
 import code.ui.Taylor;
@@ -33,16 +33,7 @@ public class Controller {
 
 		ivory = new Ivory(level);
 
-		frame.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-			}
-
+		frame.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 
@@ -78,8 +69,7 @@ public class Controller {
 
 		taylor = new Taylor(ivory);
 
-		taylor.addMouseMotionListener(new MouseMotionListener() {
-
+		taylor.addMouseMotionListener(new MouseAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
 				ivory.setMouse(e.getPoint());
@@ -90,10 +80,11 @@ public class Controller {
 				mouseMoved(e);
 			}
 		});
-		taylor.addMouseListener(new MouseListener() {
+
+		taylor.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
+			public void mouseReleased(MouseEvent arg0) {
 				if (ivory.using()) {
 					ivory.use();
 				}
@@ -109,21 +100,8 @@ public class Controller {
 								ivory.using(a[i].getSpell());
 							}
 						}
-
 					}
 				}
-			}
-
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
 			}
 		});
 
@@ -136,6 +114,7 @@ public class Controller {
 						setName("Updater");
 						ivory.updateSpells();
 						taylor.repaint();
+						checkFinish();
 						sleep(1000 / Ivory.REFRESH_FREQUENCY);
 					}
 				} catch (InterruptedException e) {
@@ -145,7 +124,8 @@ public class Controller {
 					System.gc();
 				}
 
-			};
+			}
+
 		}.start();
 		taylor.setPreferredSize(TaylorData.TAYLOR_SIZE);
 		frame.pack();
@@ -155,6 +135,25 @@ public class Controller {
 		frame.setVisible(true);
 
 	}
+
+	private boolean checkFinish() {
+		switch (ivory.getObjective()) {
+
+		case RETRIEVE_ALL_SCROLLS:
+			FieldObject[][] field = ivory.getField();
+			for (int i = 0; i < field.length; i++) {
+				for (int j = 0; j < field[i].length; j++) {
+					if (field[i][j] instanceof Collectable
+							&& ((Collectable) field[i][j]).getName().equals(
+									"scroll"))
+						return false;
+				}
+			}
+
+		default:
+			return true;
+		}
+	};
 
 	private void movePlayer(int xx, int yy) {
 		Player selected;

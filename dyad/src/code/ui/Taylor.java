@@ -16,6 +16,8 @@ import java.util.LinkedList;
 
 import javax.swing.JPanel;
 
+import code.auxis.Auxi;
+import code.enums.Facing;
 import code.enums.MagusMana;
 import code.general.Ivory;
 import code.general.Spell;
@@ -304,23 +306,23 @@ public class Taylor extends JPanel {
 								s.getCurrentImage() - 1), 1, 1,
 						s.getDirection(), 0, 0, 1f);
 				switch (s.getDirection()) {
-				case 0:
+				case EAST:
 					image_x -= s.getType().getImageCentre().x;
 					image_y -= s.getType().getImageCentre().y;
 					break;
-				case 1:
+				case NORTH:
 					image_x -= s.getType().getImageCentre().x;
 					image_y += s.getType().getImageCentre().y;
 					image_y -= imageAfterTransform.getHeight();
 					break;
-				case 2:
+				case WEST:
 					image_x += s.getType().getImageCentre().x;
 					image_y += s.getType().getImageCentre().y;
 					image_y -= imageAfterTransform.getHeight();
 					image_x -= imageAfterTransform.getWidth();
 					break;
 
-				case 3:
+				case SOUTH:
 					image_x += s.getType().getImageCentre().x;
 					image_y -= s.getType().getImageCentre().y;
 					image_x -= imageAfterTransform.getWidth();
@@ -391,7 +393,7 @@ public class Taylor extends JPanel {
 	private void drawButtons(Graphics g) {
 		{
 			SpellButton[] b = ivory.getSpellButtons();
-			int yy = 0;
+			// int yy = 0;
 			for (int i = 0; i < b.length; i++) {
 				// int x = m.centerX + 230;
 				// int y = 100 + Ivory.CELL_SIZE * yy++;
@@ -419,7 +421,7 @@ public class Taylor extends JPanel {
 	}
 
 	private BufferedImage transformImage(Image i, double scalex, double scaley,
-			int angle, int centerX, int centerY, float alpha) {
+			Facing facing, int centerX, int centerY, float alpha) {
 
 		int w = Math.max(i.getWidth(this), i.getHeight(this));
 		int h = w;
@@ -427,6 +429,8 @@ public class Taylor extends JPanel {
 		BufferedImage b = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D gg = (Graphics2D) b.getGraphics();
 
+		int angle = Auxi.getAngleFromFacing(facing);
+		
 		gg.rotate(-Math.PI * angle / 2, w / 2, h / 2);
 		gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
 				alpha));

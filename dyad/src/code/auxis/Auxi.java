@@ -3,6 +3,8 @@ package code.auxis;
 import java.awt.Point;
 import java.awt.Rectangle;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
+
 import code.enums.Facing;
 import code.general.SpellButton;
 
@@ -62,6 +64,19 @@ public class Auxi {
 				a[i].setLocation(-a[i].y, a[i].x);
 			}
 			break;
+		}
+	}
+
+	public static int getAngleFromFacing(Facing facing) {
+		switch (facing) {
+		case EAST:
+			return 0;
+		case NORTH:
+			return 90;
+		case SOUTH:
+			return 180;
+		default:
+			return 270;
 		}
 	}
 }

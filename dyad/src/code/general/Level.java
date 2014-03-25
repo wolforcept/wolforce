@@ -53,11 +53,16 @@ public class Level {
 			/*
 			 * READ OBJECTIVE
 			 */
-			String[] objectiveline = br.readLine().replaceAll("\\s", "")
-					.split(":");
-			objective = ObjectiveType.valueOf(objectiveline[0].toUpperCase());
-			target = objectiveline[1];
-
+			String objectiveline = br.readLine();
+			if (objectiveline.contains(":")) {
+				String[] objectiveAndTarget = objectiveline.replaceAll("\\s",
+						"").split(":");
+				objective = ObjectiveType.valueOf(objectiveAndTarget[0]
+						.toUpperCase());
+				target = objectiveAndTarget[1];
+			} else {
+				objective = ObjectiveType.valueOf(objectiveline.toUpperCase());
+			}
 			System.out.println(objective + ": " + target);
 
 		} catch (IOException e) {
