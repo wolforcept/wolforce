@@ -7,11 +7,11 @@ public enum SpellType {
 
 	METEOR(4, 1, 19, "heat=1:earth=1", new Point(40, 80)), //
 	SHATTER(8, 1, 170, "heat=1:mind=1", new Point(20, 20)), //
-	CHILLWIND(4, 0, 6, "cold=2", new Point(20, 20)), //
+	CHILLWIND(4, 0, 12, "cold=2", new Point(20, 20)), //
 	FORM(4, 1, 6, "heat=1:earth=1", new Point(20, 20)), //
 	CORRUPTION(4, 1, 6, "earth=1:cold=1:heat=1", new Point(20, 20)), //
 	DARKNESS(4, 2, 19, "mind=1:cold=1", new Point(40, 80));
-	
+
 	// COLUMN_OF_FIRE(4, 0, 6, "heat=2:mind=1", new Point(20, 20)), //
 	// WORLDS_END(4, 0, 6, "heat=2:earth=1", new Point(20, 20)), //
 	// FREEZE(4, 1, 170, "cold=1", new Point(20, 20)), //
@@ -27,8 +27,8 @@ public enum SpellType {
 
 	private SpellType(int strength, int where, int noi, String allcosts,
 			Point centre) {
-		this.anywhere = (where == 1) ? true : false;
-		this.everywhere = (where == 2) ? true : false;
+		this.anywhere = (where == 1);
+		this.everywhere = (where == 2);
 		this.noi = noi;
 		this.noib = 1;
 		this.strength = strength;

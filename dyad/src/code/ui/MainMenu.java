@@ -10,14 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
 
 import levels.LevelLoader;
-
 import code.general.Controller;
 import code.general.GameData;
 import code.general.Level;

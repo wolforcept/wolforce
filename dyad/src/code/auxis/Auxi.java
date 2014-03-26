@@ -72,7 +72,7 @@ public class Auxi {
 			return 0;
 		case NORTH:
 			return 90;
-		case SOUTH:
+		case WEST:
 			return 180;
 		default:
 			return 270;

@@ -79,10 +79,12 @@ public class Taylor extends JPanel {
 			m.centerX = getWidth() / 2;
 			m.centerY = getHeight() / 2;
 
-			Image background = data.getImage("back");
-			graphics.drawImage(background,
-					m.centerX - background.getWidth(this) / 2, m.centerY
-							- background.getHeight(this) / 2, this);
+			graphics.setColor(Color.darkGray);
+			graphics.fillRect(0, 0, getWidth(), getHeight());
+
+			BufferedImage background = data.getImage("back");
+			graphics.drawImage(background, m.centerX - background.getWidth()
+					/ 2, m.centerY - background.getHeight() / 2, this);
 
 			graphics.setColor(new Color(1, 1, 1, 0.03f));
 			graphics.fillRect(m.fieldX, m.fieldY, m.fieldWidth * m.cz,
@@ -222,17 +224,17 @@ public class Taylor extends JPanel {
 	}
 
 	private void drawManaIcon(Graphics g, int ix, int iy, Integer ammount,
-			Image image) {
+			BufferedImage image) {
 
-		int x = m.centerX + ix - image.getHeight(this) / 2;
-		int y = m.centerY + iy - image.getWidth(this) / 2;
+		int x = m.centerX + ix - image.getHeight() / 2;
+		int y = m.centerY + iy - image.getWidth() / 2;
 
 		g.drawImage(image, x, y, this);
 
-		Image nrimg = data.getImage("number_" + ammount);
+		BufferedImage nrimg = data.getImage("number_" + ammount);
 		g.drawImage(nrimg,//
-				x + image.getWidth(this) - nrimg.getWidth(this), //
-				y + image.getHeight(this) - nrimg.getHeight(this), this);
+				x + image.getWidth() - nrimg.getWidth(), //
+				y + image.getHeight() - nrimg.getHeight(), this);
 
 		// char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
 		//
@@ -288,14 +290,13 @@ public class Taylor extends JPanel {
 		g.setColor(Color.WHITE);
 		g.drawRect(invX, invY, invWidth, m.cz);
 
-		Image selectedImage = ivory.getSelected() ? data.getImage("magus")
-				: data.getImage("champion");
+		BufferedImage selectedImage = ivory.getSelected() ? data
+				.getImage("magus") : data.getImage("champion");
 		LinkedList<Collectable> inventory = ivory.getSelected() ? ivory
 				.getMagus().getInventoryClone() : ivory.getChampion()
 				.getInventoryClone();
-		g.drawImage(selectedImage,
-				m.centerX - selectedImage.getWidth(this) / 2, m.centerY + 200,
-				this);
+		g.drawImage(selectedImage, m.centerX - selectedImage.getWidth() / 2,
+				m.centerY + 200, this);
 
 		int i = 0;
 		if (inventory != null)
@@ -308,70 +309,127 @@ public class Taylor extends JPanel {
 
 	private void drawSpell(Graphics g) {
 
-		Spell s = ivory.getSpell();
-		if (s == null)
+		Spell spell = ivory.getSpell();
+		if (spell == null)
 			return;
 
-		int image_x = m.fieldX;
-		int image_y = m.fieldY;
+		SpellType spelltype = spell.getType();
+
+		Player player = ivory.getSelected() ? ivory.getMagus() : ivory
+				.getChampion();
+
+		int playerx = m.fieldX + player.getX() * m.cz;
+		int playery = m.fieldY + player.getY() * m.cz;
+
+		BufferedImage img = data.getImages(spell.getName()).getImage(
+				spell.getCurrentImage() - 1);
+
+		if (spelltype.isAnywhere()) {
+
+			int spellx = m.fieldX + spell.getX() * m.cz //
+					+ m.cz / 2 - spelltype.getImageCentre().x;
+			int spelly = m.fieldY + spell.getY() * m.cz //
+					+ m.cz / 2 - spelltype.getImageCentre().y;
+
+			g.drawImage(img, spellx, spelly, this);
+
+		} else if (spelltype.isEverywhere()) {
+
+			float darkness = (float) spell.getCurrentImage()
+					/ (float) spelltype.getNOI();
+			g.setColor(new Color(0, 0, 0, darkness));
+			g.fillRect(0, 0, getWidth(), getHeight());
+
+			g.drawImage(img, //
+					getWidth() / 2 - spelltype.getImageCentre().x, //
+					getHeight() / 2 - spelltype.getImageCentre().y, //
+					this);
+
+		} else {
+			Facing facing = spell.getFacing();
+			BufferedImage imageAfterTransform = transformImage(img, 1, 1,
+					facing, 0, 0, 1f);
+
+			switch (facing) {
+			case SOUTH:
+			case EAST:
+				g.drawImage(imageAfterTransform, playerx, playery, this);
+				break;
+
+			case NORTH:
+				g.drawImage(imageAfterTransform, playerx, playery + m.cz
+						- imageAfterTransform.getHeight(), this);
+				break;
+
+			case WEST:
+				g.drawImage(imageAfterTransform, playerx + m.cz
+						- imageAfterTransform.getWidth(), playery, this);
+				break;
+
+			}
+
+		}
 
 		// TODO REWRITE ALL THIS CODE
 
-		image_x += s.getX() * m.cz + m.cz / 2;
-		image_y += s.getY() * m.cz + m.cz / 2;
-		if (s.getType().isAnywhere()) {
-			image_x -= s.getType().getImageCentre().x;
-			image_y -= s.getType().getImageCentre().y;
-			g.drawImage(
-					data.getImages(s.getName()).getImage(
-							s.getCurrentImage() - 1), image_x, image_y, this);
-
-		} else if (s.getType().isEverywhere()) {
-
-			Player p = ivory.getSelected() ? ivory.getMagus() : ivory
-					.getChampion();
-			image_x += p.getX() * m.cz + m.cz / 2
-					- s.getType().getImageCentre().x;
-			image_y += p.getY() * m.cz + m.cz / 2
-					- s.getType().getImageCentre().y;
-			g.drawImage(
-					data.getImages(s.getName()).getImage(
-							s.getCurrentImage() - 1), image_x, image_y, this);
-
-		} else {
-			BufferedImage imageAfterTransform = transformImage(
-					data.getImages(s.getName()).getImage(
-							s.getCurrentImage() - 1), 1, 1, s.getDirection(),
-					0, 0, 1f);
-			switch (s.getDirection()) {
-			case EAST:
-				image_x -= s.getType().getImageCentre().x;
-				image_y -= s.getType().getImageCentre().y;
-				break;
-			case NORTH:
-				image_x -= s.getType().getImageCentre().x;
-				image_y += s.getType().getImageCentre().y;
-				image_y -= imageAfterTransform.getHeight();
-				break;
-			case WEST:
-				image_x += s.getType().getImageCentre().x;
-				image_y += s.getType().getImageCentre().y;
-				image_y -= imageAfterTransform.getHeight();
-				image_x -= imageAfterTransform.getWidth();
-				break;
-
-			case SOUTH:
-				image_x += s.getType().getImageCentre().x;
-				image_y -= s.getType().getImageCentre().y;
-				image_x -= imageAfterTransform.getWidth();
-				break;
-
-			default:
-				break;
-			}
-
-			g.drawImage(imageAfterTransform, image_x, image_y, this);
-		}
+		// int image_x = m.fieldX;
+		// int image_y = m.fieldY;
+		//
+		// image_x += s.getX() * m.cz + m.cz / 2;
+		// image_y += s.getY() * m.cz + m.cz / 2;
+		// if (s.getType().isAnywhere()) {
+		// image_x -= s.getType().getImageCentre().x;
+		// image_y -= s.getType().getImageCentre().y;
+		// g.drawImage(
+		// data.getImages(s.getName()).getImage(
+		// s.getCurrentImage() - 1), image_x, image_y, this);
+		//
+		// } else if (s.getType().isEverywhere()) {
+		//
+		// Player p = ivory.getSelected() ? ivory.getMagus() : ivory
+		// .getChampion();
+		// image_x += p.getX() * m.cz + m.cz / 2
+		// - s.getType().getImageCentre().x;
+		// image_y += p.getY() * m.cz + m.cz / 2
+		// - s.getType().getImageCentre().y;
+		// g.drawImage(
+		// data.getImages(s.getName()).getImage(
+		// s.getCurrentImage() - 1), image_x, image_y, this);
+		//
+		// } else {
+		// BufferedImage imageAfterTransform = transformImage(
+		// data.getImages(s.getName()).getImage(
+		// s.getCurrentImage() - 1), 1, 1, s.getDirection(),
+		// 0, 0, 1f);
+		// switch (s.getDirection()) {
+		// case EAST:
+		// image_x -= s.getType().getImageCentre().x;
+		// image_y -= s.getType().getImageCentre().y;
+		// break;
+		// case NORTH:
+		// image_x -= s.getType().getImageCentre().x;
+		// image_y += s.getType().getImageCentre().y;
+		// image_y -= imageAfterTransform.getHeight();
+		// break;
+		// case WEST:
+		// image_x += s.getType().getImageCentre().x;
+		// image_y += s.getType().getImageCentre().y;
+		// image_y -= imageAfterTransform.getHeight();
+		// image_x -= imageAfterTransform.getWidth();
+		// break;
+		//
+		// case SOUTH:
+		// image_x += s.getType().getImageCentre().x;
+		// image_y -= s.getType().getImageCentre().y;
+		// image_x -= imageAfterTransform.getWidth();
+		// break;
+		//
+		// default:
+		// break;
+		// }
+		//
+		// g.drawImage(imageAfterTransform, image_x, image_y, this);
+		// }
 	}
 
 	private void drawField(Graphics graphics) {
@@ -457,21 +515,51 @@ public class Taylor extends JPanel {
 
 	}
 
-	private BufferedImage transformImage(Image i, double scalex, double scaley,
-			Facing facing, int centerX, int centerY, float alpha) {
+	private BufferedImage transformImage(BufferedImage i, double scalex,
+			double scaley, Facing facing, int centerX, int centerY, float alpha) {
 
-		int w = Math.max(i.getWidth(this), i.getHeight(this));
-		int h = w;
+		int w = i.getWidth();
+		int h = i.getHeight();
+
+		if (facing == Facing.NORTH || facing == Facing.SOUTH) {
+			w = i.getHeight();
+			h = i.getWidth();
+		}
 
 		BufferedImage b = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D gg = (Graphics2D) b.getGraphics();
+		Graphics2D g2d = (Graphics2D) b.getGraphics();
 
-		int angle = Auxi.getAngleFromFacing(facing);
+		switch (facing) {
+		case NORTH:
 
-		gg.rotate(-Math.PI * angle / 2, w / 2, h / 2);
-		gg.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-				alpha));
-		gg.drawImage(i, 0, 0, this);
+			g2d.rotate(-Math.toRadians(90), m.cz / 2, m.cz / 2);
+			g2d.drawImage(i, -i.getWidth(), 0, this);
+
+			break;
+
+		case EAST:
+			return i;
+
+		case SOUTH:
+			g2d.rotate(Math.toRadians(90), m.cz / 2, m.cz / 2);
+			g2d.drawImage(i, 0, 0, this);
+			break;
+		case WEST:
+			g2d.rotate(Math.toRadians(180), m.cz / 2, m.cz / 2);
+			g2d.drawImage(i, -i.getWidth(), 0, this);
+			break;
+		}
+		//
+		// g2d.setColor(new Color(1, 1, 1, 0.3f));
+		// g2d.fillRect(0, 0, b.getWidth(), b.getHeight());
+		//
+		// int angle = Auxi.getAngleFromFacing(facing);
+		//
+		// g2d.rotate(-Math.toRadians(angle), m.cz / 2, b.getHeight() - m.cz /
+		// 2);
+		//
+		// g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+		// alpha));
 
 		return b;
 	}

@@ -75,7 +75,7 @@ public class ControllerThread extends Thread {
 			// Array coordinates of the spell centre
 			int x = spell.getX(), y = spell.getY();
 			if (!spell.getType().isAnywhere()) {
-				Auxi.rotatePointMatrixWithDir(area, spell.getDirection());
+				Auxi.rotatePointMatrixWithDir(area, spell.getFacing());
 			}
 			for (int p = 0; p < area.length; p++) {
 				int px = x + area[p].x;

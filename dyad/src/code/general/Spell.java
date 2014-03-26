@@ -48,7 +48,7 @@ public class Spell {
 		return area;
 	}
 
-	public Facing getDirection() {
+	public Facing getFacing() {
 		return facing;
 	}
 

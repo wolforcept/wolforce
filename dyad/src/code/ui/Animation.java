@@ -1,21 +1,20 @@
 package code.ui;
 
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 
 public class Animation {
 
-	private Image[] array;
+	private BufferedImage[] array;
 	private int width, height;
 	private int length;
 	private double speed;
 
-	public Animation(Image image, double speed, int aLength) {
+	public Animation(BufferedImage image, double speed, int aLength) {
 		length = aLength;
 		if (length == 1) {
 			speed = 0;
-			Image images[] = { image };
+			BufferedImage images[] = { image };
 			array = images;
 			width = image.getWidth(null);
 			height = image.getHeight(null);
@@ -34,12 +33,11 @@ public class Animation {
 				Graphics g = array[i].getGraphics();
 				g.drawImage(image, 0, 0, width, height, width * i, 0, width
 						* (i + 1), height, null);
-
 			}
 		}
 	}
 
-	public Image getImage(int i) {
+	public BufferedImage getImage(int i) {
 		if (i >= array.length) {
 			return array[array.length - 1];
 		}

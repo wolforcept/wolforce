@@ -188,42 +188,37 @@ public class Ivory {
 
 		System.out.println(spelltype + " STARTED");
 
-		// boolean spellPossible = true; HashMap<MagusMana, Integer> manalist =
-		// getMana(); MANA_TEST: for (MagusMana mana : MagusMana.values()) { int
-		// needs = u.getSpellType().getManacost(mana); int has =
-		// manalist.get(mana);if (needs > has) { spellPossible = false;break
-		// MANA_TEST;}} if (spellPossible) {}
-
-		for (MagusMana mana : MagusMana.values()) {
-			int cost = spelltype.getManacost(mana);
-			if (cost > 0) {
-				System.out.println("reducing " + mana + " by " + cost);
-				reduceMana(mana, cost);
-			}
-		}
-
 		Point[] a = spelltype.getArea();
+		Player p = selected ? getMagus() : getChampion();
 
 		int x = 0, y = 0;
+
 		if (spelltype.isAnywhere()) {
-			if (mouse.x > 0 && mouse.y > 0 && mouse.x < CELL_SIZE * width
-					&& mouse.y < CELL_SIZE * height) {
+			if (mouse.x > m.fieldX && mouse.y > m.fieldY && mouse.x < m.fieldX2
+					&& mouse.y < m.fieldY2) {
 				x = (int) ((mouse.x - m.fieldX) / CELL_SIZE);
 				y = (int) ((mouse.y - m.fieldY) / CELL_SIZE);
+
 			}
 		} else {
-			Player p = selected ? getMagus() : getChampion();
 			x = p.getX();
 			y = p.getY();
 		}
-		System.out.println("Ivory.use()");
-		if (x < field.length && x >= 0 && y < field[0].length && y >= 0) {
-			double dir = Math.toDegrees(Auxi.point_direction(x * CELL_SIZE
-					+ CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, mouse.x,
-					mouse.y));
-			System.out.println("CREATED SPELL");
-			spell = new Spell(spelltype, x, y, a, Auxi.getFacing((int) Math
-					.toDegrees(dir)));
+
+		if (x < m.fieldWidth && x >= 0 && y < m.fieldHeight && y >= 0) {
+
+			System.out.println("from " + p.getX() + "," + p.getY()
+					+ " CREATED SPELL at " + x + "," + y + " dir = " + getCurrentFacing());
+
+			spell = new Spell(spelltype, x, y, a, getCurrentFacing());
+
+			for (MagusMana mana : MagusMana.values()) {
+				int cost = spelltype.getManacost(mana);
+				if (cost > 0) {
+					System.out.println("reducing " + mana + " by " + cost);
+					reduceMana(mana, cost);
+				}
+			}
 		}
 
 		spelltype = null;

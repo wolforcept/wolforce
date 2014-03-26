@@ -1,8 +1,8 @@
 package code.ui;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -77,8 +77,8 @@ public class TaylorData {
 			throws IOException {
 		String path = "resources/" + location + ".png";
 		System.out.println("created image <" + name + "> from <" + path + ">");
-		Image img = ImageIO.read(new TaylorData().getClass().getClassLoader()
-				.getResource(path));
+		BufferedImage img = ImageIO.read(new TaylorData().getClass()
+				.getClassLoader().getResource(path));
 		Animation anim = new Animation(img, 1, noi);
 		images.put(name, anim);
 
@@ -119,7 +119,7 @@ public class TaylorData {
 		}
 	}
 
-	public Image getImage(String name) {
+	public BufferedImage getImage(String name) {
 		try {
 			if (images.containsKey(name)) {
 				return images.get(name).getImage(0);
