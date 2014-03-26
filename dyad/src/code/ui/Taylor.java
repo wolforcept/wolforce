@@ -7,8 +7,8 @@ import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,7 +32,14 @@ import code.objects.Player;
 
 public class Taylor extends JPanel {
 
+	private static final Color COLOR_SPELLBOX = new Color(1, 1, 1, 0.6f);
+
 	private static final long serialVersionUID = 1L;
+	// private static final int sbpw = 150, sbph = 150, sbpwr = 20, sbphr = 20,
+	// spellBoxPolygonN = 5;
+	// private static final int[] //
+	// spellBoxPolygonXs = { 0, -sbpw, -sbpw, -sbpwr, -sbpwr }, //
+	// spellBoxPolygonYs = { 0, 0, sbph, sbph, sbphr };
 
 	private Ivory ivory;
 	private TaylorData data;
@@ -66,6 +73,15 @@ public class Taylor extends JPanel {
 	@Override
 	public void update(Graphics graphics) {
 
+		RenderingHints renderingHints = new RenderingHints(
+				RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON);
+		renderingHints.put(RenderingHints.KEY_RENDERING,
+				RenderingHints.VALUE_RENDER_QUALITY);
+		renderingHints.put(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		((Graphics2D) graphics).setRenderingHints(renderingHints);
+
 		try {
 
 			m.cz = Ivory.CELL_SIZE;
@@ -91,11 +107,13 @@ public class Taylor extends JPanel {
 					m.fieldHeight * m.cz);
 
 			if (showFinish) {
-				drawFinish(graphics);
+				drawFinish((Graphics2D) graphics);
 				return;
 			}
 
-			drawButtons(graphics);
+			int hovered = drawSpellBoxes(graphics);
+
+			drawButtons(graphics, hovered);
 
 			drawField(graphics);
 
@@ -109,7 +127,6 @@ public class Taylor extends JPanel {
 
 			Graphics g = graphics;
 
-			//
 			g.setFont(font.deriveFont(40f));
 			FontMetrics fm = g.getFontMetrics();
 
@@ -155,7 +172,19 @@ public class Taylor extends JPanel {
 		}
 	}
 
-	private void drawFinish(Graphics g) {
+	private int drawSpellBoxes(Graphics g) {
+		SpellButton[] bs = ivory.getSpellButtons();
+		for (int i = 0; i < bs.length; i++) {
+			if (Auxi.collides(ivory.getMouse(), bs[i])) {
+				drawSpellBox(bs[i].getSpellType(), (Graphics2D) g);
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private void drawFinish(Graphics2D g) {
+
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -236,16 +265,6 @@ public class Taylor extends JPanel {
 				x + image.getWidth() - nrimg.getWidth(), //
 				y + image.getHeight() - nrimg.getHeight(), this);
 
-		// char[] ammountNumbers = ((String) (ammount + "")).toCharArray();
-		//
-		// for (int i = 0; i < ammountNumbers.length; i++) {
-		// g.drawImage(
-		// data.getImages(
-		// "number_"
-		// + ammountNumbers[ammountNumbers.length - 1
-		// - i]).getImage(0), x - i
-		// * Ivory.NUMBER_DIMENIONS.width, y, this);
-		// }
 	}
 
 	private void drawManaPool(Graphics g) {
@@ -485,22 +504,51 @@ public class Taylor extends JPanel {
 		}
 	}
 
-	private void drawButtons(Graphics g) {
-		{
-			SpellButton[] b = ivory.getSpellButtons();
-			// int yy = 0;
-			for (int i = 0; i < b.length; i++) {
-				// int x = m.centerX + 230;
-				// int y = 100 + Ivory.CELL_SIZE * yy++;
-				int x = b[i].getX();
-				int y = b[i].getY();
-				g.drawImage(b[i].getImage(data), x, y, this);
-				if (!b[i].isPossible(ivory.getMana())) {
-					g.drawImage(data.getImage("spell_not_available"), x, y,
-							this);
-				}
+	private void drawButtons(Graphics g, int hovered) {
+		SpellButton[] b = ivory.getSpellButtons();
+		// int yy = 0;
+		for (int i = 0; i < b.length; i++) {
+			// int x = m.centerX + 230;
+			// int y = 100 + Ivory.CELL_SIZE * yy++;
+			int x = b[i].getX();
+			int y = b[i].getY();
+
+			AlphaComposite ac = AlphaComposite.getInstance(
+					AlphaComposite.SRC_OVER, hovered == i || hovered == -1 ? 1
+							: 0.2f);
+			((Graphics2D) g).setComposite(ac);
+
+			g.drawImage(b[i].getImage(data), x, y, this);
+			if (!b[i].isPossible(ivory.getMana())) {
+
+				g.drawImage(data.getImage("spell_not_available"), x, y, this);
 			}
 		}
+		AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				1);
+		((Graphics2D) g).setComposite(ac);
+	}
+
+	private void drawSpellBox(SpellType s, Graphics2D g) {
+		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+		// Polygon p = new Polygon(spellBoxPolygonXs, spellBoxPolygonYs,
+		// spellBoxPolygonN);
+		// p.translate(x, y);
+		// g.fillPolygon(p);
+
+		// int x = ivory.getSelected() ? MAGUS_SPELL_BOX_X :
+		// CHAMPION_SPELL_BOX_X;
+		// int y = ivory.getSelected() ? MAGUS_SPELL_BOX_Y :
+		// CHAMPION_SPELL_BOX_Y;
+
+		int w = 148, h = 100, border = 20, corner = 20;
+
+		g.setColor(COLOR_SPELLBOX);
+		g.fillRoundRect(getWidth() - w - border, getHeight() - h - border, w,
+				h, corner, corner);
+
 	}
 
 	private void drawTargetSquare(Graphics g, int x, int y) {
