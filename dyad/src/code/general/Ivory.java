@@ -26,6 +26,7 @@ public class Ivory {
 	public static final int REFRESH_FREQUENCY = 60;
 	public static final Dimension NUMBER_DIMENIONS = new Dimension(12, 12);
 	// private static final int NUMBER_OF_SWITCHES = 2;
+	private static final int BUTTON_SIZE = 60;
 	public static int CELL_SIZE = 40;
 
 	private Point mouse;
@@ -80,10 +81,11 @@ public class Ivory {
 		mouse = new Point(0, 0);
 
 		SpellType[] vals = SpellType.values();
+		SpellButton.setPlaceInWindow(220, 100, BUTTON_SIZE, BUTTON_SIZE);
 		spellButtons = new SpellButton[vals.length];
 		for (int i = 0; i < vals.length; i++)
 			spellButtons[i] = //
-			new SpellButton(vals[i], i, 230, 100, 40, 40, m);
+			new SpellButton(vals[i], i, m);
 
 		spell = null;
 
@@ -208,7 +210,8 @@ public class Ivory {
 		if (x < m.fieldWidth && x >= 0 && y < m.fieldHeight && y >= 0) {
 
 			System.out.println("from " + p.getX() + "," + p.getY()
-					+ " CREATED SPELL at " + x + "," + y + " dir = " + getCurrentFacing());
+					+ " CREATED SPELL at " + x + "," + y + " dir = "
+					+ getCurrentFacing());
 
 			spell = new Spell(spelltype, x, y, a, getCurrentFacing());
 

@@ -2,7 +2,7 @@ This text file can be changed at will.
 However, wrong text will throw deadly exceptions.
 
 Movement {
-   6,6
+   6,7
    heat = 9, cold = 9, mind = 9, earth = 9
    retrieve_scrolls:2
    magus:        1,1

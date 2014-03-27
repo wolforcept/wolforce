@@ -32,7 +32,10 @@ import code.objects.Player;
 
 public class Taylor extends JPanel {
 
-	private static final Color COLOR_SPELLBOX = new Color(1, 1, 1, 0.6f);
+	private static final Color //
+			COLOR_SPELLBOX = new Color(1, 1, 1, 0.6f), //
+			COLOR_SPELLBOX_TEXT = new Color(0, 0, 0, 0.6f), //
+			COLOR_ = new Color(1, 1, 1, 0.6f);
 
 	private static final long serialVersionUID = 1L;
 	// private static final int sbpw = 150, sbph = 150, sbpwr = 20, sbphr = 20,
@@ -95,6 +98,11 @@ public class Taylor extends JPanel {
 			m.centerX = getWidth() / 2;
 			m.centerY = getHeight() / 2;
 
+			if (showFinish) {
+				drawFinish((Graphics2D) graphics);
+				return;
+			}
+
 			graphics.setColor(Color.darkGray);
 			graphics.fillRect(0, 0, getWidth(), getHeight());
 
@@ -105,11 +113,6 @@ public class Taylor extends JPanel {
 			graphics.setColor(new Color(1, 1, 1, 0.03f));
 			graphics.fillRect(m.fieldX, m.fieldY, m.fieldWidth * m.cz,
 					m.fieldHeight * m.cz);
-
-			if (showFinish) {
-				drawFinish((Graphics2D) graphics);
-				return;
-			}
 
 			int hovered = drawSpellBoxes(graphics);
 
@@ -195,10 +198,10 @@ public class Taylor extends JPanel {
 
 		g.setColor(new Color(1f, 1f, 1f, 0.3f));
 
-		int endingPhraseX = getWidth() / 2 - fm.stringWidth(endingPhrase) / 2
-				- 1;
+		int endingPhraseX = getWidth() / 2 - fm.stringWidth(endingPhrase) / 2;
+		int endingPhraseY = getHeight() / 2 + fm.getDescent() / 2;
 
-		g.drawString(endingPhrase, endingPhraseX, m.centerY - 216);
+		g.drawString(endingPhrase, endingPhraseX, endingPhraseY);
 	}
 
 	private void drawUsing(Graphics g) {
@@ -515,7 +518,7 @@ public class Taylor extends JPanel {
 
 			AlphaComposite ac = AlphaComposite.getInstance(
 					AlphaComposite.SRC_OVER, hovered == i || hovered == -1 ? 1
-							: 0.2f);
+							: 0.4f);
 			((Graphics2D) g).setComposite(ac);
 
 			g.drawImage(b[i].getImage(data), x, y, this);
@@ -543,11 +546,21 @@ public class Taylor extends JPanel {
 		// int y = ivory.getSelected() ? MAGUS_SPELL_BOX_Y :
 		// CHAMPION_SPELL_BOX_Y;
 
-		int w = 148, h = 100, border = 20, corner = 20;
+		int w = 148, h = 100, outterBorder = 20, corner = 20, innerBorder = 8;
 
 		g.setColor(COLOR_SPELLBOX);
-		g.fillRoundRect(getWidth() - w - border, getHeight() - h - border, w,
-				h, corner, corner);
+		int sbx = getWidth() - w - outterBorder;
+		int sby = getHeight() - h - outterBorder;
+		g.fillRoundRect(sbx, sby, w, h, corner, corner);
+
+		String name = s.name().substring(0, 1)
+				+ s.name().toLowerCase().substring(1, s.name().length());
+
+		g.setColor(COLOR_SPELLBOX_TEXT);
+		g.setFont(font.deriveFont(20f));
+		FontMetrics fm = getFontMetrics(getFont());
+		int fontHeight = fm.getHeight();
+		g.drawString(name, sbx + innerBorder, sby + innerBorder + fontHeight);
 
 	}
 

@@ -10,19 +10,23 @@ import code.ui.TaylorData;
 
 public class SpellButton {
 
+	private static int X, Y, W, H;
+
+	public static void setPlaceInWindow(int x, int y, int w, int h) {
+		X = x;
+		Y = y;
+		W = w;
+		H = h;
+	}
+
 	private SpellType type;
-	private int x, y, w, h, orderNr;
+	private int orderNr;
 	private Measures m;
 
-	public SpellButton(SpellType type, int orderNr, int x, int y, int w, int h,
-			Measures m) {
+	public SpellButton(SpellType type, int orderNr, Measures m) {
 		this.type = type;
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
-		this.m = m;
 		this.orderNr = orderNr;
+		this.m = m;
 	}
 
 	public SpellType getSpellType() {
@@ -55,19 +59,19 @@ public class SpellButton {
 	}
 
 	public int getX() {
-		return m.centerX + x;
+		return m.centerX + X;
 	}
 
 	public int getY() {
-		return y + m.cz * orderNr;
+		return Y + H * orderNr;
 	}
 
 	public int getW() {
-		return w;
+		return W;
 	}
 
 	public int getH() {
-		return h;
+		return H;
 	}
 
 }

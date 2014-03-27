@@ -30,7 +30,7 @@ public class ControllerThread extends Thread {
 				if (checkFinish()) {
 					taylor.showFinish(true);
 					taylor.repaint();
-					sleep(2000);
+					sleep(1000);
 					frame.dispose();
 					new MainMenu();
 					return;

@@ -26,8 +26,6 @@ public class Controller {
 		if (level == null)
 			throw new IllegalArgumentException("NULL LEVEL");
 
-		TaylorData.init();
-
 		frame = new JFrame("Dyad");
 
 		ivory = new Ivory(level);

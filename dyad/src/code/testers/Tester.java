@@ -5,6 +5,7 @@ import java.io.IOException;
 import levels.LevelLoader;
 import code.general.GameData;
 import code.ui.MainMenu;
+import code.ui.TaylorData;
 
 public class Tester {
 
@@ -16,7 +17,11 @@ public class Tester {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		try {
+			TaylorData.init();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		new MainMenu();
 	}
 }
