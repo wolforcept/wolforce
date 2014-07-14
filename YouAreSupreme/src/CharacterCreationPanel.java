@@ -12,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -20,6 +19,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 
 public class CharacterCreationPanel extends JPanel {
+
+	private static final long serialVersionUID = 1L;
 
 	enum Birthplace {
 		Heart_Caravan, Rainguard, The_Tribes, Royal_Estate, Convent_of_War;
@@ -82,9 +83,10 @@ public class CharacterCreationPanel extends JPanel {
 
 		JPanel birthplacePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		{
-			JList birthplaceList = new JList(
+			JList<Birthplace> birthplaceList = new JList<Birthplace>(
 					Birthplace.getUnlockedBirthplaces(ivory
 							.getUnlockedBirthplaces()));
+
 			DefaultListCellRenderer renderer = (DefaultListCellRenderer) birthplaceList
 					.getCellRenderer();
 			renderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -118,6 +120,9 @@ public class CharacterCreationPanel extends JPanel {
 		characteristics.add(new AttributePanel("Careful", "Debonair",
 				careful_debonair));
 
+		characteristics.add(new AttributePanel("Casual", "Ambitious",
+				new AttributeSelector(ivory.getCasual_ambitious())));
+
 		updtAll();
 	}
 
@@ -127,6 +132,8 @@ public class CharacterCreationPanel extends JPanel {
 	}
 
 	private class AttributePanel extends JPanel {
+		private static final long serialVersionUID = 1L;
+
 		public AttributePanel(String left, String right,
 				AttributeSelector selector) {
 			setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -141,6 +148,8 @@ public class CharacterCreationPanel extends JPanel {
 	}
 
 	private class AttributeSelector extends JPanel {
+
+		private static final long serialVersionUID = 1L;
 
 		final int w = 100, h = 20, maxVal = 10, cellWidth = w / maxVal;
 		final Color backColor = new Color(220, 230, 255),
